@@ -10,6 +10,7 @@ x_max = L/2;
 % T = 100000;
 t_step = 1e-2;   % L^2 / D_max / 100 = 10 / 1 / 100 = 0.1
 N = 1e5;        % Times the system was explored: (N*t_step) / (L^2 / D_max) = N*t_step*D_max/L^2 = 1e4*0.1*1/100 = 10   OK
+min_points_in_bin = 500;
 T = t_step * N;
 internal_steps_number = 100;    % Integer. How many intermediate smaller steps are made before the next point is saved
 update_progress_every = 100;
@@ -22,7 +23,6 @@ REL_TOLERANCE = 1e-7;
 % selected_x_over_L_coordinates = [-0.25, 0, 0.25];
 selected_x_over_L = 0.4;    % 0.4
 fD_marginalized_steps = 1 + 2^5;    % 1 + 2^5
-min_points_in_bin = 1e3;
 SIMULATION_TRIES_PER_CASE = 30;
 bl_use_adaptive_mesh = true;
 alpha_smoooth = 1e-3;
@@ -68,9 +68,9 @@ str_mode = 'inf_walls';     bc_type = ENUM_BC_INF_WALLS;
 % str_mode = 'periodic';    bc_type = ENUM_BC_PERIODIC;
 
 
-lambda_array = [0, 0.5, 1];
-lambda_names_array = {'ItÃ´', 'Stratonovich', 'Isothermal'}; 
-lambda_count = length(lambda_array);
+% lambda_array = [0, 0.5, 1];
+lambda_names_array = {'Ito´', 'Stratonovich', 'Isothermal'}; 
+% lambda_count = length(lambda_array);
 
 
 % if N>1e4
@@ -85,7 +85,16 @@ enum_divine = 1;
 enum_Ito = 2;
 enum_Stratonovich = 3;
 enum_marginalized = 4;
-enum_count = 4;
+enum_Hanggi = 5;
+conventions_count = 5;
+
+
+%% Enumerate lambda simulation types
+enum_lambda_Ito = 1;
+enum_lambda_Stratonovich = 2;
+enum_lambda_Hanggi = 3;
+enum_lambda_rand = 4;
+lambda_types_count = 4;
 
 
 % Define colors

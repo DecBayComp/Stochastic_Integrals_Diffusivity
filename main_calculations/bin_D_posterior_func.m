@@ -1,6 +1,6 @@
 
 
-function out =  bin_D_posterior_func (l_ind, bin, D, t_step, data_struct_n, str_direction)
+function out =  bin_D_posterior_func (bin, D, t_step, data_struct_n, str_direction)
 
 
 %% Constants
@@ -8,7 +8,7 @@ function out =  bin_D_posterior_func (l_ind, bin, D, t_step, data_struct_n, str_
 
 
 %% Calculate parameters
-out = exp(bin_D_log_posterior_func (l_ind, bin, D, t_step, data_struct_n, str_direction));
+out = exp(bin_D_log_posterior_func (bin, D, t_step, data_struct_n, str_direction));
 
 
 1;

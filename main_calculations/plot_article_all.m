@@ -17,7 +17,7 @@ str_legend = {'Orcl', 'Ito', 'Str', 'Mar'};
 
 
 %% Plot diffusivity posterior in one bin, diffusivity profile and the fail rate
-fig_count = plot_article_D_posterior(data_struct, fig_count, bl_save_figures);
+fig_count = plot_article_D_posterior(trials_data, data_struct, fig_count, bl_save_figures);
 % Plot D bias as a function of D gradient ???
 
 %% === Plot D' average regularized profile ===

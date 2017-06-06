@@ -1,14 +1,14 @@
 
 
-function fig_count = plot_article_D_posterior(data_struct, fig_count, bl_save_figures)
+function fig_count = plot_article_D_posterior(trials_data, data_struct, fig_count, bl_save_figures)
 
 
 
 %% Constants
 load_constants;
-interval_scaling_factor_for_D = 6;
+interval_scaling_factor_for_D = 8;
 D_PRECISION = 1e-5;
-D_steps = 1 + 2^6;
+D_steps = 1 + 2^6.5;
 rows = 1;
 cols = 3;
 
@@ -19,7 +19,7 @@ h_fig = figure(fig_count);
 set_article_figure_size(h_fig, rows, 2, 1);
 clf;
 % x_lim_vec = [D_min, D_max];
-x_lim_vec = [7, 12] * 1e-3;
+x_lim_vec = [6.25, 12.5] * 1e-3;
 default_color_order = get(gca,'colororder');
 % Initialize subplots
 SH = 0.07;
@@ -33,18 +33,21 @@ sublabel_y = 0.1;
 h_sub = subaxis(rows, cols, 1, 'SH', SH, 'SV', SV, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
 hold on;
 % Get the selected bin
-[selected_bins_indices, selected_bins_centers] = get_selected_bins_indices(data_struct);
+[selected_bin_index, selected_bin_center] = get_selected_bins_indices(data_struct);
+
+
 %% Prepare mesh taking into account the most likely values
 % Calculate the most probable values of D
-D_values = zeros(1, lambda_count + 3);
-for l_ind = 1:lambda_count 
-    bin = selected_bins_indices(l_ind);
-    [~, ~, nu_n, sigma2_n] = get_n_parameters(l_ind, bin, data_struct, 'forward');
-    D_values(l_ind) = nu_n * sigma2_n / (2 * t_step * (2 + nu_n));
-end;
+D_values = zeros(1, lambda_types_count + 1);
+bin = selected_bin_index;
+for lambda_type = 1:lambda_types_count
+    [~, ~, nu_n, sigma2_n] = get_n_parameters(bin, trials_data{data_struct.trial_first_simulation_type_index(lambda_type)}, 'forward');
+    D_values(lambda_type) = nu_n * sigma2_n / (2 * t_step * (2 + nu_n));
+end
 % Calculate exact D
-D_values(lambda_count + 1 : lambda_count + 3) = D_func(selected_D_case, selected_bins_centers * L, L);
-% Detect the longest interval and centrally increase its length
+D_values(lambda_types_count + 1) = D_func(selected_D_case, selected_bin_center * L, L);
+% D_values = sort(D_values);
+% Centrally increase the interval
 D_min = min(D_values);
 D_max = max(D_values);
 D_interval = D_max - D_min;
@@ -56,26 +59,20 @@ D_mesh = D_min:D_step:D_max;
 % Add special points calculated earlier
 D_mesh = sort([D_mesh, D_values]);
 
-s1 = lambda_count;
+s1 = lambda_types_count;
 s2 = length(D_mesh);
 D_pdf_plot_data = zeros(s1, s2);
 % D data
-for l_ind = 1:lambda_count
-    D_pdf_plot_data(l_ind, :) =  bin_D_posterior_func (l_ind,...
-        selected_bins_indices(l_ind), D_mesh, t_step, data_struct, 'forward');
+for lambda_type = 1:lambda_types_count
+    D_pdf_plot_data(lambda_type, :) =  bin_D_posterior_func (selected_bin_index, D_mesh, t_step, trials_data{data_struct.trial_first_simulation_type_index(lambda_type)}, 'forward');
 end;
-% % Checking the PDF normalization
-% pdf_norm = zeros(1, lambda_count);
-% for lambda_ind = 1:lambda_count
-%     pdf_norm(lambda_ind) = trapz(D_mesh, D_pdf_plot_data(lambda_ind, :));
-% end;
-% fprintf('Norm for D PDF:\n');
-% disp(pdf_norm);
+
 % Plot
-for l_ind = 1:lambda_count
-    plot(D_mesh, D_pdf_plot_data(l_ind, :), strcat('-', markers_list{l_ind}),...
-        'color', default_color_order(l_ind, :), 'LineWidth', line_width);
+for lambda_type = 1:lambda_types_count
+    plot(D_mesh, D_pdf_plot_data(lambda_type, :), strcat('-', markers_list{lambda_type}),...
+        'color', default_color_order(lambda_type, :), 'LineWidth', line_width);
 end;
+
 % Simulated value
 y_lim_vec = [0, max(max(D_pdf_plot_data)) * 1.1];
 plot(D_values(end) .* [1, 1], y_lim_vec, '--k', 'LineWidth', line_width);
@@ -89,7 +86,8 @@ title(sprintf('Posterior for $x^*\\approx%.2f$', selected_x_over_L), 'interprete
 text(sublabel_x, sublabel_y, '(a)', 'Units', 'Normalized', 'VerticalAlignment', 'Top');
 box on;
 % Legend
-str_legend_local = {'$ \lambda^*=0$', '$ \lambda^*=1/2$', '$ \lambda^*=1$'};
+str_legend_local = {'$ \lambda^*=0$', '$ \lambda^*=0.5$', '$ \lambda^*=1$',...
+    sprintf('$\\lambda^*=%.2f$', trials_data{data_struct.trial_first_simulation_type_index(enum_lambda_rand)}.lambda)};
 legend(str_legend_local, 'location', 'northwest', 'interpreter', 'latex', 'fontsize', font_size);
 
 

@@ -1,6 +1,6 @@
 
 
-function out =  bin_sigma_squared_log_posterior_func (l_ind, bin, sigma2, data_struct_n, str_direction)
+function out =  bin_sigma_squared_log_posterior_func (bin, sigma2, data_struct_n, str_direction)
 
 
 %% Constants
@@ -11,7 +11,7 @@ function out =  bin_sigma_squared_log_posterior_func (l_ind, bin, sigma2, data_s
 
 
 %% Calculate parameters
-[~, ~, nu_n, sigma2_n] = get_n_parameters(l_ind, bin, data_struct_n, str_direction);
+[~, ~, nu_n, sigma2_n] = get_n_parameters(bin, data_struct_n, str_direction);
 
 
 % Calculate log of the output

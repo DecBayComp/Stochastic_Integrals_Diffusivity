@@ -1,6 +1,6 @@
 
 
-function result = bin_fD_divine_inference_log_posterior_func(data_struct, l_ind, bin, fD, D_grad, str_direction)
+function result = bin_fD_divine_inference_log_posterior_func(data_struct, lambda, bin, fD, D_grad, str_direction)
 
 %% Globals
 
@@ -17,8 +17,7 @@ end;
 
 
 %% Calculate
-lambda = lambda_array(l_ind);
-result = log(t_step / kBT) + bin_mu_log_posterior_func(data_struct, l_ind, bin, fD .* t_step ./ kBT + lambda * t_step * D_grad, str_direction);
+result = log(t_step / kBT) + bin_mu_log_posterior_func(data_struct, bin, fD .* t_step ./ kBT + lambda * t_step * D_grad, str_direction);
 
 
 
