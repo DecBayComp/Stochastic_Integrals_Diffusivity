@@ -35,10 +35,11 @@ alpha_reg = 1e0;
 
 
 %% Plot parameters
-marker_size = 8;
+marker_size = 6;
 font_size = 12;
+legend_font_size = 9;
 markers_list = {'x', 'o', '+', '^', 's','d','v'};
-line_width = 1.5;
+line_width = 1.2;
 % markers_list = {'-o','-s','-d','-^','-v'};
 
 
@@ -95,12 +96,15 @@ enum_lambda_Stratonovich = 2;
 enum_lambda_Hanggi = 3;
 enum_lambda_rand = 4;
 lambda_types_count = 4;
+lambda_types_names = {'Ito', 'Str', 'Hng', 'rnd'};
 
 
 % Define colors
 color_sequence = [0    0.4470    0.7410;...
                     0.9290    0.6940    0.1250;...
                     0.8500    0.3250    0.0980;...
+                    0.502 0 0;...   %	Burgundy                     
+                    0.502 0.502 1;...   %	Light purple                    
                     0 0.251 0;...   %	Dark green       
                     0 0 1;...   %	Blue
                     0.9412 0.4706 0;... %   Orange
@@ -111,7 +115,6 @@ color_sequence = [0    0.4470    0.7410;...
                     1 0.502 0.502;...   %	Peach
                     0 1 1;...   %	Cyan
 %                     0.502 0.502 0.502;...   %	Gray
-                    0.502 0.502 1;...   %	Light purple
                     0 1 0;...   %	Bright green
                     0.502 0 0;...   %	Burgundy 
                     1 0 1;...   %	Pink
@@ -130,7 +133,6 @@ color_sequence = [0    0.4470    0.7410;...
 %                     0.502 0.502 0.502;...   %	Gray
                     0.502 0.502 1;...   %	Light purple
                     0 1 0;...   %	Bright green
-                    0.502 0 0;...   %	Burgundy 
                     1 0 1;...   %	Pink
                     0.251 0 0.502;...   %	Purple
                     1 1 0;...  %	Yellow                    
