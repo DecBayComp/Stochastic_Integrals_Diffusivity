@@ -91,12 +91,16 @@ fD_min = fD_mesh(find(indices, 1, 'first'));
 fD_max = fD_mesh(find(indices, 1, 'last'));
 x_lim_vec = [fD_min, fD_max];
 xlim(x_lim_vec);
-ylim(y_lim_vec);
 
-xlabel('$fD$', 'interpreter', 'latex');
-ylabel('Force posterior', 'interpreter', 'latex');
-title(sprintf('$x\\approx%.2f$, $\\lambda^* = %.2f$', selected_x_over_L, lambda), 'interpreter', 'latex');
+
+
+title(sprintf('Posterior for $x\\approx%.2f$, $\\lambda^* = %.2f$', selected_x_over_L, lambda), 'interpreter', 'latex');
+
+ylim(y_lim_vec);
+xlabel('fD', 'interpreter', 'latex');
+ylabel('PDF', 'interpreter', 'latex');
 % Legend
+% str_legend_local = {'Orcl', 'Ito', 'Str', 'Mar'};
 legend(str_legend, 'location', 'northeast', 'interpreter', 'latex', 'fontsize', font_size);
 
 

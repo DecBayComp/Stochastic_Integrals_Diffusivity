@@ -82,13 +82,14 @@ lambda_names_array = {'Ito´', 'Stratonovich', 'Isothermal'};
 
 
 %% Enumerate conventions
-enum_conv_Ito = 1;
-enum_conv_Stratonovich = 2;
-enum_conv_Hanggi = 3;
-enum_conv_divine = 4;
-enum_conv_marginalized = 5;
+enum_conv_divine = 1;
+enum_conv_Ito = 2;
+enum_conv_Stratonovich = 3;
+
+enum_conv_marginalized = 4;
+
 conventions_count = 5;
-conventions_names = {'Ito', 'Str', 'Hng', 'Orcl', 'Mar'};
+conventions_names = {'Orcl', 'Ito', 'Str', 'rnd'};
 
 
 %% Enumerate lambda simulation types
@@ -104,8 +105,7 @@ lambda_types_names = {'Ito', 'Str', 'Hng', 'rnd'};
 color_sequence = [0    0.4470    0.7410;...
                     0.9290    0.6940    0.1250;...
                     0.8500    0.3250    0.0980;...
-                    139/255 87/255 66/255;...   %	Brown               
-                    107/255 142/255 35/255;...   %	Olive                    
+                    0.502 0 0;...   %	Burgundy                     
                     0.502 0.502 1;...   %	Light purple                    
                     0 0.251 0;...   %	Dark green       
                     0 0 1;...   %	Blue
@@ -117,6 +117,7 @@ color_sequence = [0    0.4470    0.7410;...
                     1 0.502 0.502;...   %	Peach
                     0 1 1;...   %	Cyan
 %                     0.502 0.502 0.502;...   %	Gray
+                    0 1 0;...   %	Bright green
                     0.502 0 0;...   %	Burgundy 
                     1 0 1;...   %	Pink
                     0.251 0 0.502;...   %	Purple
@@ -132,9 +133,10 @@ color_sequence = [0    0.4470    0.7410;...
                     1 0.502 0.502;...   %	Peach
                     0 1 1;...   %	Cyan
 %                     0.502 0.502 0.502;...   %	Gray
+                    0.502 0.502 1;...   %	Light purple
                     0 1 0;...   %	Bright green
                     1 0 1;...   %	Pink
-                    0.251 0 0.502;...   %	Purple                    
+                    0.251 0 0.502;...   %	Purple
                     1 1 0;...  %	Yellow                    
                     0 0 0];...   %	Black
                     

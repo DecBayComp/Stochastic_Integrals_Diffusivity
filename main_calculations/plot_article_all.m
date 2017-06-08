@@ -22,12 +22,9 @@ plot_article_D(data_struct, trials_data, fig_count, bl_save_figures);
 % Plot D bias as a function of D gradient ???
 
 
-% %% === Plot D' average regularized profile ===
-% fig_count = plot_article_D_grad_profile(data_struct, fig_count, bl_save_figures);
-
-
 %% === Plot fD profile in one bin for each inference type ===
-fig_count = plot_article_fD_profile_in_bin(data_struct, fig_count, bl_save_figures);
+fig_count = fig_count + 1; 
+plot_article_fD_profile_in_bin(data_struct, trials_data, fig_count, bl_save_figures);
 
 
 %% === Plot mean fD profile for each inference type ===
