@@ -1,17 +1,17 @@
 
 
 
-function fig_count = plot_article_fD_bias(data_struct, fig_count, bl_save_figures)
+function plot_article_fD_bias(data_struct, fig_count, bl_save_figures)
 
 
 %% Constants
+load_constants;
 sublabel_x = 0.02;
 sublabel_y = 0.99;
-load_constants;
+
 
 
 %% === Plot fD bias as a function fo the gradient ===
-fig_count = fig_count + 1; 
 h_fig = figure(fig_count);
 set_article_figure_size(h_fig, 1, 2, 1);
 clf;
