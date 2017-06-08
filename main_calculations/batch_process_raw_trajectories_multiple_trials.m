@@ -321,92 +321,36 @@ data_struct.UR_D = UR_D;
 data_struct.UR_fD = UR_fD;
 
 
-%% Calculate the fail rate of each prediction given the known error intervals and calculate MAP force distribution parameters
-% Initialize
+%% Calculate mean and average fail rate of each inference convention
+% The mean is performed over bins and is weighted with bins size
 
-% Calculate
+% Identify the best explored period
+x_left = (1/2 + 2*1)/w;
+x_right = (1/2 + 2*2)/w;
+% Filter indices from one best period
+indices = x_bins_centers >= x_left & x_bins_centers <= x_right;
+bin_widths = x_bins_centers(indices);
+norm_bin_widths = bin_widths / sum(bin_widths);
 
-
-% 
-% % outside_count_divine = zeros(1, x_bins_number_saved(MAP_D_grad_regular));
-% % outside_count_Ito = zeros(1, x_bins_number_saved(MAP_D_grad_regular));
-% % outside_count_Stratonovich = zeros(1, x_bins_number_saved(MAP_D_grad_regular));
-% % outside_count_marginalized = zeros(1, x_bins_number_saved(MAP_D_grad_regular));
-% % outside_count_Hanggi = zeros(1, x_bins_number_saved(MAP_D_grad_regular));
-% % combined_MAP_values_Ito = zeros(trials, x_bins_number_saved(MAP_D_grad_regular));
-% % combined_MAP_values_Stratonovich = zeros(trials, x_bins_number_saved(MAP_D_grad_regular));
-% % combined_MAP_values_marginalized = zeros(trials, x_bins_number_saved(MAP_D_grad_regular));
-% % combined_MAP_values_divine = zeros(trials, x_bins_number_saved(MAP_D_grad_regular));
-% for trial = 1:trials
-%     % D
-%     estimate = trials_data{trial}.MAP_fwd_D{MAP_D_grad_regular};
-%     outside_count_D = outside_count_D + double(estimate(4, :) > CONF_LEVEL);
-% %         theory = data_struct.D_theor_data{l_ind}';
-% %         outside_count_D = outside_count_D + double(theory < estimate(1, :) - estimate(2, :)...
-% %             | theory > estimate(1, :) + estimate(3, :));
-%     % Divine
-%     estimate = trials_data{trial}.MAP_fwd_fD_divine{MAP_D_grad_regular};
-%     outside_count_divine = outside_count_divine + double(estimate(4, :) > CONF_LEVEL);
-% %         theory = data_struct.fD_theor_data{l_ind}';
-% %         outside_count_divine = outside_count_divine + double(theory < estimate(1, :) - estimate(2, :)...
-% %             | theory > estimate(1, :) + estimate(3, :));
-%     % Ito
-%     estimate = trials_data{trial}.MAP_fD_Ito{MAP_D_grad_regular};
-%     outside_count_Ito = outside_count_Ito + double(estimate(4, :) > CONF_LEVEL);
-% %         outside_count_Ito = outside_count_Ito + double(theory < estimate(1, :) - estimate(2, :)...
-% %             | theory > estimate(1, :) + estimate(3, :));
-%     % Stratanovich
-%     estimate = trials_data{trial}.MAP_fwd_fD_Stratonovich{MAP_D_grad_regular};
-%     outside_count_Stratonovich = outside_count_Stratonovich + double(estimate(4, :) > CONF_LEVEL);
-% %         outside_count_Stratonovich = outside_count_Stratonovich + double(theory < estimate(1, :) - estimate(2, :)...
-% %             | theory > estimate(1, :) + estimate(3, :));
-%     % Marginalized
-%     estimate = trials_data{trial}.MAP_fwd_fD_marginalized{MAP_D_grad_regular};
-%     outside_count_marginalized = outside_count_marginalized + double(estimate(4, :) > CONF_LEVEL);
-% %         outside_count_marginalized = outside_count_marginalized + double(theory < estimate(1, :) - estimate(2, :)...
-% %             | theory > estimate(1, :) + estimate(3, :));
-%     % Hanggi
-%     estimate = trials_data{trial}.MAP_fD_Hanggi{MAP_D_grad_regular};
-%     outside_count_Hanggi = outside_count_Hanggi + double(estimate(4, :) > CONF_LEVEL);
-%     %% MAP calculations
-%     % Divine
-%     combined_MAP_values_divine(trial, :) = trials_data{trial}.MAP_fwd_fD_divine{MAP_D_grad_regular}(1, :);
-%     % Ito
-%     combined_MAP_values_Ito(trial, :) = trials_data{trial}.MAP_fD_Ito{MAP_D_grad_regular}(1, :);
-%     % Stratonovich
-%     combined_MAP_values_Stratonovich(trial, :) = trials_data{trial}.MAP_fwd_fD_Stratonovich{MAP_D_grad_regular}(1, :);
-%     % Marginalized
-%     combined_MAP_values_marginalized(trial, :) = trials_data{trial}.MAP_fwd_fD_marginalized{MAP_D_grad_regular}(1, :);
-% 
-%     data_struct.UR_D{MAP_D_grad_regular} = outside_count_D / trials;
-%     data_struct.UR_fwd_divine{MAP_D_grad_regular} = outside_count_divine / trials;
-%     data_struct.UR_Ito{MAP_D_grad_regular} = outside_count_Ito / trials;
-%     data_struct.UR_fwd_Stratonovich{MAP_D_grad_regular} = outside_count_Stratonovich / trials;
-%     data_struct.UR_Hanggi{MAP_D_grad_regular} = outside_count_Hanggi / trials;
-%     data_struct.UR_fwd_marginalized{MAP_D_grad_regular} = outside_count_marginalized / trials;
-%     %% MAP calculations
-%     % Ito
-%     data_struct.MAP_fD_mean_sigma2_Ito{MAP_D_grad_regular}(1, :) = mean(combined_MAP_values_Ito, 1);
-%     data_struct.MAP_fD_mean_sigma2_Ito{MAP_D_grad_regular}(2, :) = var(combined_MAP_values_Ito, 0, 1);
-%     % Stratonovich
-%     data_struct.MAP_fD_mean_sigma2_Stratonovich{MAP_D_grad_regular}(1, :) = mean(combined_MAP_values_Stratonovich, 1);
-%     data_struct.MAP_fD_mean_sigma2_Stratonovich{MAP_D_grad_regular}(2, :) = var(combined_MAP_values_Stratonovich, 0, 1);
-%     % Marginalized
-%     data_struct.MAP_fD_mean_sigma2_marginalized{MAP_D_grad_regular}(1, :) = mean(combined_MAP_values_marginalized, 1);
-%     data_struct.MAP_fD_mean_sigma2_marginalized{MAP_D_grad_regular}(2, :) = var(combined_MAP_values_marginalized, 0, 1);
-%     % Divine
-%     data_struct.MAP_fD_mean_sigma2_divine{MAP_D_grad_regular}(1, :) = mean(combined_MAP_values_divine, 1);
-%     data_struct.MAP_fD_mean_sigma2_divine{MAP_D_grad_regular}(2, :) = var(combined_MAP_values_divine, 0, 1);
-% 
-% end;
+% UR_fD indices: (lambda_types_count, x_bins_number, conventions_count)
+UR_fD_bin_mean = zeros(lambda_types_count, conventions_count);
+A = permute(UR_fD, [1, 3, 2]);
+for lambda_type = 1:lambda_types_count
+    UR_fD_bin_mean(lambda_type, :) = squeeze(A(lambda_type, :, indices)) * norm_bin_widths;
+end;
+UR_fD_bin_max = squeeze(max(data_struct.UR_fD(:, indices, :), [], 2));
+% Save
+data_struct.UR_fD_bin_mean = UR_fD_bin_mean;
+data_struct.UR_fD_bin_max = UR_fD_bin_max;
 
 
 %% Backup current workspace
 save('backup_workspace.mat');
+save('trials_data.mat', 'data_struct', 'trials_data');
 
 
 %% Plot
-plot_article_all(data_struct);
+plot_article_all(data_struct, trials_data);
 
 
 1;

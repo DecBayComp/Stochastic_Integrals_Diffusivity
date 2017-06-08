@@ -28,6 +28,7 @@ bl_use_adaptive_mesh = true;
 alpha_smoooth = 1e-3;
 fine_mesh_steps_count = 1000 + 1;
 CONF_LEVEL = 0.95;
+w = 10;
 
 
 %% Regularization parameters
@@ -37,7 +38,7 @@ alpha_reg = 1e0;
 %% Plot parameters
 marker_size = 6;
 font_size = 12;
-legend_font_size = 9;
+legend_font_size = font_size - 3;
 markers_list = {'x', 'o', '+', '^', 's','d','v'};
 line_width = 1.2;
 % markers_list = {'-o','-s','-d','-^','-v'};

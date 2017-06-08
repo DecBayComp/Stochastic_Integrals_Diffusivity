@@ -97,7 +97,7 @@ xlabel('$fD$', 'interpreter', 'latex');
 ylabel('Force posterior', 'interpreter', 'latex');
 title(sprintf('$x\\approx%.2f$, $\\lambda^* = %.2f$', selected_x_over_L, lambda), 'interpreter', 'latex');
 % Legend
-legend(str_legend, 'location', 'northeast', 'interpreter', 'latex', 'fontsize', font_size);
+legend(str_legend, 'location', 'northeast', 'interpreter', 'latex', 'fontsize', legend_font_size);
 
 
 %% Save figure

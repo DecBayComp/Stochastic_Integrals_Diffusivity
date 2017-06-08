@@ -13,7 +13,6 @@ bl_save_figures = true;
 
 %% Initialize
 fig_count = 0;
-% str_legend = {'Orcl', 'Ito', 'Str', 'Mar'};
 
 
 %% Plot diffusivity posterior in one bin, diffusivity profile and the fail rate
@@ -33,11 +32,8 @@ plot_article_mean_fD_profile_and_fail_rate(data_struct, fig_count, bl_save_figur
 
 
 %% === Plot fD bias as a function fo the gradient ===
+fig_count = fig_count + 1; 
 plot_article_fD_bias(data_struct, fig_count, bl_save_figures);
-
-
-%% === Plot fD error cones ===
-fig_count = plot_article_fD_error_cones(data_struct, fig_count, bl_save_figures);
 
 
 %% === Print out fail rates ===

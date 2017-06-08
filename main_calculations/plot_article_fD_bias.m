@@ -58,7 +58,7 @@ for lambda_type = 1:lambda_types_count
     %% Adjust
     % Legend
     if lambda_type == 1
-        legend(str_legend, 'location', 'north', 'FontSize', font_size-3);
+        legend(str_legend, 'location', 'north', 'FontSize', legend_font_size);
     end;
     
     xlim(x_lim_vec);
