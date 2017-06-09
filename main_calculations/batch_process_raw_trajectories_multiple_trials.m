@@ -31,8 +31,7 @@ pdf_norm = [];
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
 trials = length(cur_dir(not([cur_dir.isdir])));
-trials = 11;
-
+% trials = 11;
 
 
 % Load trajectories
@@ -108,7 +107,6 @@ fD_bins = D_func(selected_D_case, x_bins_centers, L) .* f_func(selected_f_case, 
 fprintf('Processing trajectories...\n');
 tic;
 parfor trial = 1:trials
-
     %% Initialize
     % Initialize the data structure
     data_struct = initialize_data_structure(x_bins_number, fine_mesh_steps_count, conventions_count);
@@ -278,6 +276,7 @@ parfor trial = 1:trials
     trials_data{trial} = data_struct;
  
 end;
+data_struct = trials_data{end};
 
 % Restore the time mesh
 t_mesh = (0:N) * t_step;
@@ -342,6 +341,10 @@ UR_fD_bin_max = squeeze(max(data_struct.UR_fD(:, indices, :), [], 2));
 % Save
 data_struct.UR_fD_bin_mean = UR_fD_bin_mean;
 data_struct.UR_fD_bin_max = UR_fD_bin_max;
+
+
+% Print execution time
+fprintf('All trajectories processed in %.2fs\n', toc);
 
 
 %% Backup current workspace

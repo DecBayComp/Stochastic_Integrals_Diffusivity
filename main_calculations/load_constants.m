@@ -9,7 +9,7 @@ x_max = L/2;
 % bl_periodic = true;
 % T = 100000;
 t_step = 1e-2;   % L^2 / D_max / 100 = 10 / 1 / 100 = 0.1
-N = 1e5;        % Times the system was explored: (N*t_step) / (L^2 / D_max) = N*t_step*D_max/L^2 = 1e4*0.1*1/100 = 10   OK
+N = 5e4;        % Times the system was explored: (N*t_step) / (L^2 / D_max) = N*t_step*D_max/L^2 = 1e4*0.1*1/100 = 10   OK
 min_points_in_bin = 500;
 T = t_step * N;
 internal_steps_number = 100;    % Integer. How many intermediate smaller steps are made before the next point is saved
