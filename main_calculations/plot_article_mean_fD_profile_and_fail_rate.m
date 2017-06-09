@@ -7,19 +7,21 @@ function plot_article_mean_fD_profile_and_fail_rate(data_struct, fig_count, bl_s
 
 %% Constants
 load_constants;
-sublabel_x = 0.02;
-sublabel_y = 0.99;
+sublabel_x = 0.03;
+sublabel_y = 0.08;
 x_lim_vec = [0, x_max];
 y_lim_vec_FR = [-0.02, 1.02];
 y_lim_vec_profile = [-0.11, 0.325];
 output_filename = 'Force_profile_fail_rate.pdf';
 % Subplot parameters
-SH = 0.08;
+SH = 0.06;
 SV = 0.1;
-ML = 0.07;
+ML = 0.06;
 MR = 0.005;
 MT = 0.05;
 MB = 0.08;
+% Skip some bins
+plot_every = 2;
 
 
 
@@ -37,8 +39,8 @@ for lambda_type = 1:lambda_types_count
     str_legend = {};
     % Plot each inference conventions
     for convention = 1:conventions_count
-        plot(data_struct.x_bins_centers,  data_struct.UR_fD(lambda_type, :, convention),...
-            strcat('-', markers_list{convention}), 'LineWidth', line_width, 'color', color_sequence(convention, :));
+        plot(data_struct.x_bins_centers(1:plot_every:end),  data_struct.UR_fD(lambda_type, 1:plot_every:end, convention),...
+            strcat('-', markers_list{convention}), 'LineWidth', line_width, 'color', color_sequence(convention, :), 'markers', marker_size);
         % Update legend
         str_legend{end + 1} = conventions_names{convention};
     end
@@ -50,14 +52,14 @@ for lambda_type = 1:lambda_types_count
     ylim(y_lim_vec_FR);
     box on;
     
-    xlabel('x');
-    ylabel('Fail rate');
+    xlabel('$x$', 'interpreter', 'latex');
+    ylabel('Fail rate', 'interpreter', 'latex');
     % Subplot label
     text(sublabel_x, sublabel_y, strcat('(', char('e' + lambda_type - 1), ')'), 'Units', 'Normalized', 'VerticalAlignment', 'Top');
     
     % Legend
     if lambda_type == 2
-        legend(str_legend, 'location', 'southwest', 'FontSize', legend_font_size);
+        legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
         legend boxon;
     end;   
  
@@ -67,8 +69,8 @@ for lambda_type = 1:lambda_types_count
     hold on;
     % Plot each convention
     for convention = 1:conventions_count
-        plot(data_struct.x_bins_centers,  data_struct.MAP_fD_mean(lambda_type, :, convention, 1),...
-            strcat('-', markers_list{convention}), 'color', color_sequence(convention, :), 'LineWidth', line_width);
+        plot(data_struct.x_bins_centers(1:plot_every:end),  data_struct.MAP_fD_mean(lambda_type, 1:plot_every:end, convention, 1),...
+            strcat('-', markers_list{convention}), 'color', color_sequence(convention, :), 'LineWidth', line_width, 'markers', marker_size);
     end;
     % True profile (theory)
     h_theor = plot(data_struct.x_fine_mesh, data_struct.fD_theor_fine_data, '--k', 'LineWidth', line_width);

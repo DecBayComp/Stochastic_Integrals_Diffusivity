@@ -30,9 +30,11 @@ clf;
 h_sub = subaxis(rows, cols, 1, 'SH', SH, 'SV', SV, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
 hold on;
 % Plot
+str_legend = {};
 for lambda_type = 1:lambda_types_count
     plot(data_struct.x_bins_centers(1:bin_plot_step:end),  data_struct.MAP_D_mean(lambda_type, 1:bin_plot_step:end, 1),...
         strcat('-', markers_list{lambda_type}), 'color', color_sequence(lambda_type, :),  'LineWidth', line_width, 'markers', marker_size);
+    str_legend{end + 1} = lambda_types_names{lambda_type};
 end;
 % Theory
 h_theor = plot(data_struct.x_fine_mesh, data_struct.D_theor_fine_data, '--k', 'LineWidth', line_width);
@@ -47,7 +49,7 @@ title('Average $D$ profile', 'interpreter', 'latex');
 % Subplot label
 text(sublabel_x, sublabel_y, '(a)', 'Units', 'Normalized', 'VerticalAlignment', 'Top');
 % Legend
-str_legend = lambda_types_names;
+% str_legend = lambda_types_names;
 h_leg = legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
 legend boxon;
 % Send theoretical curve back
@@ -58,9 +60,11 @@ uistack(h_theor, 'bottom');
 subaxis(rows, cols, 2);
 hold on;
 y_lim_vec = [0, 1];
+str_legend = {};
 for lambda_type = 1:lambda_types_count
     plot(data_struct.x_bins_centers,  data_struct.UR_D(lambda_type, :),...
         strcat('-', markers_list{lambda_type}), 'color', color_sequence(lambda_type, :),  'LineWidth', line_width, 'markers', marker_size);
+    str_legend{end + 1} = lambda_types_names{lambda_type};
 end;
 % Plot the used confidence level
 h_conf = plot(x_lim_vec, [1, 1] * (1 - CONF_LEVEL), 'k--', 'linewidth', line_width);
@@ -72,7 +76,7 @@ xlabel('$x$', 'interpreter', 'latex');
 ylabel('Fail rate', 'interpreter', 'latex');
 title('Average fail rate', 'interpreter', 'latex');
 % Legend
-str_legend = lambda_types_names;
+% str_legend = lambda_types_names;
 legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
 legend boxon;
 % Subplot label
@@ -85,7 +89,7 @@ uistack(h_conf, 'bottom');
 %% Initialize
 subaxis(rows, cols, 3);
 hold on;
-y_lim_vec = [-1.8, 1.5];
+y_lim_vec = [-1, 0.75] * 1;
 %% Calculate
 % Calculate simple D' with MAP D using a finite elements scheme
 % Choose one lambda and corresponding data_struct

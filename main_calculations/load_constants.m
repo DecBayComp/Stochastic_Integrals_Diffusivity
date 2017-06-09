@@ -9,8 +9,8 @@ x_max = L/2;
 % bl_periodic = true;
 % T = 100000;
 t_step = 1e-2;   % L^2 / D_max / 100 = 10 / 1 / 100 = 0.1
-N = 5e4;        % Times the system was explored: (N*t_step) / (L^2 / D_max) = N*t_step*D_max/L^2 = 1e4*0.1*1/100 = 10   OK
-min_points_in_bin = 500;
+N = 1e5;        % Times the system was explored: (N*t_step) / (L^2 / D_max) = N*t_step*D_max/L^2 = 1e4*0.1*1/100 = 10   OK
+points_in_bin_avg = 1000;
 T = t_step * N;
 internal_steps_number = 100;    % Integer. How many intermediate smaller steps are made before the next point is saved
 update_progress_every = 100;
@@ -39,7 +39,7 @@ alpha_reg = 1e0;
 marker_size = 6;
 font_size = 12;
 legend_font_size = font_size - 3;
-markers_list = {'x', 'o', '+', '^', 's','d','v'};
+markers_list = {'s', 'o', '^', '+', 'x', 'd','v'};
 line_width = 1.2;
 % markers_list = {'-o','-s','-d','-^','-v'};
 
@@ -48,6 +48,7 @@ line_width = 1.2;
 output_figures_folder = './figures_for_article/';
 output_data_folder = './processed_data/';
 input_data_folder = 'D:\Calculations_data\ito-stratonovich\output\';
+fail_rates_filename = 'Fail_rates.dat';
 CSV_DELIMITER = ';';
 bl_save_figures = true;
 bl_save_data = true;

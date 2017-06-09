@@ -1,10 +1,8 @@
 set (0, 'DefaultAxesFontSize', 12);
 
 
-%% Globals
-% global dx_Mean;
-% global V;
-
+%% Clear the workspace
+clear;
 
 %% Constants
 load_constants;
@@ -30,8 +28,8 @@ pdf_norm = [];
 %% Access trajectories folder and start loading trajectories
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
-trials = length(cur_dir(not([cur_dir.isdir])));
-% trials = 11;
+trials = sum(~[cur_dir.isdir]);
+trials = 11 * 10;
 
 
 % Load trajectories
@@ -82,7 +80,7 @@ end;
 
 %% Identify suitable bin locations based on all points for all trials
 [x_bins_borders, x_bins_centers, x_bins_number, x_bins_widths,...
-            elements_in_bins_count, ~] = select_bins_adaptive_mesh(trials_x(:), trials_dx(:), min_points_in_bin * trials);
+            elements_in_bins_count, ~] = select_bins_adaptive_mesh(trials_x(:), trials_dx(:), points_in_bin_avg * trials);
 % Estimate dx_Mean and V used for prior only. Average over everything
 dx_Mean = mean(trials_dx(:));
 V = mean(trials_dx(:).^2) - dx_Mean^2;
@@ -200,7 +198,7 @@ parfor trial = 1:trials
         fD_divine_inference = find_confidence_interval(log_function_to_minimze, [- fD_ABS_MAX, fD_ABS_MAX], true, MLE_guess,...
             CONF_LEVEL, data_struct.fD_theor_data(bin));
         % Save
-        MAP_fD(bin, enum_divine, :) = fD_divine_inference;
+        MAP_fD(bin, enum_conv_divine, :) = fD_divine_inference;
 
         %% Simple Ito force estimate
         % Prepare function
@@ -211,7 +209,7 @@ parfor trial = 1:trials
         fD_Ito_inference = find_confidence_interval(function_to_minimze, [- fD_ABS_MAX, fD_ABS_MAX], true, MLE_guess,...
             CONF_LEVEL, data_struct.fD_theor_data(bin));
         % Save
-        MAP_fD(bin, enum_Ito, :) = fD_Ito_inference;
+        MAP_fD(bin, enum_conv_Ito, :) = fD_Ito_inference;
 
         %% Simple Stratonovich force estimate (through Ito)
         % Prepare function
@@ -223,7 +221,7 @@ parfor trial = 1:trials
         fD_Stratonovich_inference = find_confidence_interval(function_to_minimze, [- fD_ABS_MAX, fD_ABS_MAX], true, MLE_guess,...
             CONF_LEVEL, data_struct.fD_theor_data(bin));
         % Save
-        MAP_fD(bin, enum_Stratonovich, :) = fD_Stratonovich_inference;
+        MAP_fD(bin, enum_conv_Stratonovich, :) = fD_Stratonovich_inference;
 
         %% Simple Hanggi force estimate (through Ito)
         % Prepare function
@@ -235,7 +233,7 @@ parfor trial = 1:trials
         fD_Hanggi_inference = find_confidence_interval(function_to_minimze, [- fD_ABS_MAX, fD_ABS_MAX], true, MLE_guess,...
             CONF_LEVEL, data_struct.fD_theor_data(bin));
         % Save
-        MAP_fD(bin, enum_Hanggi, :) = fD_Hanggi_inference;
+        MAP_fD(bin, enum_conv_Hanggi, :) = fD_Hanggi_inference;
 
         %% Marginalized force estimate (through Ito)
         % Prepare function
@@ -249,7 +247,7 @@ parfor trial = 1:trials
         fD_MLE_marginalized = find_confidence_interval(function_to_minimze, [- fD_ABS_MAX, fD_ABS_MAX], bl_find_marginalized_fD_error_bars,...
             MLE_guess, CONF_LEVEL, data_struct.fD_theor_data(bin));
         % Save
-        MAP_fD(bin, enum_marginalized, :) = fD_MLE_marginalized;
+        MAP_fD(bin, enum_conv_marginalized, :) = fD_MLE_marginalized;
 
 %         %% Save all to the data structure
 %         data_struct.MAP_fwd_fD_divine{MAP_D_grad_regular} = MAP_fwd_fD_divine;
@@ -344,12 +342,14 @@ data_struct.UR_fD_bin_max = UR_fD_bin_max;
 
 
 % Print execution time
-fprintf('All trajectories processed in %.2fs\n', toc);
+fprintf('All trajectories processed in %.2f min\n', toc/60);
 
 
-%% Backup current workspace
+%% Clean up & backup current workspace
+trials_x = [];
+trials_dx = [];
 save('backup_workspace.mat');
-save('trials_data.mat', 'data_struct', 'trials_data');
+save(strcat(output_data_folder, 'trials_data.mat'), 'data_struct', 'trials_data');
 
 
 %% Plot
