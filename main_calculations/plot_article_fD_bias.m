@@ -54,6 +54,8 @@ for lambda_type = 1:lambda_types_count
     h_theor_0 = plot(x_lim_vec, 0 * x_lim_vec, 'k--');
     % y = -x/2
     h_theor_m2 = plot(x_lim_vec, -1/2 * x_lim_vec, 'k--');
+    % y = -x
+    h_theor_m2 = plot(x_lim_vec, -1 * x_lim_vec, 'k--');
     
     %% Adjust
     % Legend
