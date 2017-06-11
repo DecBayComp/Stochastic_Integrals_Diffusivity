@@ -12,7 +12,7 @@ Hng	0.936	0.476	0.116	0.116	0.284
 rnd	0.476	0.22	0.448	0.096	0.108
 
 
-Output in TEX table format:
+Output fD fail rate in TEX table format:
 
 
 Oracle	&	5(9)	&	5(10)	&	7(12)	&	5(10)
@@ -25,3 +25,12 @@ H\"anggi	&	55(96)	&	20(41)	&	7(12)	&	24(45)
 \\
 It\^o	&	5(9)	&	22(44)	&	53(94)	&	25(48)
 \\
+
+
+Output D fail rate:
+
+
+Ito	Str	Hng	rnd
+
+9(21)	15(35)	22(41)	15(33)
+

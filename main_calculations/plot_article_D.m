@@ -17,8 +17,8 @@ MR = 0.015;
 MT = 0.09;
 MB = 0.18;
 % Label params
-sublabel_x = 0.9;
-sublabel_y = 0.135;
+sublabel_x = 0.025;
+sublabel_y = 0.075;
 output_filename = 'D.pdf';
 
 
@@ -59,22 +59,22 @@ uistack(h_theor, 'bottom');
 %% == (B): Fail rate ==
 subaxis(rows, cols, 2);
 hold on;
-y_lim_vec = [0, 1];
+y_lim_vec = [-2, 102];
 str_legend = {};
 for lambda_type = 1:lambda_types_count
-    plot(data_struct.x_bins_centers,  data_struct.UR_D(lambda_type, :),...
+    plot(data_struct.x_bins_centers,  data_struct.UR_D(lambda_type, :) * 100,...
         strcat('-', markers_list{lambda_type}), 'color', color_sequence(lambda_type, :),  'LineWidth', line_width, 'markers', marker_size);
     str_legend{end + 1} = lambda_types_names{lambda_type};
 end;
 % Plot the used confidence level
-h_conf = plot(x_lim_vec, [1, 1] * (1 - CONF_LEVEL), 'k--', 'linewidth', line_width);
+h_conf = plot(x_lim_vec, [1, 1] * (1 - CONF_LEVEL) * 100, 'k--', 'linewidth', line_width);
 % Adjust
 xlim(x_lim_vec);
 ylim(y_lim_vec);
 box on;
 xlabel('$x$', 'interpreter', 'latex');
-ylabel('Fail rate', 'interpreter', 'latex');
-title('Average fail rate', 'interpreter', 'latex');
+ylabel('Fail rate, \%', 'interpreter', 'latex');
+title('Fail rate', 'interpreter', 'latex');
 % Legend
 % str_legend = lambda_types_names;
 legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
@@ -117,7 +117,7 @@ title(sprintf('$\\nabla D$ profile for $\\lambda^* = %.2f$', tmp_data_struct.lam
 text(sublabel_x, sublabel_y, '(c)', 'Units', 'Normalized', 'VerticalAlignment', 'Top');
 % Legend
 str_legend_local = {'FD', 'R', 'RI'};
-legend(str_legend_local, 'location', 'southwest', 'interpreter', 'latex', 'FontSize', legend_font_size);
+legend(str_legend_local, 'location', 'northwest', 'interpreter', 'latex', 'FontSize', legend_font_size);
 % Send theoretical curve back
 uistack(h_theor, 'bottom');
 

@@ -325,18 +325,23 @@ data_struct.UR_fD = UR_fD;
 x_left = (1/2 + 2*1)/w;
 x_right = (1/2 + 2*2)/w;
 % Filter indices from one best period
-indices = x_bins_centers >= x_left & x_bins_centers <= x_right;
-bin_widths = x_bins_centers(indices);
+indices = data_struct.x_bins_centers >= x_left & data_struct.x_bins_centers <= x_right;
+bin_widths = data_struct.x_bins_centers(indices);
 norm_bin_widths = bin_widths / sum(bin_widths);
 
 % UR_fD indices: (lambda_types_count, x_bins_number, conventions_count)
+UR_D_bin_mean = zeros(lambda_types_count, 1);
 UR_fD_bin_mean = zeros(lambda_types_count, conventions_count);
-A = permute(UR_fD, [1, 3, 2]);
+A = permute(data_struct.UR_fD, [1, 3, 2]);
 for lambda_type = 1:lambda_types_count
+    UR_D_bin_mean(lambda_type) = data_struct.UR_D(lambda_type, indices) * norm_bin_widths;
     UR_fD_bin_mean(lambda_type, :) = squeeze(A(lambda_type, :, indices)) * norm_bin_widths;
 end;
+UR_D_bin_max = max(data_struct.UR_D(:, indices), [], 2);
 UR_fD_bin_max = squeeze(max(data_struct.UR_fD(:, indices, :), [], 2));
 % Save
+data_struct.UR_D_bin_mean = UR_D_bin_mean;
+data_struct.UR_D_bin_max = UR_D_bin_max;
 data_struct.UR_fD_bin_mean = UR_fD_bin_mean;
 data_struct.UR_fD_bin_max = UR_fD_bin_max;
 
