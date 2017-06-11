@@ -10,7 +10,7 @@ load_constants;
 sublabel_x = 0.03;
 sublabel_y = 0.08;
 x_lim_vec = [0, x_max];
-y_lim_vec_FR = [-0.02, 1.02];
+y_lim_vec_FR = [-2, 102];
 y_lim_vec_profile = [-0.11, 0.325];
 output_filename = 'Force_profile_fail_rate.pdf';
 % Subplot parameters
@@ -39,13 +39,13 @@ for lambda_type = 1:lambda_types_count
     str_legend = {};
     % Plot each inference conventions
     for convention = 1:conventions_count
-        plot(data_struct.x_bins_centers(1:plot_every:end),  data_struct.UR_fD(lambda_type, 1:plot_every:end, convention),...
+        plot(data_struct.x_bins_centers(1:plot_every:end),  data_struct.UR_fD(lambda_type, 1:plot_every:end, convention) * 100,...
             strcat('-', markers_list{convention}), 'LineWidth', line_width, 'color', color_sequence(convention, :), 'markers', marker_size);
         % Update legend
         str_legend{end + 1} = conventions_names{convention};
     end
     % Confidence level (theory)
-    plot(x_lim_vec, x_lim_vec * 0 + (1 - CONF_LEVEL), 'k--', 'LineWidth', line_width);
+    plot(x_lim_vec, x_lim_vec * 0 + (1 - CONF_LEVEL) * 100, 'k--', 'LineWidth', line_width);
 
     %% Adjust
     xlim(x_lim_vec);
@@ -53,7 +53,7 @@ for lambda_type = 1:lambda_types_count
     box on;
     
     xlabel('$x$', 'interpreter', 'latex');
-    ylabel('Fail rate', 'interpreter', 'latex');
+    ylabel('Fail rate, \%', 'interpreter', 'latex');
     % Subplot label
     text(sublabel_x, sublabel_y, strcat('(', char('e' + lambda_type - 1), ')'), 'Units', 'Normalized', 'VerticalAlignment', 'Top');
     

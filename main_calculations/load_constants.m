@@ -91,6 +91,7 @@ enum_conv_divine = 4;
 enum_conv_marginalized = 5;
 conventions_count = 5;
 conventions_names = {'Ito', 'Str', 'Hng', 'Orcl', 'Mar'};
+conventions_tex_names = {'It\^o', 'Stratonovich', 'H\"anggi', 'Oracle', 'Marginalized'};
 
 
 %% Enumerate lambda simulation types
