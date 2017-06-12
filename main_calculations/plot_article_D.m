@@ -6,20 +6,28 @@ function plot_article_D(data_struct, trials_data, fig_count, bl_save_figures)
 %% Constants
 load_constants;
 bin_plot_step = 3;
-rows = 1;
-cols = 3;
+rows = 2;
+cols = 2;
 x_lim_vec = [0, x_max];
+w = 10.0;
 % Subplots params
 SH = 0.07;
 SV = 0.125;
 ML = 0.07;
-MR = 0.015;
-MT = 0.09;
-MB = 0.18;
+MR = 0.0125;
+MT = 0.04;
+MB = 0.075;
 % Label params
 sublabel_x = 0.025;
 sublabel_y = 0.075;
 output_filename = 'D.pdf';
+
+
+%% Calculate
+% Filter indices from one best period
+x_left = (1/2 + 2*1)/w;
+x_right = (1/2 + 2*2)/w;
+indices = data_struct.x_bins_centers >= x_left & data_struct.x_bins_centers <= x_right;
 
 
 %% == (A): Plot diffusivity profile ==
@@ -50,7 +58,7 @@ title('Average $D$ profile', 'interpreter', 'latex');
 text(sublabel_x, sublabel_y, '(a)', 'Units', 'Normalized', 'VerticalAlignment', 'Top');
 % Legend
 % str_legend = lambda_types_names;
-h_leg = legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
+h_leg = legend(str_legend, 'location', 'south', 'FontSize', legend_font_size);
 legend boxon;
 % Send theoretical curve back
 uistack(h_theor, 'bottom');
@@ -77,7 +85,7 @@ ylabel('Fail rate, \%', 'interpreter', 'latex');
 title('Fail rate', 'interpreter', 'latex');
 % Legend
 % str_legend = lambda_types_names;
-legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
+legend(str_legend, 'location', 'north', 'FontSize', legend_font_size);
 legend boxon;
 % Subplot label
 text(sublabel_x, sublabel_y, '(b)', 'Units', 'Normalized', 'VerticalAlignment', 'Top');
@@ -85,9 +93,37 @@ text(sublabel_x, sublabel_y, '(b)', 'Units', 'Normalized', 'VerticalAlignment', 
 uistack(h_conf, 'bottom');
 
 
-%% == (C): D' profile ==
+%% == (C): D bias ==
 %% Initialize
 subaxis(rows, cols, 3);
+hold on;
+str_legend = {};
+%% Plot
+for lambda_type = 1:lambda_types_count
+    plot(data_struct.MAP_D_grad_regular_interp(indices) * kBT,...
+        (data_struct.MAP_D_mean(lambda_type, indices, 1) - data_struct.D_theor_data(indices)'), markers_list{lambda_type},...
+        'markers', marker_size, 'LineWidth', line_width, 'color', color_sequence(lambda_type, :));
+    str_legend{end + 1} = lambda_types_names{lambda_type};
+end;
+%% Legend
+legend(str_legend, 'location', 'southwest', 'FontSize', legend_font_size);
+legend boxon;
+%% Theory
+x_lim_vec_C = xlim();
+% y = 0
+h_theor_0 = plot(x_lim_vec_C, 0 * x_lim_vec_C, 'k--');
+%% Adjust
+xlabel('$k_\mathrm{B}T\nabla D$', 'interpreter', 'latex');
+ylabel('$D$ bias', 'interpreter', 'latex');
+text(sublabel_x, sublabel_y, strcat('(c)'), 'Units', 'Normalized', 'VerticalAlignment', 'Top');
+title('Average $D$ bias', 'interpreter', 'latex');
+% Reorder curves
+uistack([h_theor_0], 'bottom');
+
+
+%% == (D): D' profile ==
+%% Initialize
+subaxis(rows, cols, 4);
 hold on;
 y_lim_vec = [-1, 0.75] * 1;
 %% Calculate
@@ -120,6 +156,47 @@ str_legend_local = {'FD', 'R', 'RI'};
 legend(str_legend_local, 'location', 'northwest', 'interpreter', 'latex', 'FontSize', legend_font_size);
 % Send theoretical curve back
 uistack(h_theor, 'bottom');
+
+
+
+% Plot bias in D against the local d gradient
+% figure(9);
+
+
+%     x_lim_vec = xlim();
+% 
+%     %% Identity-like lines (theory)
+%     % y = x
+%     h_theor_1 = plot(x_lim_vec, x_lim_vec, 'k--');
+%     % y = x/2
+%     h_theor_2 = plot(x_lim_vec, 1/2 * x_lim_vec, 'k--');
+%     % y = 0
+%     h_theor_0 = plot(x_lim_vec, 0 * x_lim_vec, 'k--');
+%     % y = -x/2
+%     h_theor_m2 = plot(x_lim_vec, -1/2 * x_lim_vec, 'k--');
+%     % y = -x
+%     h_theor_m2 = plot(x_lim_vec, -1 * x_lim_vec, 'k--');
+    
+
+%     % Legend
+%     if lambda_type == 1
+%         legend(str_legend, 'location', 'northeast', 'FontSize', legend_font_size);
+%     end;
+    
+%     xlim(x_lim_vec);
+%     ylim(y_lim_vec);
+    
+    % Labels
+   
+%     title_str = {'$\lambda^* = 0$', '$\lambda^* = 0.5$', '$\lambda^* = 1$', 'Random $\lambda^*$'};
+%     title(title_str{lambda_type}, 'interpreter', 'latex');
+    % Subplot label
+    
+    
+    % Reorder curves
+%     uistack([h_theor_0, h_theor_m2, h_theor_2, h_theor_1], 'bottom');
+
+
 
 
 %% Save figure
