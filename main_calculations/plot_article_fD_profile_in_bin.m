@@ -18,20 +18,33 @@ cur_data_struct = trials_data{data_struct.trial_first_simulation_type_index(lamb
 lambda = cur_data_struct.lambda;
 [selected_bins_indices, selected_bins_centers] = get_selected_bins_indices(cur_data_struct);
 bin = selected_bins_indices;
+D_grad = cur_data_struct.MAP_D_grad_regular_interp(bin);
 
 
 %% Calculate
 % The most probable values of fD for each convention
 fD_values = zeros(1, conventions_count + 1);
-for convention = 1:conventions_count
-    [mu_n, ~, ~, ~] = get_n_parameters(bin, cur_data_struct, 'forward');
-    fD_values(convention) = mu_n * kBT / t_step;
-end;
+[mu_n, ~, ~, ~] = get_n_parameters(bin, cur_data_struct, 'forward');
+% Ito
+tmp_lambda = 0;
+fD_values(1) = (mu_n / t_step - tmp_lambda * D_grad) * kBT;
+% Stratonovich
+tmp_lambda = 0.5;
+fD_values(2) = (mu_n / t_step - tmp_lambda * D_grad) * kBT;
+% Hanggi
+tmp_lambda = 1;
+fD_values(3) = (mu_n / t_step - tmp_lambda * D_grad) * kBT;
+% Marginalized
+tmp_lambda = 0.5;
+fD_values(4) = (mu_n / t_step - tmp_lambda * D_grad) * kBT;
+% Oracle
+tmp_lambda = lambda;
+fD_values(5) = (mu_n / t_step - tmp_lambda * D_grad) * kBT;
 % Exact fD
 fD_values(conventions_count + 1) = f_func(selected_f_case, selected_bins_centers*L, L)...
     .* D_func(selected_D_case, selected_bins_centers*L, L);
 
-% Detect the longest interval and centrally increase its length
+% Among the calculated values, detect the longest interval and centrally increase its length
 fD_min = min(fD_values);
 fD_max = max(fD_values);
 fD_interval = fD_max - fD_min;
@@ -47,20 +60,20 @@ fD_mesh_length = length(fD_mesh);
 
 %% Calculate PDF values on mesh
 fD_data = zeros(conventions_count, fD_mesh_length);
-% Divine
+% Oracle
 fD_data(enum_conv_divine, :) = bin_fD_divine_inference_posterior_func(cur_data_struct, ...
-    lambda, bin, fD_mesh, data_struct.MAP_D_grad_regular_interp(bin), 'forward');
+    lambda, bin, fD_mesh, D_grad, 'forward');
 % Ito
 fD_data(enum_conv_Ito, :) = bin_fD_posterior_func (cur_data_struct, bin, fD_mesh, 'forward');    
 % Stratonovich
 fD_data(enum_conv_Stratonovich, :) = bin_fD_simple_Stratonovich_posterior_func(cur_data_struct, ...
-            bin, fD_mesh, cur_data_struct.MAP_D_grad_regular_interp(bin), 'forward');
+            bin, fD_mesh, D_grad, 'forward');
 % Hanggi
 fD_data(enum_conv_Hanggi, :) = bin_fD_simple_Hanggi_posterior_func(cur_data_struct, ...
-    bin, fD_mesh, cur_data_struct.MAP_D_grad_regular_interp(bin), 'forward');
+    bin, fD_mesh, D_grad, 'forward');
 % Marginalized
 fD_data(enum_conv_marginalized, :) = bin_fD_lambda_marginalized_posterior_func(cur_data_struct, ...
-            bin, fD_mesh, cur_data_struct.MAP_D_grad_regular_interp(bin), 'forward');
+            bin, fD_mesh, D_grad, 'forward');
 
         
 %% Plot

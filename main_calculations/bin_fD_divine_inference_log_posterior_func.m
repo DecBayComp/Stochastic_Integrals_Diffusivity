@@ -13,6 +13,8 @@ load_constants;
 % Check grad length
 if length(D_grad) > 1
     error('A scalar gradient variable required. Aborting');
+    result = zeros(size(fD));
+    return;
 end;
 
 
