@@ -32,6 +32,7 @@ indices = data_struct.x_bins_centers >= x_left & data_struct.x_bins_centers <= x
 
 %% == (A): Plot diffusivity profile ==
 % Initialize
+y_lim_vec = [0.004, 0.01525];
 h_fig = figure(fig_count);
 set_article_figure_size(h_fig, rows, 2, 1);
 clf;
@@ -48,7 +49,6 @@ end;
 h_theor = plot(data_struct.x_fine_mesh, data_struct.D_theor_fine_data, '--k', 'LineWidth', line_width);
 % Adjust
 xlim(x_lim_vec);
-y_lim_vec = [0.004, 0.016];
 ylim(y_lim_vec);
 box on;
 xlabel('$x$', 'interpreter', 'latex');

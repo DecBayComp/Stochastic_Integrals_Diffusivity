@@ -239,7 +239,6 @@ parfor trial = 1:trials
         % Prepare function
         function_to_minimze = @(fD) bin_fD_lambda_marginalized_log_posterior_func(data_struct, bin, fD, inferred_MAP_D_grad_reg_interpolated(bin), 'forward');
         % Make a guess
-        [mu_n, ~, ~, ~] = get_n_parameters(bin, data_struct, 'forward');
         D_grad = inferred_MAP_D_grad_reg_interpolated(bin);
         lambda = 0.5;
         MLE_guess = (mu_n / t_step - lambda * D_grad) * kBT;
@@ -249,22 +248,6 @@ parfor trial = 1:trials
         % Save
         MAP_fD(bin, enum_conv_marginalized, :) = fD_MLE_marginalized;
 
-%         %% Save all to the data structure
-%         data_struct.MAP_fwd_fD_divine{MAP_D_grad_regular} = MAP_fwd_fD_divine;
-%         data_struct.MAP_fD_Ito{MAP_D_grad_regular} = MAP_fD_Ito;
-%         data_struct.MAP_fwd_fD_Stratonovich{MAP_D_grad_regular} = MAP_fwd_fD_Stratonovich;
-%         data_struct.MAP_fD_Hanggi{MAP_D_grad_regular} = MAP_fD_Hanggi;
-%         data_struct.MAP_fwd_fD_marginalized{MAP_D_grad_regular} = MAP_fwd_fD_marginalized;
-        
-        % Calculate mean
-%         MAP_D_mean{MAP_D_grad_regular} = MAP_D_mean{MAP_D_grad_regular} + data_struct.MAP_fwd_D{MAP_D_grad_regular};
-%         MAP_bck_fD_Hanggi_mean{l_ind} = MAP_bck_fD_Hanggi_mean{l_ind} + data_struct.MAP_bck_fD_Hanggi{l_ind};
-%         MAP_fwd_fD_Stratonovich_mean{MAP_D_grad_regular} = MAP_fwd_fD_Stratonovich_mean{MAP_D_grad_regular} + data_struct.MAP_fwd_fD_Stratonovich{MAP_D_grad_regular};
-%         MAP_fD_Hanggi_mean{MAP_D_grad_regular} = MAP_fD_Hanggi_mean{MAP_D_grad_regular} + data_struct.MAP_fD_Hanggi{MAP_D_grad_regular};
-%         MAP_fD_Ito_mean{MAP_D_grad_regular} = MAP_fD_Ito_mean{MAP_D_grad_regular} + data_struct.MAP_fD_Ito{MAP_D_grad_regular};
-%         MAP_fwd_fD_divine_mean{MAP_D_grad_regular} = MAP_fwd_fD_divine_mean{MAP_D_grad_regular} + data_struct.MAP_fwd_fD_divine{MAP_D_grad_regular};
-%         MAP_fwd_fD_marginalized_mean{MAP_D_grad_regular} = MAP_fwd_fD_marginalized_mean{MAP_D_grad_regular} + data_struct.MAP_fwd_fD_marginalized{MAP_D_grad_regular};
-%         fprintf('Time elapsed for this lambda: %.2f s\n', toc);
     end;
     
     % Save all to the data structure 
