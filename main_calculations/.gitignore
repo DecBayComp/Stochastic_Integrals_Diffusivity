@@ -1,3 +1,4 @@
 backup_workspace.mat
 *.asv
+.DS_Store
 # ./processed_data/*

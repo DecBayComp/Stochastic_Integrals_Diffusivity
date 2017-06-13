@@ -19,7 +19,7 @@ MT = 0.04;
 MB = 0.075;
 % Label params
 sublabel_x = 0.025;
-sublabel_y = 0.075;
+sublabel_y = 0.07;
 output_filename = 'D.pdf';
 
 
@@ -52,7 +52,7 @@ y_lim_vec = [0.004, 0.016];
 ylim(y_lim_vec);
 box on;
 xlabel('$x$', 'interpreter', 'latex');
-ylabel('$D$', 'interpreter', 'latex');
+ylabel('$<D>$', 'interpreter', 'latex');
 title('Average $D$ profile', 'interpreter', 'latex');
 % Subplot label
 text(sublabel_x, sublabel_y, '(a)', 'Units', 'Normalized', 'VerticalAlignment', 'Top');
@@ -97,10 +97,12 @@ uistack(h_conf, 'bottom');
 %% Initialize
 subaxis(rows, cols, 3);
 hold on;
+x_lim_vec_C = [-0.19,0.16];
+y_lim_vec = [-1.1, 0.65] * 1e-3;
 str_legend = {};
 %% Plot
 for lambda_type = 1:lambda_types_count
-    plot(data_struct.MAP_D_grad_regular_interp(indices) * kBT,...
+    plot(data_struct.MAP_D_grad_regular_interp_mean(lambda_type, indices) * kBT,...
         (data_struct.MAP_D_mean(lambda_type, indices, 1) - data_struct.D_theor_data(indices)'), markers_list{lambda_type},...
         'markers', marker_size, 'LineWidth', line_width, 'color', color_sequence(lambda_type, :));
     str_legend{end + 1} = lambda_types_names{lambda_type};
@@ -109,12 +111,13 @@ end;
 legend(str_legend, 'location', 'southwest', 'FontSize', legend_font_size);
 legend boxon;
 %% Theory
-x_lim_vec_C = xlim();
+xlim(x_lim_vec_C);
+ylim(y_lim_vec);
 % y = 0
 h_theor_0 = plot(x_lim_vec_C, 0 * x_lim_vec_C, 'k--');
 %% Adjust
-xlabel('$k_\mathrm{B}T\nabla D$', 'interpreter', 'latex');
-ylabel('$D$ bias', 'interpreter', 'latex');
+xlabel('$k_\mathrm{B}T<\nabla D>$', 'interpreter', 'latex');
+ylabel('$<\delta D>$', 'interpreter', 'latex');
 text(sublabel_x, sublabel_y, strcat('(c)'), 'Units', 'Normalized', 'VerticalAlignment', 'Top');
 title('Average $D$ bias', 'interpreter', 'latex');
 % Reorder curves
@@ -150,7 +153,7 @@ ylim(y_lim_vec);
 box on;
 title(sprintf('$\\nabla D$ profile for $\\lambda^* = %.2f$', tmp_data_struct.lambda), 'interpreter', 'latex');
 % Sublabel
-text(sublabel_x, sublabel_y, '(c)', 'Units', 'Normalized', 'VerticalAlignment', 'Top');
+text(sublabel_x, sublabel_y, '(d)', 'Units', 'Normalized', 'VerticalAlignment', 'Top');
 % Legend
 str_legend_local = {'FD', 'R', 'RI'};
 legend(str_legend_local, 'location', 'northwest', 'interpreter', 'latex', 'FontSize', legend_font_size);

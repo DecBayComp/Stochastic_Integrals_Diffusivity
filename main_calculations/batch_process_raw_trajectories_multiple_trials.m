@@ -282,21 +282,26 @@ t_mesh = (0:N) * t_step;
 % Combine predictions from all trials (needed for right parallelization)
 trials_MAP_D = zeros(trials, x_bins_number, 4);
 trials_MAP_fD = zeros(trials, x_bins_number, conventions_count, 4);
+trials_MAP_D_grad_regular_interp = zeros(trials, x_bins_number);
 for trial = 1:trials
     % D
     trials_MAP_D(trial, :, :) = trials_data{trial}.MAP_D(:, :);
     % fD
     trials_MAP_fD(trial, :, :, :) = trials_data{trial}.MAP_fD;
+    % D grad
+    trials_MAP_D_grad_regular_interp(trial, :) = trials_data{trial}.MAP_D_grad_regular_interp;
 end;
 % Save
 data_struct.trials_MAP_D = trials_MAP_D;
 data_struct.trials_MAP_fD = trials_MAP_fD;
+data_struct.trials_MAP_D_grad_regular_interp = trials_MAP_D_grad_regular_interp;
 
 
 %% Calculate mean for each simulation type separately
 %% Also calculate the fail rate for each simulation type
 MAP_D_mean = zeros(lambda_types_count, x_bins_number, 4);
 MAP_fD_mean = zeros(lambda_types_count, x_bins_number, conventions_count, 4);
+MAP_D_grad_regular_interp_mean = zeros(lambda_types_count, x_bins_number);
 UR_D = zeros(lambda_types_count, x_bins_number);
 UR_fD = zeros(lambda_types_count, x_bins_number, conventions_count);
 outside_count_fD = zeros(lambda_types_count, x_bins_number, conventions_count);
@@ -304,6 +309,7 @@ for lambda_type = 1:lambda_types_count
     % Mean
     MAP_D_mean(lambda_type, :, :) = mean(trials_MAP_D(trial_simulation_type == lambda_type, :, :), 1);
     MAP_fD_mean(lambda_type, :, :, :) = mean(trials_MAP_fD(trial_simulation_type == lambda_type, :, :, :), 1);
+    MAP_D_grad_regular_interp_mean(lambda_type, :) = mean(trials_MAP_D_grad_regular_interp(trial_simulation_type == lambda_type, :), 1);
     % Fail rate
     % D
     UR_D(lambda_type, :) = mean(double(trials_MAP_D(trial_simulation_type == lambda_type, :, 4) > CONF_LEVEL), 1);
@@ -314,6 +320,7 @@ end;
 % Save
 data_struct.MAP_D_mean = MAP_D_mean;
 data_struct.MAP_fD_mean = MAP_fD_mean;
+data_struct.MAP_D_grad_regular_interp_mean = MAP_D_grad_regular_interp_mean;
 data_struct.UR_D = UR_D;
 data_struct.UR_fD = UR_fD;
 
