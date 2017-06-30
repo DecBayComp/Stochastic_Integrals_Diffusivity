@@ -10,7 +10,7 @@ load_constants;
 fD_steps = 1 + 2^7.5;
 factor = 8;
 y_factor = 1e3;
-lambda_type = enum_lambda_Hanggi;
+lambda_type = enum_lambda_rand;
 
 
 %% Initialize
@@ -95,7 +95,7 @@ str_legend{length(str_legend) + 1} = conventions_names{enum_conv_marginalized};
 % Exact value
 max_pdf = max(max(fD_data));
 y_lim_vec = [0, max_pdf * 1.05];
-plot(fD_values(conventions_count + 1) .* [1, 1], y_lim_vec, '--k', 'LineWidth', line_width);
+h_theor = plot(fD_values(conventions_count + 1) .* [1, 1], y_lim_vec, '--k', 'LineWidth', line_width);
 
 %% Adjust
 % X limits
@@ -105,12 +105,15 @@ fD_max = fD_mesh(find(indices, 1, 'last'));
 x_lim_vec = [fD_min, fD_max];
 xlim(x_lim_vec);
 ylim(y_lim_vec);
+box on;
 
-xlabel('$fD$', 'interpreter', 'latex');
-ylabel('Force posterior', 'interpreter', 'latex');
+xlabel('$f^AD$', 'interpreter', 'latex');
+ylabel('PDF', 'interpreter', 'latex');
 title(sprintf('$x\\approx%.2f$, $\\lambda^* = %.2f$', selected_x_over_L, lambda), 'interpreter', 'latex');
 % Legend
 legend(str_legend, 'location', 'northeast', 'interpreter', 'latex', 'fontsize', legend_font_size);
+% Reorder curves
+uistack(h_theor, 'bottom');
 
 
 %% Save figure

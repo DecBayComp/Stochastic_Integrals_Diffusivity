@@ -14,7 +14,7 @@ y_lim_vec_FR = [-2, 102];
 y_lim_vec_profile = [-0.11, 0.325];
 output_filename = 'Force_profile_fail_rate.pdf';
 % Subplot parameters
-SH = 0.06;
+SH = 0.04;
 SV = 0.1;
 ML = 0.06;
 MR = 0.005;
@@ -53,7 +53,9 @@ for lambda_type = 1:lambda_types_count
     box on;
     
     xlabel('$x$', 'interpreter', 'latex');
-    ylabel('Fail rate, \%', 'interpreter', 'latex');
+    if lambda_type == 1
+        ylabel('Fail rate, \%', 'interpreter', 'latex');
+    end;
     % Subplot label
     text(sublabel_x, sublabel_y, strcat('(', char('e' + lambda_type - 1), ')'), 'Units', 'Normalized', 'VerticalAlignment', 'Top');
     
@@ -81,7 +83,9 @@ for lambda_type = 1:lambda_types_count
     box on;
     
     xlabel('$x$', 'interpreter', 'latex');
-    ylabel('$fD$', 'interpreter', 'latex');
+    if lambda_type == 1
+        ylabel('$<f^AD>$', 'interpreter', 'latex');
+    end;
     str_title = {'$\lambda^* = 0$', '$\lambda^* = 0.5$', '$\lambda^* = 1$', 'Random $\lambda^*$'};
     title(str_title{lambda_type}, 'interpreter', 'latex');
     % Subplot label

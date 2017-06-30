@@ -7,15 +7,15 @@ function plot_article_fD_bias(data_struct, fig_count, bl_save_figures)
 
 %% Constants
 load_constants;
-sublabel_x = 0.02;
-sublabel_y = 0.99;
+sublabel_x = 0.05;
+sublabel_y = 0.08;
 x_lim_vec = [-1, 1] * 0.17;
 y_lim_vec = [-1, 1] * 0.18;
 output_filename = 'Force_bias_vs_gradient.pdf';
 % Subplots parameters
-spacing = 0.08;
+spacing = 0.05;
 ML = 0.07;
-MR = 0.02;
+MR = 0.005;
 MT = 0.08;
 MB = 0.15;
 
@@ -55,27 +55,27 @@ for lambda_type = 1:lambda_types_count
     % y = -x/2
     h_theor_m2 = plot(x_lim_vec, -1/2 * x_lim_vec, 'k--');
     % y = -x
-    h_theor_m2 = plot(x_lim_vec, -1 * x_lim_vec, 'k--');
+    h_theor_m1 = plot(x_lim_vec, -1 * x_lim_vec, 'k--');
     
     %% Adjust
     % Legend
     if lambda_type == 1
         legend(str_legend, 'location', 'northeast', 'FontSize', legend_font_size);
+        ylabel('$<\delta(f^AD)>$ ', 'interpreter', 'latex');
     end;
     
     xlim(x_lim_vec);
     ylim(y_lim_vec);
     
     % Labels
-    xlabel('$k_\mathrm{B}T\nabla D$', 'interpreter', 'latex');
-    ylabel('$fD$ bias', 'interpreter', 'latex');
+    xlabel('$k_\mathrm{B}T <\nabla D>$', 'interpreter', 'latex');
     title_str = {'$\lambda^* = 0$', '$\lambda^* = 0.5$', '$\lambda^* = 1$', 'Random $\lambda^*$'};
     title(title_str{lambda_type}, 'interpreter', 'latex');
     % Subplot label
     text(sublabel_x, sublabel_y, strcat('(', char('a' + lambda_type - 1), ')'), 'Units', 'Normalized', 'VerticalAlignment', 'Top');
     
     % Reorder curves
-    uistack([h_theor_0, h_theor_m2, h_theor_2, h_theor_1], 'bottom');
+    uistack([h_theor_0, h_theor_m2, h_theor_2, h_theor_1, h_theor_m1], 'bottom');
 end;
 
 
