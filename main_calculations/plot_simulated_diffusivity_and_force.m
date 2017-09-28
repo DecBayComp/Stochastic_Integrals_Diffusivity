@@ -8,12 +8,12 @@ load_color_scheme;
 x_marker_step = 0.05 * L;
 marker_step = 10;
 x_step = x_marker_step/marker_step;
-output_D_filename = 'Simulated_D.pdf';
+output_D_filename = 'Simulated_D_a_b.pdf';
 
 % Subplot parameters
 spacing = 0.08;
 ML = 0.07;
-MR = 0.02;
+MR = 0.0125;
 MT = 0.08;
 MB = 0.17;
 
@@ -109,14 +109,14 @@ ylabel('$b$, $\mu \mathrm{m \cdot s^{-1/2}}$', 'interpreter', 'latex');
 
 %% Save figure
 % Prepare printer
-h_D_fig.PaperPositionMode = 'auto';
-h_D_fig.Units = 'Inches';
-fig_pos = h_D_fig.Position;
-set(h_D_fig, 'PaperUnits','Inches','PaperSize', [fig_pos(3), fig_pos(4)]);
+h_fig.PaperPositionMode = 'auto';
+h_fig.Units = 'Inches';
+fig_pos = h_fig.Position;
+set(h_fig, 'PaperUnits','Inches','PaperSize', [fig_pos(3), fig_pos(4)]);
 % Set filename
 output_full_path = strcat(output_figures_folder, output_D_filename);
 % Print
-print(h_D_fig, output_full_path, '-dpdf', '-r0');
+print(h_fig, output_full_path, '-dpdf', '-r0');
 
 
 
