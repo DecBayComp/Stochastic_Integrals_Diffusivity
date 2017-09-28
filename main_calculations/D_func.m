@@ -1,4 +1,4 @@
-
+ 
 
 function [D_func_value, D_prime_func_value, D_scnd_der_func_value] = D_func (D_case_number, x, L)
 

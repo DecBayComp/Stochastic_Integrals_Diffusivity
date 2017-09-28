@@ -1,10 +1,11 @@
 
 %% Constants
 % m = 1;
-kBT = 1;
-L = 1;
+kBT = 1;	% change to 4.14 * 10^(-21) J
+L = 1;	% in um
 x_min = -L/2;
 x_max = L/2;
+gamma_drag = 400;	% viscous drag, in fN * s / um
 % % L = x_max - x_min;
 % bl_periodic = true;
 % T = 100000;
@@ -72,7 +73,7 @@ str_mode = 'inf_walls';     bc_type = ENUM_BC_INF_WALLS;
 
 
 % lambda_array = [0, 0.5, 1];
-lambda_names_array = {'Ito´', 'Stratonovich', 'Isothermal'}; 
+lambda_names_array = {'Itoï¿½', 'Stratonovich', 'Isothermal'}; 
 % lambda_count = length(lambda_array);
 
 
