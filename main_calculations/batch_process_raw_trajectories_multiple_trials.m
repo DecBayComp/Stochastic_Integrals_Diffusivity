@@ -7,7 +7,7 @@ clear;
 %% Constants
 load_constants;
 
-fD_ABS_MAX = 4 * 10;
+a_ABS_MAX = 1;
 D_PRECISION = 1e-5;
 b_PRECISION = 1e-3;
 D_ABS_MAX = 1;
@@ -102,7 +102,7 @@ fD_theor_fine_data = D_func(selected_D_case, x_fine_mesh, L) .* f_func(selected_
 % Calculate in bins with first two derivatives
 [D_bins, D_prime_bins, D_prime_prime_bins] = D_func(selected_D_case, x_bins_centers, L);
 b_bins = sqrt(2 * D_bins);
-fD_bins = D_func(selected_D_case, x_bins_centers, L) .* f_func(selected_f_case, x_bins_centers, L);
+a_bins = f_func(selected_f_case, x_bins_centers, L) / gamma_drag;
 
 
 fprintf('Processing trajectories...\n');
@@ -124,7 +124,7 @@ for trial = 1:trials
     data_struct.fD_theor_fine_data = fD_theor_fine_data;
     data_struct.D_theor_data = [D_bins; D_prime_bins; D_prime_prime_bins];
 	data_struct.b_theor_data(:, 1) = b_bins;
-    data_struct.fD_theor_data = fD_bins;
+    data_struct.a_theor_data = a_bins;
     data_struct.trial_simulation_type = trial_simulation_type;
     data_struct.trial_first_simulation_type_index = trial_first_simulation_type_index;
     
@@ -181,7 +181,7 @@ for trial = 1:trials
 
     
     %% Infer forces
-    MAP_fD = zeros(x_bins_number, conventions_count, 4);
+    MAP_a = zeros(x_bins_number, conventions_count, 4);
 %     MAP_fwd_fD_divine = zeros(4, x_bins_number_saved(MAP_D_grad_regular));
 %     MAP_fD_Ito = zeros(4, x_bins_number_saved(MAP_D_grad_regular));
 %     MAP_fwd_fD_Stratonovich = zeros(4, x_bins_number_saved(MAP_D_grad_regular));
@@ -191,20 +191,20 @@ for trial = 1:trials
         fprintf('Estimating force. Trial: %i/%i. Bin: %i/%i\n', trial, trials, bin, x_bins_number);
         % Initialize
         [mu_n, kappa_n, nu_n, sigma2_n] = get_n_parameters(bin, data_struct, 'forward');
-        D_grad = inferred_MAP_D_grad_reg_interpolated(bin);
+        bb_prime = inferred_MAP_bb_prime_reg_interpolated(bin);
 
 
         %% Divine force estimate
         % Prepare function
-        log_function_to_minimze = @(fD) bin_fD_divine_inference_log_posterior_func(data_struct, trials_lambdas(trial), bin, fD, inferred_MAP_D_grad_reg_interpolated(bin), 'forward');
+        log_function_to_minimze = @(a) bin_a_divine_inference_log_posterior_func(data_struct, trials_lambdas(trial), bin, a, bb_prime(bin), 'forward');
         % Make an MLE guess
         lambda = data_struct.lambda;
-        MLE_guess = (mu_n / t_step - lambda * D_grad) * kBT;
+        MLE_guess = mu_n / t_step - lambda * bb_prime(bin);
         % Find confidence intervals
-        fD_divine_inference = find_confidence_interval(log_function_to_minimze, [- fD_ABS_MAX, fD_ABS_MAX], true, MLE_guess,...
-            CONF_LEVEL, data_struct.fD_theor_data(bin));
+        a_divine_inference = find_confidence_interval(log_function_to_minimze, [- a_ABS_MAX, a_ABS_MAX], true, MLE_guess,...
+            CONF_LEVEL, data_struct.a_theor_data(bin));
         % Save
-        MAP_fD(bin, enum_conv_divine, :) = fD_divine_inference;
+        MAP_a(bin, enum_conv_divine, :) = a_divine_inference;
 
         %% Simple Ito force estimate
         % Prepare function
