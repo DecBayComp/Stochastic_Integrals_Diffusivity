@@ -12,7 +12,7 @@ D_PRECISION = 1e-5;
 b_PRECISION = 1e-3;
 D_ABS_MAX = 1;
 b_ABS_MAX = 1;
-bl_find_marginalized_fD_error_bars = false;
+bl_find_marginalized_fD_error_bars = false;		% turn off for speed
 bl_reload_trajectories = true;
 
 
@@ -30,7 +30,7 @@ pdf_norm = [];
 %% Access trajectories folder and start loading trajectories
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
-trials = 10; % sum(~[cur_dir.isdir]);
+trials = 8; % sum(~[cur_dir.isdir]);
 % trials = 11 * 10;
 
 
@@ -103,6 +103,8 @@ fD_theor_fine_data = D_func(selected_D_case, x_fine_mesh, L) .* f_func(selected_
 [D_bins, D_prime_bins, D_prime_prime_bins] = D_func(selected_D_case, x_bins_centers, L);
 b_bins = sqrt(2 * D_bins);
 a_bins = f_func(selected_f_case, x_bins_centers, L) / gamma_drag;
+b_theor_fine_data = sqrt(2 * D_theor_fine_data);
+bb_prime_theor_fine_data = D_grad_theor_fine_data;
 
 
 fprintf('Processing trajectories...\n');
@@ -119,8 +121,8 @@ parfor trial = 1:trials
     data_struct.dx_Mean = dx_Mean;
     data_struct.V = V;
     data_struct.x_fine_mesh = x_fine_mesh;
-    data_struct.D_theor_fine_data = D_theor_fine_data;
-    data_struct.D_grad_theor_fine_data = D_grad_theor_fine_data;
+    data_struct.b_theor_fine_data = b_theor_fine_data;
+    data_struct.bb_prime_theor_fine_data = bb_prime_theor_fine_data;
     data_struct.fD_theor_fine_data = fD_theor_fine_data;
     data_struct.D_theor_data = [D_bins; D_prime_bins; D_prime_prime_bins];
 	data_struct.b_theor_data(:, 1) = b_bins;
@@ -276,49 +278,49 @@ data_struct = trials_data{end};
 t_mesh = (0:N) * t_step;
 
 % Combine predictions from all trials (needed for right parallelization)
-trials_MAP_D = zeros(trials, x_bins_number, 4);
-trials_MAP_fD = zeros(trials, x_bins_number, conventions_count, 4);
-trials_MAP_D_grad_regular_interp = zeros(trials, x_bins_number);
+trials_MAP_b = zeros(trials, x_bins_number, 4);
+trials_MAP_a = zeros(trials, x_bins_number, conventions_count, 4);
+trials_MAP_bb_prime_regular_interp = zeros(trials, x_bins_number);
 for trial = 1:trials
-    % D
-    trials_MAP_D(trial, :, :) = trials_data{trial}.MAP_D(:, :);
+    % b
+    trials_MAP_b(trial, :, :) = trials_data{trial}.MAP_b(:, :);
     % fD
-    trials_MAP_fD(trial, :, :, :) = trials_data{trial}.MAP_fD;
+    trials_MAP_a(trial, :, :, :) = trials_data{trial}.MAP_a;
     % D grad
-    trials_MAP_D_grad_regular_interp(trial, :) = trials_data{trial}.MAP_D_grad_regular_interp;
+    trials_MAP_bb_prime_regular_interp(trial, :) = trials_data{trial}.MAP_bb_prime_regular_interp;
 end;
 % Save
-data_struct.trials_MAP_D = trials_MAP_D;
-data_struct.trials_MAP_fD = trials_MAP_fD;
-data_struct.trials_MAP_D_grad_regular_interp = trials_MAP_D_grad_regular_interp;
+data_struct.trials_MAP_b = trials_MAP_b;
+data_struct.trials_MAP_a = trials_MAP_a;
+data_struct.trials_MAP_bb_prime_regular_interp = trials_MAP_bb_prime_regular_interp;
+
 
 
 %% Calculate mean for each simulation type separately
 %% Also calculate the fail rate for each simulation type
-MAP_D_mean = zeros(lambda_types_count, x_bins_number, 4);
-MAP_fD_mean = zeros(lambda_types_count, x_bins_number, conventions_count, 4);
-MAP_D_grad_regular_interp_mean = zeros(lambda_types_count, x_bins_number);
-UR_D = zeros(lambda_types_count, x_bins_number);
-UR_fD = zeros(lambda_types_count, x_bins_number, conventions_count);
-outside_count_fD = zeros(lambda_types_count, x_bins_number, conventions_count);
+MAP_b_mean = zeros(lambda_types_count, x_bins_number, 4);
+MAP_a_mean = zeros(lambda_types_count, x_bins_number, conventions_count, 4);
+MAP_bb_prime_regular_interp_mean = zeros(lambda_types_count, x_bins_number);
+UR_b = zeros(lambda_types_count, x_bins_number);
+UR_a = zeros(lambda_types_count, x_bins_number, conventions_count);
+outside_count_a = zeros(lambda_types_count, x_bins_number, conventions_count);
 for lambda_type = 1:lambda_types_count
     % Mean
-    MAP_D_mean(lambda_type, :, :) = mean(trials_MAP_D(trial_simulation_type == lambda_type, :, :), 1);
-    MAP_fD_mean(lambda_type, :, :, :) = mean(trials_MAP_fD(trial_simulation_type == lambda_type, :, :, :), 1);
-    MAP_D_grad_regular_interp_mean(lambda_type, :) = mean(trials_MAP_D_grad_regular_interp(trial_simulation_type == lambda_type, :), 1);
+    MAP_b_mean(lambda_type, :, :) = mean(trials_MAP_b(trial_simulation_type == lambda_type, :, :), 1);
+    MAP_a_mean(lambda_type, :, :, :) = mean(trials_MAP_a(trial_simulation_type == lambda_type, :, :, :), 1);
+    MAP_bb_prime_regular_interp_mean(lambda_type, :) = mean(trials_MAP_bb_prime_regular_interp(trial_simulation_type == lambda_type, :), 1);
     % Fail rate
-    % D
-    UR_D(lambda_type, :) = mean(double(trials_MAP_D(trial_simulation_type == lambda_type, :, 4) > CONF_LEVEL), 1);
-    % fD
-%     convention = 1;
-    UR_fD(lambda_type, :, :) = mean(double(trials_MAP_fD(trial_simulation_type == lambda_type, :, :, 4) > CONF_LEVEL), 1);
+    % b
+    UR_b(lambda_type, :) = mean(double(trials_MAP_b(trial_simulation_type == lambda_type, :, 4) > CONF_LEVEL), 1);
+    % a
+    UR_a(lambda_type, :, :) = mean(double(trials_MAP_a(trial_simulation_type == lambda_type, :, :, 4) > CONF_LEVEL), 1);
 end;
 % Save
-data_struct.MAP_D_mean = MAP_D_mean;
-data_struct.MAP_fD_mean = MAP_fD_mean;
-data_struct.MAP_D_grad_regular_interp_mean = MAP_D_grad_regular_interp_mean;
-data_struct.UR_D = UR_D;
-data_struct.UR_fD = UR_fD;
+data_struct.MAP_b_mean = MAP_b_mean;
+data_struct.MAP_a_mean = MAP_a_mean;
+data_struct.MAP_bb_prime_regular_interp_mean = MAP_bb_prime_regular_interp_mean;
+data_struct.UR_b = UR_b;
+data_struct.UR_a = UR_a;
 
 
 %% Calculate mean and average fail rate of each inference convention
@@ -333,20 +335,20 @@ bin_widths = data_struct.x_bins_centers(indices);
 norm_bin_widths = bin_widths / sum(bin_widths);
 
 % UR_fD indices: (lambda_types_count, x_bins_number, conventions_count)
-UR_D_bin_mean = zeros(lambda_types_count, 1);
-UR_fD_bin_mean = zeros(lambda_types_count, conventions_count);
-A = permute(data_struct.UR_fD, [1, 3, 2]);
+UR_b_bin_mean = zeros(lambda_types_count, 1);
+UR_a_bin_mean = zeros(lambda_types_count, conventions_count);
+A = permute(data_struct.UR_a, [1, 3, 2]);
 for lambda_type = 1:lambda_types_count
-    UR_D_bin_mean(lambda_type) = data_struct.UR_D(lambda_type, indices) * norm_bin_widths;
-    UR_fD_bin_mean(lambda_type, :) = squeeze(A(lambda_type, :, indices)) * norm_bin_widths;
+    UR_b_bin_mean(lambda_type) = data_struct.UR_b(lambda_type, indices) * norm_bin_widths;
+    UR_a_bin_mean(lambda_type, :) = squeeze(A(lambda_type, :, indices)) * norm_bin_widths;
 end;
-UR_D_bin_max = max(data_struct.UR_D(:, indices), [], 2);
-UR_fD_bin_max = squeeze(max(data_struct.UR_fD(:, indices, :), [], 2));
+UR_b_bin_max = max(data_struct.UR_b(:, indices), [], 2);
+UR_a_bin_max = squeeze(max(data_struct.UR_a(:, indices, :), [], 2));
 % Save
-data_struct.UR_D_bin_mean = UR_D_bin_mean;
-data_struct.UR_D_bin_max = UR_D_bin_max;
-data_struct.UR_fD_bin_mean = UR_fD_bin_mean;
-data_struct.UR_fD_bin_max = UR_fD_bin_max;
+data_struct.UR_b_bin_mean = UR_b_bin_mean;
+data_struct.UR_b_bin_max = UR_b_bin_max;
+data_struct.UR_a_bin_mean = UR_a_bin_mean;
+data_struct.UR_a_bin_max = UR_a_bin_max;
 
 
 % Print execution time
