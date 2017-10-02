@@ -21,9 +21,9 @@ plot_article_b(data_struct, trials_data, fig_count, bl_save_figures);
 % Plot D bias as a function of D gradient ???
 
 
-%% === Plot fD profile in one bin for each inference type ===
+%% === Plot drift profile in one bin for each inference type ===
 fig_count = fig_count + 1; 
-plot_article_fD_profile_in_bin(data_struct, trials_data, fig_count, bl_save_figures);
+plot_article_a_profile_in_bin(data_struct, trials_data, fig_count, bl_save_figures);
 
 
 %% === Plot mean fD profile and fail rate for each inference type ===
