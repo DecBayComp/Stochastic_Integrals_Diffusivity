@@ -212,12 +212,14 @@ for trial = 1:trials
         % Prepare function
         function_to_minimze = @(a) bin_a_log_posterior_func (data_struct, bin, a, 'forward');
         % Make an MLE guess
-        MLE_guess = (mu_n / t_step) * kBT;
+        MLE_guess = mu_n / t_step;
         % Find confidence intervals
-        fD_Ito_inference = find_confidence_interval(function_to_minimze, [- fD_ABS_MAX, fD_ABS_MAX], true, MLE_guess,...
-            CONF_LEVEL, data_struct.fD_theor_data(bin));
+        a_Ito_inference = find_confidence_interval(function_to_minimze, [- a_ABS_MAX, a_ABS_MAX], true, MLE_guess,...
+            CONF_LEVEL, data_struct.a_theor_data(bin));
         % Save
-        MAP_fD(bin, enum_conv_Ito, :) = fD_Ito_inference;
+        MAP_a(bin, enum_conv_Ito, :) = a_Ito_inference;
+		
+		
 
         %% Simple Stratonovich force estimate (through Ito)
         % Prepare function

@@ -1,4 +1,7 @@
 backup_workspace.mat
 *.asv
+*.m~
 .DS_Store
+figures_for_article/*.pdf
 # ./processed_data/*
+processed_data/trials_data.mat
