@@ -29,6 +29,7 @@ data_struct.MAP_D_grad_regular_interp_mean = 0;
 % data_struct.MAP_fwd_fD_divine = cell(1, lambda_count);
 % data_struct.MAP_fwd_fD_divine_mean = cell(1, lambda_count);
 data_struct.MAP_D_mean = 0;
+data_struct.b_theor_data = zeros(bins_count, 3);							% At bins centers, b and its two first derivatives (??)
 data_struct.D_theor_data = zeros(bins_count, 3);                          % At bins centers, D and its two first derivatives
 data_struct.D_theor_fine_data = zeros(1, fine_mesh_steps_count);
 data_struct.D_grad_theor_fine_data = zeros(1, fine_mesh_steps_count);

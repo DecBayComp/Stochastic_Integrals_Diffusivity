@@ -28,7 +28,7 @@ pdf_norm = [];
 %% Access trajectories folder and start loading trajectories
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
-trials = 50; % sum(~[cur_dir.isdir]);
+trials = 10; % sum(~[cur_dir.isdir]);
 % trials = 11 * 10;
 
 
@@ -153,12 +153,12 @@ parfor trial = 1:trials
         %% Calculate MAP diffusivity
         [mu_n, kappa_n, nu_n, sigma2_n] = get_n_parameters(bin, data_struct, 'forward');
         % Prepare function
-        log_function_to_minimze = @(D) bin_D_log_posterior_func (bin, D, t_step, data_struct, 'forward');
+        log_function_to_minimze = @(b) bin_b_log_posterior_func (bin, b, t_step, data_struct, 'forward');
         % Make an MLE guess
-        MLE_guess = nu_n / (nu_n + 2) * sigma2_n / (2 * t_step);
+        MLE_guess = sqrt(2 * nu_n / (nu_n + 2) * sigma2_n / (2 * t_step));
         % Find confidence intervals
-        D_inference = find_confidence_interval(log_function_to_minimze, [D_PRECISION, D_ABS_MAX], true, MLE_guess, CONF_LEVEL,...
-            data_struct.D_theor_data(bin));
+        b_inference = find_confidence_interval(log_function_to_minimze, [b_PRECISION, b_ABS_MAX], true, MLE_guess, CONF_LEVEL,...
+            data_struct.b_theor_data(bin));
         % Save
         data_struct.MAP_D(bin, :) = D_inference;
     end;
