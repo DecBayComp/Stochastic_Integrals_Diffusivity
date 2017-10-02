@@ -237,15 +237,17 @@ for trial = 1:trials
 
         %% Simple Hanggi force estimate (through Ito)
         % Prepare function
-        function_to_minimze = @(fD) bin_fD_simple_Hanggi_log_posterior_func(data_struct, bin, fD, inferred_MAP_D_grad_reg_interpolated(bin), 'forward');
+        function_to_minimze = @(a) bin_a_simple_Hanggi_log_posterior_func(data_struct, bin, a, bb_prime(bin), 'forward');
         % Make an MLE guess
         lambda = 1;
-        MLE_guess = (mu_n / t_step - lambda * D_grad) * kBT;
+        MLE_guess = mu_n / t_step - lambda * bb_prime(bin);
         % Find confidence intervals
-        fD_Hanggi_inference = find_confidence_interval(function_to_minimze, [- fD_ABS_MAX, fD_ABS_MAX], true, MLE_guess,...
-            CONF_LEVEL, data_struct.fD_theor_data(bin));
+        a_Hanggi_inference = find_confidence_interval(function_to_minimze, [- a_ABS_MAX, a_ABS_MAX], true, MLE_guess,...
+            CONF_LEVEL, data_struct.a_theor_data(bin));
         % Save
-        MAP_fD(bin, enum_conv_Hanggi, :) = fD_Hanggi_inference;
+        MAP_a(bin, enum_conv_Hanggi, :) = a_Hanggi_inference;
+		
+		
 
         %% Marginalized force estimate (through Ito)
         % Prepare function
