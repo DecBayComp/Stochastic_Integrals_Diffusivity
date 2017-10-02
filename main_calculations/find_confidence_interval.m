@@ -1,8 +1,10 @@
+%% The function returns the location of the maximum and the distances to the
+% 95% confidence intervals borders below and above
+
 
 
 function out = find_confidence_interval(log_distr_func, max_search_range, bl_find_error_bars, MLE_guess, CONF_LEVEL, true_value)
-% The function returns the location of the maximum and the distances to the
-% 95% confidence intervals borders below and above
+
 
 
 %% Constants
@@ -20,7 +22,7 @@ distr_func = @(x) exp(log_distr_func(x));
 
 
 %% Check if the function is 0 at the ends of the search interval. It should not be
-% The interval should then be reduced
+% Reduce the search interval if it is
 MLE_search_range = max_search_range;
 half_width  = (max_search_range(2) - max_search_range(1)) / 2;
 for i = 0:MAX_INITIAL_SEARCH_ITERATIONS
