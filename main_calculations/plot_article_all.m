@@ -15,6 +15,12 @@ bl_save_figures = true;
 fig_count = 0;
 
 
+%% Plot simulated diffusivity and force
+fig_count = fig_count + 1; 
+plot_simulated_diffusivity_and_force(fig_count, bl_save_figures);
+
+
+
 %% Plot diffusivity posterior in one bin, diffusivity profile and the fail rate
 fig_count = fig_count + 1; 
 plot_article_b(data_struct, trials_data, fig_count, bl_save_figures);
@@ -33,7 +39,7 @@ plot_article_mean_a_profile_and_fail_rate(data_struct, fig_count, bl_save_figure
 
 %% === Plot fD bias as a function fo the gradient ===
 fig_count = fig_count + 1; 
-plot_article_fD_bias(data_struct, fig_count, bl_save_figures);
+plot_article_a_bias(data_struct, fig_count, bl_save_figures);
 
 
 %% === Print out fail rates ===
