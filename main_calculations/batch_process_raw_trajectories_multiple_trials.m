@@ -12,7 +12,7 @@ D_PRECISION = 1e-5;
 b_PRECISION = 1e-3;
 D_ABS_MAX = 1;
 b_ABS_MAX = 1;
-bl_find_marginalized_fD_error_bars = false;		% turn off for speed
+bl_find_marginalized_fD_error_bars = false;		% keep off. A much faster calculation method was implemented
 bl_reload_trajectories = true;
 
 
@@ -103,6 +103,7 @@ fD_theor_fine_data = D_func(selected_D_case, x_fine_mesh, L) .* f_func(selected_
 [D_bins, D_prime_bins, D_prime_prime_bins] = D_func(selected_D_case, x_bins_centers, L);
 b_bins = sqrt(2 * D_bins);
 a_bins = f_func(selected_f_case, x_bins_centers, L) / gamma_drag;
+a_theor_fine_data = f_func(selected_f_case, x_fine_mesh, L) / gamma_drag;
 b_theor_fine_data = sqrt(2 * D_theor_fine_data);
 bb_prime_theor_fine_data = D_grad_theor_fine_data;
 
@@ -123,7 +124,7 @@ parfor trial = 1:trials
     data_struct.x_fine_mesh = x_fine_mesh;
     data_struct.b_theor_fine_data = b_theor_fine_data;
     data_struct.bb_prime_theor_fine_data = bb_prime_theor_fine_data;
-    data_struct.fD_theor_fine_data = fD_theor_fine_data;
+    data_struct.a_theor_fine_data = a_theor_fine_data;
     data_struct.D_theor_data = [D_bins; D_prime_bins; D_prime_prime_bins];
 	data_struct.b_theor_data(:, 1) = b_bins;
     data_struct.a_theor_data = a_bins;

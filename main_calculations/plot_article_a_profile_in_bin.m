@@ -11,6 +11,7 @@ a_steps = 1 + 2^7.5;
 factor = 8;
 y_factor = 1e3;
 lambda_type = enum_lambda_rand;
+output_filename = 'a_one_bin.pdf';
 
 
 %% Initialize
@@ -124,7 +125,6 @@ h_fig.Units = 'Inches';
 fig_pos = h_fig.Position;
 set(h_fig, 'PaperUnits','Inches','PaperSize', [fig_pos(3), fig_pos(4)]);
 % Set filename
-output_filename = 'Force_posterior_in_one_bin.pdf';
 output_full_path = strcat(output_figures_folder, output_filename);
 if bl_save_figures
     print(h_fig, output_full_path, '-dpdf', '-r0');
