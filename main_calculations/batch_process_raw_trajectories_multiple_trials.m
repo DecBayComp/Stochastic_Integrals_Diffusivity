@@ -206,9 +206,11 @@ for trial = 1:trials
         % Save
         MAP_a(bin, enum_conv_divine, :) = a_divine_inference;
 
+		
+		
         %% Simple Ito force estimate
         % Prepare function
-        function_to_minimze = @(fD) bin_fD_log_posterior_func (data_struct, bin, fD, 'forward');
+        function_to_minimze = @(a) bin_a_log_posterior_func (data_struct, bin, a, 'forward');
         % Make an MLE guess
         MLE_guess = (mu_n / t_step) * kBT;
         % Find confidence intervals
