@@ -9,7 +9,9 @@ load_constants;
 
 fD_ABS_MAX = 4 * 10;
 D_PRECISION = 1e-5;
+b_PRECISION = 1e-3;
 D_ABS_MAX = 1;
+b_ABS_MAX = 1;
 bl_find_marginalized_fD_error_bars = false;
 bl_reload_trajectories = true;
 
@@ -99,12 +101,13 @@ x_fine_mesh = x_theor_min:x_theor_step:x_theor_max;
 fD_theor_fine_data = D_func(selected_D_case, x_fine_mesh, L) .* f_func(selected_f_case, x_fine_mesh, L);
 % Calculate in bins with first two derivatives
 [D_bins, D_prime_bins, D_prime_prime_bins] = D_func(selected_D_case, x_bins_centers, L);
+b_bins = sqrt(2 * D_bins);
 fD_bins = D_func(selected_D_case, x_bins_centers, L) .* f_func(selected_f_case, x_bins_centers, L);
 
 
 fprintf('Processing trajectories...\n');
 tic;
-parfor trial = 1:trials
+for trial = 1:trials
     %% Initialize
     % Initialize the data structure
     data_struct = initialize_data_structure(x_bins_number, fine_mesh_steps_count, conventions_count);
@@ -120,6 +123,7 @@ parfor trial = 1:trials
     data_struct.D_grad_theor_fine_data = D_grad_theor_fine_data;
     data_struct.fD_theor_fine_data = fD_theor_fine_data;
     data_struct.D_theor_data = [D_bins; D_prime_bins; D_prime_prime_bins];
+	data_struct.b_theor_data(:, 1) = b_bins;
     data_struct.fD_theor_data = fD_bins;
     data_struct.trial_simulation_type = trial_simulation_type;
     data_struct.trial_first_simulation_type_index = trial_first_simulation_type_index;
@@ -160,7 +164,7 @@ parfor trial = 1:trials
         b_inference = find_confidence_interval(log_function_to_minimze, [b_PRECISION, b_ABS_MAX], true, MLE_guess, CONF_LEVEL,...
             data_struct.b_theor_data(bin));
         % Save
-        data_struct.MAP_D(bin, :) = D_inference;
+        data_struct.MAP_b(bin, :) = b_inference;
     end;
 
     

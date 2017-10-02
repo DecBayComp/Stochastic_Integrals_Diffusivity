@@ -21,6 +21,7 @@ data_struct.dx_mean_in_bins = zeros(1, bins_count);
 % data_struct.points_in_bins = cell(1, max_bins_number);
 % data_struct.MAP_fD_Hanggi = cell(1, lambda_count);
 % data_struct.MAP_fD_Hanggi_mean = cell(1, lambda_count);
+data_struct.MAP_b = zeros(bins_count, s1);
 data_struct.MAP_D = zeros(bins_count, s1);
 data_struct.MAP_D_regular = zeros(1, bins_count);
 data_struct.MAP_D_grad_regular = zeros(1, bins_count - 1);

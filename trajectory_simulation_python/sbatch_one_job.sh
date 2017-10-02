@@ -1,9 +1,11 @@
 #! /bin/bash
 
 # Sbatch options
-#SBATCH --qos=fast
+#SBATCH -p dedicated
+#SBATCH --qos=dbc
 #SBATCH --cpus-per-task=1 
 #SBATCH --mem-per-cpu=50MB
+
 
 # Constants
 logs_folder="./logs/"

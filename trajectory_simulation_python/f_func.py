@@ -1,4 +1,4 @@
-
+## The function defines local force in fN
 
 
 def f_func(f_case_number, x, L):

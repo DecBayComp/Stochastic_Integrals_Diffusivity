@@ -1,4 +1,4 @@
-
+## The function calculates local diffusivity D in um^2/s and b'b in um/s
 
 
 import math
@@ -33,8 +33,8 @@ def D_func(D_case_number, x, L):
 			D_slope = 1.0
 			return D_shift + D_slope * x/float(L)
 		elif D_case_number == 6: # Oscillating
-			D_0 = 1e-2
-			w = 10.0
+			D_0 = 1.0e-2	# in um^2/s
+			w = 10.0	# in um^-1
 			return D_0/2.0 * (2 + np.sin(np.pi * w * x))
 			
 
@@ -65,8 +65,8 @@ def D_func(D_case_number, x, L):
 			D_slope = 1.0
 			return D_slope * 1.0 / float(L)
 		elif D_case_number == 6: # Oscillating
-			D_0 = 1e-2
-			w = 10.0
+			D_0 = 1.0e-2	# in um^2/s
+			w = 10.0	# in um^-1
 			return D_0/2.0 * np.pi * w * np.cos(np.pi * w * x)
 
 

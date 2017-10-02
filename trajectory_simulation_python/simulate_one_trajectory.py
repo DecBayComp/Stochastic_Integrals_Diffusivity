@@ -10,15 +10,21 @@ import random
 import time    # to measure elapsed time
 
 
-## Constants
+
+## Load constants
 execfile("./constants.py")
 
-## External functions
-execfile("./D_func.py")
-execfile("./f_func.py")
+
+
+## External functions (force and diffusivity)
+from D_func import D_func
+from f_func import f_func
+
+
 
 # Random seed
 np.random.seed()
+
 
 
 ## Define arguments
@@ -32,8 +38,12 @@ arg_group.add_argument('-l', '--Lambda', type = float, help = 'The lambda* for s
 arg_group.add_argument('-r', '--rand', action = 'store_true', help = 'Use random lambda* for simulations')
 arg_parser.add_argument('-N', action = 'store', type = float, help = 'Number of jumps to simulate')
 
+
+
 ## Analyze arguments
 input_args = arg_parser.parse_args()
+
+
 
 ## Use the analyzed arguments
 D_case = input_args.D_case
@@ -51,14 +61,19 @@ if input_args.N is not None:
 	N = long(input_args.N)
 update_progress_every = N / 1.0e2;
 
+
+
 # Confirm the parameters
 print('Calculating D_case: %i, f_case: %i with N = %i steps' % (D_case, f_case, N))
 # print input_args
+
+
 
 ## Create folder if missing
 if not os.path.isdir(output_folder):
 	print('Output folder is missing. Creating')
 	os.makedirs(output_folder)
+
 
 
 ## Boundary conditions
@@ -67,8 +82,6 @@ if str_mode == "periodic":
 else:
 	bl_periodic = False
 
-## Generate the output filename
-# filename = 
 	
 
 ## Initialize
@@ -78,6 +91,7 @@ N_internal = N * internal_steps_number
 x_array = np.zeros(N+1, dtype = float)
 # dx_array = np.zeros(N, dtype = float)
 t_mesh = np.arange(N + 1) * t_step
+
 
 
 ## Perform a test save to ensure the process won't be killed
@@ -111,21 +125,22 @@ for i in range(N):
 	q = np.random.normal(0.0, 1.0, internal_steps_number)    # Random noise
 	for m in range(internal_steps_number):
 		# Calculate f and D at x_i
-		[f_i, _] = f_func(f_case, x_i, L)
-		[D_i, b_prime_b_i] = D_func(D_case, x_i, L)
+		[f_i, _] = f_func(f_case, x_i, L)	# in fN
+		[D_i, b_prime_b_i] = D_func(D_case, x_i, L)	# [D] = um^2/s, [D'] = [um/s]
 		# Convert lists to arrays
 		f_i = np.asarray(f_i)
 		D_i = np.asarray(D_i)
 		b_prime_b_i = np.asarray(b_prime_b_i)
-		a_lambda_i = f_i * D_i / kBT
+		a_lambda_i = f_i / gamma_drag
 		b_i = np.sqrt(2.0 * D_i)
 		
-		# Create noise increment W_n
+		# Create noise increment W_n (white noise)
 		dW = np.sqrt(t_step_internal) * q[m]
 		
-		# Calculate increment
-		dx = (a_lambda_i * t_step_internal + b_i * dW +
-			0.5 * b_prime_b_i * (dW**2 + (2.0 * Lambda - 1.0) * t_step_internal))
+		# Calculate increment (keping the terms up to dt)
+		dx = (a_lambda_i * t_step_internal
+			+ b_i * dW
+			+ Lambda * b_prime_b_i * dW**2)
 		# print dx
 		
 		x_next = x_i + dx
@@ -159,12 +174,15 @@ for i in range(N):
 print("Saving trajectory...\n")
 output_data = np.reshape(np.insert(x_array, 0, Lambda), (-1, 1))
 
+
+
 # Open the output file for writing
 with open(output_full_path, 'wb') as file_pointer:
 	csv_writer = csv.writer(file_pointer, delimiter = CSV_DELIMITER)
 	csv_writer.writerows(output_data.tolist())
 
 print('Trajectory saved successfully! Calculations finished in %.2f s\n' % (time.time() - start_time))
+print('Note: The first line in the ouput is the Lambda value.\n')
 
 
 

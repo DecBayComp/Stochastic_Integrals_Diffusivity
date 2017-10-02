@@ -2,20 +2,21 @@
 
 
 ## Constants
-version = 1.00
+version = 1.01
 lambda_array = [0.0, 0.5, 1.0]
 lambda_count = len(lambda_array)
 
 
 # % m = 1;
 kBT = 1.0
-L = 1.0
-x_min = -L/2.0
-x_max = L/2.0
+L = 1.0	# in um
+x_min = -L/2.0	# in um
+x_max = L/2.0	# in um
+gamma_drag = 400.0	# viscous drag, in fN * s / um
 # % % L = x_max - x_min;
 # % bl_periodic = true;
 # % T = 100000;
-t_step = 1.0e-2 # L^2 / D_max / 100 = 10 / 1 / 100 = 0.1
+t_step = 1.0e-2 # in seconds, L^2 / D_max / 100 = 10 / 1 / 100 = 0.1
 N = int(1e5) 
 internal_steps_number = 100 # Integer. How many intermediate smaller steps are made before the next point is saved
 # SIGMA_MIN = 0;
