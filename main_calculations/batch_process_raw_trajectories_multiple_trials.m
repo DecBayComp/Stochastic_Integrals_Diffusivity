@@ -7,7 +7,7 @@ clear;
 %% Constants
 load_constants;
 
-a_ABS_MAX = 1;
+a_ABS_MAX = 5;
 D_PRECISION = 1e-5;
 b_PRECISION = 1e-3;
 D_ABS_MAX = 1;
@@ -107,7 +107,7 @@ a_bins = f_func(selected_f_case, x_bins_centers, L) / gamma_drag;
 
 fprintf('Processing trajectories...\n');
 tic;
-for trial = 1:trials
+parfor trial = 1:trials
     %% Initialize
     % Initialize the data structure
     data_struct = initialize_data_structure(x_bins_number, fine_mesh_steps_count, conventions_count);
@@ -196,10 +196,10 @@ for trial = 1:trials
 
         %% Divine force estimate
         % Prepare function
-        log_function_to_minimze = @(a) bin_a_divine_inference_log_posterior_func(data_struct, trials_lambdas(trial), bin, a, bb_prime(bin), 'forward');
+        log_function_to_minimze = @(a) bin_a_divine_inference_log_posterior_func(data_struct, trials_lambdas(trial), bin, a, bb_prime, 'forward');
         % Make an MLE guess
         lambda = data_struct.lambda;
-        MLE_guess = mu_n / t_step - lambda * bb_prime(bin);
+        MLE_guess = mu_n / t_step - lambda * bb_prime;
         % Find confidence intervals
         a_divine_inference = find_confidence_interval(log_function_to_minimze, [- a_ABS_MAX, a_ABS_MAX], true, MLE_guess,...
             CONF_LEVEL, data_struct.a_theor_data(bin));
@@ -223,10 +223,10 @@ for trial = 1:trials
 
         %% Simple Stratonovich force estimate (through Ito)
         % Prepare function
-        function_to_minimze = @(a) bin_a_simple_Stratonovich_log_posterior_func(data_struct, bin, a, bb_prime(bin), 'forward');
+        function_to_minimze = @(a) bin_a_simple_Stratonovich_log_posterior_func(data_struct, bin, a, bb_prime, 'forward');
         % Make an MLE guess
         lambda = 1/2;
-        MLE_guess = mu_n / t_step - lambda * bb_prime(bin);
+        MLE_guess = mu_n / t_step - lambda * bb_prime;
         % Find confidence intervals
         a_Stratonovich_inference = find_confidence_interval(function_to_minimze, [- a_ABS_MAX, a_ABS_MAX], true, MLE_guess,...
             CONF_LEVEL, data_struct.a_theor_data(bin));
@@ -237,10 +237,10 @@ for trial = 1:trials
 
         %% Simple Hanggi force estimate (through Ito)
         % Prepare function
-        function_to_minimze = @(a) bin_a_simple_Hanggi_log_posterior_func(data_struct, bin, a, bb_prime(bin), 'forward');
+        function_to_minimze = @(a) bin_a_simple_Hanggi_log_posterior_func(data_struct, bin, a, bb_prime, 'forward');
         % Make an MLE guess
         lambda = 1;
-        MLE_guess = mu_n / t_step - lambda * bb_prime(bin);
+        MLE_guess = mu_n / t_step - lambda * bb_prime;
         % Find confidence intervals
         a_Hanggi_inference = find_confidence_interval(function_to_minimze, [- a_ABS_MAX, a_ABS_MAX], true, MLE_guess,...
             CONF_LEVEL, data_struct.a_theor_data(bin));
@@ -251,21 +251,20 @@ for trial = 1:trials
 
         %% Marginalized force estimate (through Ito)
         % Prepare function
-        function_to_minimze = @(fD) bin_fD_lambda_marginalized_log_posterior_func(data_struct, bin, fD, inferred_MAP_D_grad_reg_interpolated(bin), 'forward');
+        function_to_minimze = @(a) bin_a_lambda_marginalized_log_posterior_func(data_struct, bin, a, bb_prime, 'forward');
         % Make a guess
-        D_grad = inferred_MAP_D_grad_reg_interpolated(bin);
         lambda = 0.5;
-        MLE_guess = (mu_n / t_step - lambda * D_grad) * kBT;
+        MLE_guess = mu_n / t_step - lambda * bb_prime;
         % Find confidence intervals
-        fD_MLE_marginalized = find_confidence_interval(function_to_minimze, [- fD_ABS_MAX, fD_ABS_MAX], bl_find_marginalized_fD_error_bars,...
-            MLE_guess, CONF_LEVEL, data_struct.fD_theor_data(bin));
+        a_MLE_marginalized = find_confidence_interval(function_to_minimze, [- a_ABS_MAX, a_ABS_MAX], bl_find_marginalized_fD_error_bars,...
+            MLE_guess, CONF_LEVEL, data_struct.a_theor_data(bin));
         % Save
-        MAP_fD(bin, enum_conv_marginalized, :) = fD_MLE_marginalized;
+        MAP_a(bin, enum_conv_marginalized, :) = a_MLE_marginalized;
 
     end;
     
     % Save all to the data structure 
-    data_struct.MAP_fD = MAP_fD;
+    data_struct.MAP_a = MAP_a;
     
     %% Save results for this trial
     trials_data{trial} = data_struct;
