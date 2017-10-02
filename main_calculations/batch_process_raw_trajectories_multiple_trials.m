@@ -168,13 +168,15 @@ for trial = 1:trials
     end;
 
     
-    %% Regularize gradient based on forward calculations
-    [inferred_MAP_D_reg, inferred_MAP_D_grad_reg, inferred_MAP_D_grad_reg_interpolated, norm_cost, x_grad_mesh] = ...
-        regularize_gradient(data_struct.MAP_D(:, 1), x_bins_centers, alpha_reg);
+    %% Regularize bb' gradient based on forward calculations
+	% To obtain the bb' gradient, provide the function b^2/2 as input
+	b_squared_over_2 = data_struct.MAP_b(:, 1).^2 / 2;
+    [inferred_MAP_b_squared_over_2_reg, inferred_MAP_bb_prime_reg, inferred_MAP_bb_prime_reg_interpolated, norm_cost, x_grad_mesh] = ...
+        regularize_gradient(b_squared_over_2, x_bins_centers, alpha_reg);
     % Save
-    data_struct.MAP_D_regular = inferred_MAP_D_reg;
-    data_struct.MAP_D_grad_regular = inferred_MAP_D_grad_reg;
-    data_struct.MAP_D_grad_regular_interp = inferred_MAP_D_grad_reg_interpolated;
+    data_struct.MAP_b_regular = sqrt(inferred_MAP_b_squared_over_2_reg * 2);
+    data_struct.MAP_bb_prime_regular = inferred_MAP_bb_prime_reg;
+    data_struct.MAP_bb_prime_regular_interp = inferred_MAP_bb_prime_reg_interpolated;
     data_struct.x_grad_mesh = x_grad_mesh;
 
     
