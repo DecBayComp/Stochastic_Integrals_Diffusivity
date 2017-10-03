@@ -3,7 +3,7 @@
 
 
 
-function out = find_confidence_interval(log_distr_func, max_search_range, bl_find_error_bars, MLE_guess, CONF_LEVEL, true_value)
+function out = find_confidence_interval(log_distr_func, max_search_range, bl_find_error_bars, MLE_guess, CONF_LEVEL, true_value, trial, bin)
 
 
 
@@ -73,8 +73,19 @@ if bl_find_error_bars
     % Search for the initial interval
     interval = [max_search_range(1), MLE];
     interval = find_initial_interval_zero_search(func_wrap, interval, true);
-    lower_boundary = ...
-        fzero(func_wrap, interval, optim_options);
+	try
+		lower_boundary = ...
+			fzero(func_wrap, interval, optim_options);
+	catch msg
+		% Print call parameters
+		fprintf('Search for the root of a function failed\n');
+		fprintf('The supplied search interval [%f; %f] may be invalid\n', interval(1), interval(2));
+		fprintf('Call environment: MLE: %f, max_search range: [%f; %f], trial: %i, bin: %i\n', MLE, max_search_range(1), max_search_range(2), trial, bin);
+		
+		% Rethrow error
+		rethrow msg;
+	end;
+	
     if bl_verbose
         fprintf('Lower boundary found: %.3f\n', lower_boundary);
     end;
@@ -85,8 +96,19 @@ if bl_find_error_bars
     interval = [MLE, max_search_range(2)];
     interval = find_initial_interval_zero_search(func_wrap, interval, true);
     % Exact value
-    upper_boundary = ...
-        fzero(func_wrap, interval, optim_options);
+	try
+		upper_boundary = ...
+			fzero(func_wrap, interval, optim_options);
+	catch msg
+		% Print call parameters
+		fprintf('Search for the root of a function failed\n');
+		fprintf('The supplied search interval [%f; %f] may be invalid\n', interval(1), interval(2));
+		fprintf('Call environment: MLE: %f, max_search range: [%f; %f], trial: %i, bin: %i\n', MLE, max_search_range(1), max_search_range(2), trial, bin);
+		
+		% Rethrow error
+		rethrow msg;
+	end;
+	
     if bl_verbose
         fprintf('Upper boundary found: %.3f\n', upper_boundary);
         fprintf('FINISHED: Calculating the confidence intervals for the current bin. Time: %.2fs\n', toc);

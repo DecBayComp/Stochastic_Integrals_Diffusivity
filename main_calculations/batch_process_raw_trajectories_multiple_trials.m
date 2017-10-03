@@ -7,7 +7,7 @@ clear;
 %% Constants
 load_constants;
 
-a_ABS_MAX = 5;
+a_ABS_MAX = 10;
 D_PRECISION = 1e-5;
 b_PRECISION = 1e-3;
 D_ABS_MAX = 1;
@@ -30,7 +30,7 @@ pdf_norm = [];
 %% Access trajectories folder and start loading trajectories
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
-trials = 8; % sum(~[cur_dir.isdir]);
+trials = sum(~[cur_dir.isdir]);
 % trials = 11 * 10;
 
 
@@ -165,7 +165,7 @@ parfor trial = 1:trials
         MLE_guess = sqrt(2 * nu_n / (nu_n + 2) * sigma2_n / (2 * t_step));
         % Find confidence intervals
         b_inference = find_confidence_interval(log_function_to_minimze, [b_PRECISION, b_ABS_MAX], true, MLE_guess, CONF_LEVEL,...
-            data_struct.b_theor_data(bin));
+            data_struct.b_theor_data(bin), trial, bin);
         % Save
         data_struct.MAP_b(bin, :) = b_inference;
     end;
@@ -205,7 +205,7 @@ parfor trial = 1:trials
         MLE_guess = mu_n / t_step - lambda * bb_prime;
         % Find confidence intervals
         a_divine_inference = find_confidence_interval(log_function_to_minimze, [- a_ABS_MAX, a_ABS_MAX], true, MLE_guess,...
-            CONF_LEVEL, data_struct.a_theor_data(bin));
+            CONF_LEVEL, data_struct.a_theor_data(bin), trial, bin);
         % Save
         MAP_a(bin, enum_conv_divine, :) = a_divine_inference;
 
@@ -218,7 +218,7 @@ parfor trial = 1:trials
         MLE_guess = mu_n / t_step;
         % Find confidence intervals
         a_Ito_inference = find_confidence_interval(function_to_minimze, [- a_ABS_MAX, a_ABS_MAX], true, MLE_guess,...
-            CONF_LEVEL, data_struct.a_theor_data(bin));
+            CONF_LEVEL, data_struct.a_theor_data(bin), trial, bin);
         % Save
         MAP_a(bin, enum_conv_Ito, :) = a_Ito_inference;
 		
@@ -232,7 +232,7 @@ parfor trial = 1:trials
         MLE_guess = mu_n / t_step - lambda * bb_prime;
         % Find confidence intervals
         a_Stratonovich_inference = find_confidence_interval(function_to_minimze, [- a_ABS_MAX, a_ABS_MAX], true, MLE_guess,...
-            CONF_LEVEL, data_struct.a_theor_data(bin));
+            CONF_LEVEL, data_struct.a_theor_data(bin), trial, bin);
         % Save
         MAP_a(bin, enum_conv_Stratonovich, :) = a_Stratonovich_inference;
 		
@@ -246,7 +246,7 @@ parfor trial = 1:trials
         MLE_guess = mu_n / t_step - lambda * bb_prime;
         % Find confidence intervals
         a_Hanggi_inference = find_confidence_interval(function_to_minimze, [- a_ABS_MAX, a_ABS_MAX], true, MLE_guess,...
-            CONF_LEVEL, data_struct.a_theor_data(bin));
+            CONF_LEVEL, data_struct.a_theor_data(bin), trial, bin);
         % Save
         MAP_a(bin, enum_conv_Hanggi, :) = a_Hanggi_inference;
 		
@@ -260,7 +260,7 @@ parfor trial = 1:trials
         MLE_guess = mu_n / t_step - lambda * bb_prime;
         % Find confidence intervals
         a_MLE_marginalized = find_confidence_interval(function_to_minimze, [- a_ABS_MAX, a_ABS_MAX], bl_find_marginalized_fD_error_bars,...
-            MLE_guess, CONF_LEVEL, data_struct.a_theor_data(bin));
+            MLE_guess, CONF_LEVEL, data_struct.a_theor_data(bin), trial, bin);
         % Save
         MAP_a(bin, enum_conv_marginalized, :) = a_MLE_marginalized;
 
