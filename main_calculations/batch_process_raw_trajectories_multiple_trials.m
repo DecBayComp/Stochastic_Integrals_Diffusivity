@@ -1,8 +1,8 @@
 set (0, 'DefaultAxesFontSize', 12);
 
 
-%% Clear the workspace
-clear;
+%% Clear the workspace (do not use if want to be able to use bl_reload_trajectories = false)
+% clear;
 
 %% Constants
 load_constants;
@@ -13,7 +13,7 @@ b_PRECISION = 1e-3;
 D_ABS_MAX = 1;
 b_ABS_MAX = 1;
 bl_find_marginalized_fD_error_bars = false;		% keep off. A much faster calculation method was implemented
-bl_reload_trajectories = true;
+bl_reload_trajectories = false;
 
 
 %% Initialize

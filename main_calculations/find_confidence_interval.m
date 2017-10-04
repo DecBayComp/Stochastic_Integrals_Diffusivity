@@ -21,6 +21,12 @@ conf_percentile = (1 - CONF_LEVEL)/2;
 distr_func = @(x) exp(log_distr_func(x));
 
 
+%% Check if the supplied MLE is NaN
+if isnan(MLE_guess)
+	error(sprintf('Error: the supplied MLE guess is invalid. Call parameters\n Trial: %i\tBin: %i', trial, bin));
+end;
+
+
 %% Check if the function is 0 at the ends of the search interval. It should not be
 % Reduce the search interval if it is
 MLE_search_range = max_search_range;
