@@ -76,14 +76,14 @@ if bl_find_error_bars
 	try
 		lower_boundary = ...
 			fzero(func_wrap, interval, optim_options);
-	catch msg
+	catch exc
 		% Print call parameters
-		fprintf('Search for the root of a function failed\n');
+		fprintf('Error: Search for the root of a function failed\n');
 		fprintf('The supplied search interval [%f; %f] may be invalid\n', interval(1), interval(2));
 		fprintf('Call environment: MLE: %f, max_search range: [%f; %f], trial: %i, bin: %i\n', MLE, max_search_range(1), max_search_range(2), trial, bin);
 		
 		% Rethrow error
-		rethrow msg;
+		rethrow (exc);
 	end;
 	
     if bl_verbose
@@ -99,14 +99,14 @@ if bl_find_error_bars
 	try
 		upper_boundary = ...
 			fzero(func_wrap, interval, optim_options);
-	catch msg
+	catch exc
 		% Print call parameters
-		fprintf('Search for the root of a function failed\n');
+		fprintf('Error: Search for the root of a function failed\n');
 		fprintf('The supplied search interval [%f; %f] may be invalid\n', interval(1), interval(2));
 		fprintf('Call environment: MLE: %f, max_search range: [%f; %f], trial: %i, bin: %i\n', MLE, max_search_range(1), max_search_range(2), trial, bin);
 		
 		% Rethrow error
-		rethrow msg;
+		rethrow (exc);
 	end;
 	
     if bl_verbose

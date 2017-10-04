@@ -110,7 +110,7 @@ bb_prime_theor_fine_data = D_grad_theor_fine_data;
 
 fprintf('Processing trajectories...\n');
 tic;
-parfor trial = 1:trials
+for trial = 765 %1:trials
     %% Initialize
     % Initialize the data structure
     data_struct = initialize_data_structure(x_bins_number, fine_mesh_steps_count, conventions_count);
