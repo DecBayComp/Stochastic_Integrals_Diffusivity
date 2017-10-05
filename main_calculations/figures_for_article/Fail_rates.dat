@@ -1,36 +1,36 @@
-> Average fD FR <	Ito	Str	Hng	Orcl	Mar
-Ito	0.05	0.231	0.554	0.05	0.113
-Str	0.217	0.052	0.199	0.052	0.026
-Hng	0.529	0.238	0.066	0.066	0.148
-rnd	0.248	0.119	0.24	0.053	0.061
+> Average a FR <	Ito	Str	Hng	Orcl	Mar
+Ito	0.072	0.182	0.501	0.072	0.113
+Str	0.268	0.069	0.194	0.069	0.035
+Hng	0.546	0.299	0.047	0.047	0.123
+rnd	0.487	0.127	0.09	0.091	0.084
 					
 					
-> Max fD FR <	Ito	Str	Hng	Orcl	Mar
-Ito	0.088	0.476	0.964	0.088	0.2
-Str	0.444	0.1	0.408	0.1	0.084
-Hng	0.936	0.476	0.116	0.116	0.284
-rnd	0.476	0.22	0.448	0.096	0.108
+> Max a FR <	Ito	Str	Hng	Orcl	Mar
+Ito	0.667	1	1	0.667	1
+Str	1	0.667	1	0.667	0.667
+Hng	1	1	0.5	0.5	0.5
+rnd	1	1	1	0.5	0.5
 
 
-Output fD fail rate in TEX table format:
+Output a fail rate in TEX table format:
 
 
-Oracle	&	5(9)	&	5(10)	&	7(12)	&	5(10)
+Oracle	&	7(67)	&	7(67)	&	5(50)	&	9(50)
 \\
-Marginalized	&	11(20)	&	3(8)	&	15(28)	&	6(11)
+Marginalized	&	11(100)	&	4(67)	&	12(50)	&	8(50)
 \\
-Stratonovich	&	23(48)	&	5(10)	&	24(48)	&	12(22)
+Stratonovich	&	18(100)	&	7(67)	&	30(100)	&	13(100)
 \\
-H\"anggi	&	55(96)	&	20(41)	&	7(12)	&	24(45)
+H\"anggi	&	50(100)	&	19(100)	&	5(50)	&	9(100)
 \\
-It\^o	&	5(9)	&	22(44)	&	53(94)	&	25(48)
+It\^o	&	7(67)	&	27(100)	&	55(100)	&	49(100)
 \\
 
 
-Output D fail rate:
+Output b fail rate:
 
 
 Ito	Str	Hng	rnd
 
-9(21)	15(35)	22(41)	15(33)
+11(67)	19(100)	23(100)	19(100)
 

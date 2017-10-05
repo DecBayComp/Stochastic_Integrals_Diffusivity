@@ -13,7 +13,7 @@ b_PRECISION = 1e-3;
 D_ABS_MAX = 1;
 b_ABS_MAX = 1;
 bl_find_marginalized_fD_error_bars = false;		% keep off. A much faster calculation method was implemented
-bl_reload_trajectories = false;
+bl_reload_trajectories = true;
 
 
 %% Initialize
@@ -31,6 +31,7 @@ pdf_norm = [];
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
 trials = sum(~[cur_dir.isdir]);
+% trials = 10;
 % trials = 11 * 10;
 
 
@@ -110,7 +111,7 @@ bb_prime_theor_fine_data = D_grad_theor_fine_data;
 
 fprintf('Processing trajectories...\n');
 tic;
-for trial = 765 %1:trials
+parfor trial = 1:trials  % 765
     %% Initialize
     % Initialize the data structure
     data_struct = initialize_data_structure(x_bins_number, fine_mesh_steps_count, conventions_count);
