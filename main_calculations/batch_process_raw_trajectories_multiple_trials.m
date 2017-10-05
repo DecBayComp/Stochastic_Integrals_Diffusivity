@@ -145,6 +145,9 @@ for trial = 765 %1:trials
     % Bin data in pre-defined bins
     counter_start = 1;
     for bin = 1:x_bins_number
+		% Initialize
+		bl_empty_bin = false;
+		
         elements_in_bins_count(bin) = sum((sorted_data(1, :) > x_bins_borders(bin, 1)) & (sorted_data(1, :) <= x_bins_borders(bin, 2)));
         counter_end = counter_start + elements_in_bins_count(bin) - 1;
         points_in_bins{bin} = sorted_data(:, counter_start : counter_end);
@@ -157,25 +160,44 @@ for trial = 765 %1:trials
         data_struct.V_j(bin) = mean(points_in_bins{bin}(2, :).^2) - mean(points_in_bins{bin}(2, :))^2;
 %         data_struct.V_bck_j{l_ind}(bin) = mean(points_in_bins{bin}(3, :).^2) - mean(points_in_bins{bin}(3, :))^2;
 
+		%% I for this trial, we have no points in the bin, set flag
+		if data_struct.n_j(bin) == 0
+			bl_empty_bin = true;
+		end
+		
+
         %% Calculate MAP diffusivity
         [mu_n, kappa_n, nu_n, sigma2_n] = get_n_parameters(bin, data_struct, 'forward');
         % Prepare function
         log_function_to_minimze = @(b) bin_b_log_posterior_func (bin, b, t_step, data_struct, 'forward');
         % Make an MLE guess
         MLE_guess = sqrt(2 * nu_n / (nu_n + 2) * sigma2_n / (2 * t_step));
-        % Find confidence intervals
-        b_inference = find_confidence_interval(log_function_to_minimze, [b_PRECISION, b_ABS_MAX], true, MLE_guess, CONF_LEVEL,...
-            data_struct.b_theor_data(bin), trial, bin);
+        % Find confidence intervals if the bin is not empty
+		if ~bl_empty_bin
+			b_inference = find_confidence_interval(log_function_to_minimze, [b_PRECISION, b_ABS_MAX], true, MLE_guess, CONF_LEVEL,...
+				data_struct.b_theor_data(bin), trial, bin);
+		else
+			b_inference = ones(1, 4) * NaN;
+		end;
         % Save
         data_struct.MAP_b(bin, :) = b_inference;
+		data_struct.bl_empty_bin(bin) = bl_empty_bin;
     end;
 
     
-    %% Regularize bb' gradient based on forward calculations
+    %% Regularize bb' gradient based on in non-empty bins
 	% To obtain the bb' gradient, provide the function b^2/2 as input
 	b_squared_over_2 = data_struct.MAP_b(:, 1).^2 / 2;
-    [inferred_MAP_b_squared_over_2_reg, inferred_MAP_bb_prime_reg, inferred_MAP_bb_prime_reg_interpolated, norm_cost, x_grad_mesh] = ...
-        regularize_gradient(b_squared_over_2, x_bins_centers, alpha_reg);
+% 	if ~bl_empty_bin
+	[inferred_MAP_b_squared_over_2_reg, inferred_MAP_bb_prime_reg, inferred_MAP_bb_prime_reg_interpolated, norm_cost, x_grad_mesh] = ...
+		regularize_gradient(b_squared_over_2, x_bins_centers, alpha_reg);
+% 	else
+% 		inferred_MAP_b_squared_over_2_reg = zeros(bins_number, 1) * NaN;
+% 		inferred_MAP_bb_prime_reg = zeros(bins_number, 1) * NaN;
+% 		inferred_MAP_bb_prime_reg_interpolated = zeros(bins_number, 1) * NaN;
+% 		norm_cost = zeros(bins_number, 1) * NaN;
+% 		x_grad_mesh = zeros(bins_number, 1) * NaN;
+% 	end;
     % Save
     data_struct.MAP_b_regular = sqrt(inferred_MAP_b_squared_over_2_reg * 2);
     data_struct.MAP_bb_prime_regular = inferred_MAP_bb_prime_reg;
@@ -195,6 +217,30 @@ for trial = 765 %1:trials
         % Initialize
         [mu_n, kappa_n, nu_n, sigma2_n] = get_n_parameters(bin, data_struct, 'forward');
         bb_prime = inferred_MAP_bb_prime_reg_interpolated(bin);
+		bl_empty_bin = data_struct.bl_empty_bin(bin);
+		
+		
+		
+		%% Skip if bin is empty
+		if bl_empty_bin
+			% Set to NaN
+			a_divine_inference = ones(1, 4) * NaN;
+			a_Ito_inference = ones(1, 4) * NaN;
+			a_Stratonovich_inference = ones(1, 4) * NaN;
+			a_Hanggi_inference = ones(1, 4) * NaN;
+			a_MLE_marginalized = ones(1, 4) * NaN;
+			
+			% Save
+			MAP_a(bin, enum_conv_divine, :) = a_divine_inference;
+			MAP_a(bin, enum_conv_Ito, :) = a_Ito_inference;
+			MAP_a(bin, enum_conv_Stratonovich, :) = a_Stratonovich_inference;
+			MAP_a(bin, enum_conv_Hanggi, :) = a_Hanggi_inference;
+			MAP_a(bin, enum_conv_marginalized, :) = a_MLE_marginalized;
+			
+			display('This bin is empty. Skipping');
+			continue;
+		end;
+		
 
 
         %% Divine force estimate
@@ -203,7 +249,8 @@ for trial = 765 %1:trials
         % Make an MLE guess
         lambda = data_struct.lambda;
         MLE_guess = mu_n / t_step - lambda * bb_prime;
-        % Find confidence intervals
+        % Find confidence intervals if bin not empty
+% 		if ~
         a_divine_inference = find_confidence_interval(log_function_to_minimze, [- a_ABS_MAX, a_ABS_MAX], true, MLE_guess,...
             CONF_LEVEL, data_struct.a_theor_data(bin), trial, bin);
         % Save

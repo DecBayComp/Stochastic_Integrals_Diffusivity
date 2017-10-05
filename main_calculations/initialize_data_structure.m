@@ -38,6 +38,7 @@ data_struct.a_theor_data = zeros(1, bins_count);                          % At b
 data_struct.fD_theor_fine_data = zeros(1, fine_mesh_steps_count);           % On a fine mesh
 data_struct.MAP_a = zeros(bins_count, conventions_count, s1);
 data_struct.MAP_a_mean = 0;
+data_struct.bl_empty_bin = zeros(1, bins_count);
 % data_struct.MAP_fD_Ito_widths = cell(1, lambda_count);
 % data_struct.MAP_fwd_fD_marginalized = cell(1, lambda_count);
 % data_struct.MAP_fwd_fD_marginalized_mean = cell(1, lambda_count);
