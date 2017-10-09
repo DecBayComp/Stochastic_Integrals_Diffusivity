@@ -84,9 +84,13 @@ end;
 %% Identify suitable bin locations based on all points for all trials
 [x_bins_borders, x_bins_centers, x_bins_number, x_bins_widths,...
             elements_in_bins_count, variance_in_bins, ~] = select_bins_adaptive_mesh(trials_x(:), trials_dx(:), points_in_bin_avg * trials);
+
 % Estimate dx_Mean and V used for prior only. Average over everything
 dx_Mean = mean(trials_dx(:));
 V = mean(trials_dx(:).^2) - dx_Mean^2;
+
+% Calculate mean jump in each bin over all trials
+mean_jump_bins_all_trials = sqrt(variance_in_bins);
 
 
 %% Prepare the fine mesh
@@ -124,6 +128,7 @@ parfor trial = 1:trials  % 765
     % backward calculations because they are just used in the prior
     data_struct.dx_Mean = dx_Mean;
     data_struct.V = V;
+	data_struct.mean_jump_bins_all_trials = mean_jump_bins_all_trials;
     data_struct.x_fine_mesh = x_fine_mesh;
     data_struct.b_theor_fine_data = b_theor_fine_data;
     data_struct.bb_prime_theor_fine_data = bb_prime_theor_fine_data;
@@ -161,6 +166,7 @@ parfor trial = 1:trials  % 765
 %         data_struct.dx_bck_mean_in_bins_saved{l_ind}(bin) = mean(points_in_bins{bin}(3, :));
         data_struct.n_j(bin) = elements_in_bins_count(bin);
         data_struct.V_j(bin) = mean(points_in_bins{bin}(2, :).^2) - mean(points_in_bins{bin}(2, :))^2;
+		data_struct.mean_jump_bins = var(points_in_bins{bin}(2, :));
 %         data_struct.V_bck_j{l_ind}(bin) = mean(points_in_bins{bin}(3, :).^2) - mean(points_in_bins{bin}(3, :))^2;
 
 		%% I for this trial, we have no points in the bin, set flag
@@ -409,6 +415,7 @@ fprintf('All trajectories processed in %.2f min\n', toc/60);
 %% Clean up & backup current workspace
 trials_x = [];
 trials_dx = [];
+points_binned = [];
 save('backup_workspace.mat');
 save(strcat(output_data_folder, 'trials_data.mat'), 'data_struct', 'trials_data');
 

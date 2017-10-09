@@ -101,14 +101,15 @@ uistack(h_conf, 'bottom');
 x_mesh = data_struct.x_bins_centers;
 bin_sizes = data_struct.x_bins_widths;
 b_theor_data = data_struct.b_theor_data;
+mean_jumps = data_struct.mean_jump_bins_all_trials';
 
 % b' part
 lambdas = [0, 0.5, 1];
-b_theor_bias = 2 * b_theor_data(:, 2).^2 .* bin_sizes.^2 ./ 6 ./ b_theor_data(:, 1);
+b_theor_bias = 2 * b_theor_data(:, 2).^2 .* mean_jumps.^2 ./ 6 ./ b_theor_data(:, 1);
 b_theor_bias = b_theor_bias * (2 * lambdas - 2);
 
 % b'' part
-b_theor_bias = b_theor_bias + b_theor_data(:, 3) .* (bin_sizes).^2 / 6 * [1, 1, 1];
+b_theor_bias = b_theor_bias + b_theor_data(:, 3) .* (mean_jumps).^2 / 6 * [1, 1, 1];
 
 %% Initialize
 subaxis(rows, cols, 3);
