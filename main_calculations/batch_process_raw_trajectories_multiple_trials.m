@@ -83,7 +83,7 @@ end;
 
 %% Identify suitable bin locations based on all points for all trials
 [x_bins_borders, x_bins_centers, x_bins_number, x_bins_widths,...
-            elements_in_bins_count, ~] = select_bins_adaptive_mesh(trials_x(:), trials_dx(:), points_in_bin_avg * trials);
+            elements_in_bins_count, variance_in_bins, ~] = select_bins_adaptive_mesh(trials_x(:), trials_dx(:), points_in_bin_avg * trials);
 % Estimate dx_Mean and V used for prior only. Average over everything
 dx_Mean = mean(trials_dx(:));
 V = mean(trials_dx(:).^2) - dx_Mean^2;

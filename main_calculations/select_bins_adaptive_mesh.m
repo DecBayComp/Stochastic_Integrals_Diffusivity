@@ -2,7 +2,7 @@
 
 
 function [x_bins_borders, x_bins_centers, bins_number, x_bins_widths,...
-    points_count_in_bins, points_binned] = select_bins_adaptive_mesh(x_data, dx_data, points_in_bin)
+    points_count_in_bins, variance_in_bins, points_binned] = select_bins_adaptive_mesh(x_data, dx_data, points_in_bin)
 %% The calculations assume no points have exactly the same locations
 
 
@@ -26,6 +26,7 @@ x_max = x_data_sorted(end);
 x_bins_borders = zeros(bins_number, 2);
 points_count_in_bins = zeros(1, bins_number);
 points_binned = cell(1, bins_number);
+variance_in_bins = zeros(1, bins_number);
 
 
 %% Calculate bin borders and bin the data
@@ -41,6 +42,9 @@ for bin = bins_number:-1:2
     indices = (N - bin_from_end * points_in_bin + 1) : (N - (bin_from_end - 1) * points_in_bin);
     points_binned{bin} = [x_data_sorted(indices); dx_data_sorted(indices)];
     points_count_in_bins(bin) = points_in_bin;
+	
+	% Calculate varaince in each bin
+	variance_in_bins(bin) = var(points_binned{bin}(2, :));
 end
 % The first bin includes all the remaining points
 x_bins_borders(1, 1) = x_min;

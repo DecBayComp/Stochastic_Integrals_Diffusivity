@@ -97,9 +97,18 @@ uistack(h_conf, 'bottom');
 
 %% == (C): b bias ==
 %% Calculate the theoretically expected bias based on integral series
+% Load values
 x_mesh = data_struct.x_bins_centers;
 bin_sizes = data_struct.x_bins_widths;
+b_theor_data = data_struct.b_theor_data;
 
+% b' part
+lambdas = [0, 0.5, 1];
+b_theor_bias = 2 * b_theor_data(:, 2).^2 .* bin_sizes.^2 ./ 6 ./ b_theor_data(:, 1);
+b_theor_bias = b_theor_bias * (2 * lambdas - 2);
+
+% b'' part
+b_theor_bias = b_theor_bias + b_theor_data(:, 3) .* (bin_sizes).^2 / 6 * [1, 1, 1];
 
 %% Initialize
 subaxis(rows, cols, 3);
@@ -121,7 +130,9 @@ legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
 legend boxon;
 
 %% Theory
-% y = 0
+for lambda_ind = 1:length(lambdas)
+	plot(data_struct.x_bins_centers, b_theor_bias(:, lambda_ind), 'k--', 'color', color_sequence(lambda_ind, :));
+end;
 % h_theor_0 = plot(x_lim_vec_C, 0 * x_lim_vec_C, 'k--');
 
 %% Adjust
