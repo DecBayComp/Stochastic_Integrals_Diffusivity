@@ -5,7 +5,7 @@ function plot_article_b(data_struct, trials_data, fig_count, bl_save_figures)
 
 %% Constants
 load_constants;
-bin_plot_step = 1;	% 3
+bin_plot_step = 3;	% 3
 rows = 2;
 cols = 2;
 x_lim_vec = [0, x_max];
@@ -100,12 +100,12 @@ uistack(h_conf, 'bottom');
 subaxis(rows, cols, 3);
 hold on;
 % x_lim_vec_C = [-0.19,0.16];
-y_lim_vec = [-1, 1] * 8e-3;
+y_lim_vec = [-1, 1] * 7e-3;
 str_legend = {};
 %% Plot
 for lambda_type = 1:lambda_types_count
-    plot(data_struct.x_bins_centers(1:bin_plot_step:end),...
-        (data_struct.MAP_b_mean(lambda_type, 1:bin_plot_step:end, 1) - data_struct.b_theor_data(1:bin_plot_step:end, 1)'), markers_list{lambda_type},...
+    plot(data_struct.x_bins_centers(:),...
+        (data_struct.MAP_b_mean(lambda_type, :, 1) - data_struct.b_theor_data(:, 1)'), markers_list{lambda_type},...
         'markers', marker_size, 'LineWidth', line_width, 'color', color_sequence(lambda_type, :));
     str_legend{end + 1} = lambda_types_names{lambda_type};
 end;
