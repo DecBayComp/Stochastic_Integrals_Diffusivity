@@ -5,7 +5,7 @@ function plot_article_b(data_struct, trials_data, fig_count, bl_save_figures)
 
 %% Constants
 load_constants;
-bin_plot_step = 3;
+bin_plot_step = 1;	% 3
 rows = 2;
 cols = 2;
 x_lim_vec = [0, x_max];
@@ -60,6 +60,7 @@ text(sublabel_x, sublabel_y, '(a)', 'Units', 'Normalized', 'VerticalAlignment', 
 % str_legend = lambda_types_names;
 h_leg = legend(str_legend, 'location', 'south', 'FontSize', legend_font_size);
 legend boxon;
+grid on;
 % Send theoretical curve back
 uistack(h_theor, 'bottom');
 
@@ -94,35 +95,36 @@ uistack(h_conf, 'bottom');
 
 
 
-%% == (C): D bias ==
+%% == (C): b bias ==
 %% Initialize
 subaxis(rows, cols, 3);
 hold on;
-x_lim_vec_C = [-0.19,0.16];
-% y_lim_vec = [-1.1, 0.65] * 1e-3;
+% x_lim_vec_C = [-0.19,0.16];
+y_lim_vec = [-1, 1] * 8e-3;
 str_legend = {};
 %% Plot
 for lambda_type = 1:lambda_types_count
-    plot(data_struct.MAP_bb_prime_regular_interp_mean(lambda_type, indices),...
-        (data_struct.MAP_b_mean(lambda_type, indices, 1) - data_struct.b_theor_data(indices)'), markers_list{lambda_type},...
+    plot(data_struct.x_bins_centers(1:bin_plot_step:end),...
+        (data_struct.MAP_b_mean(lambda_type, 1:bin_plot_step:end, 1) - data_struct.b_theor_data(1:bin_plot_step:end, 1)'), markers_list{lambda_type},...
         'markers', marker_size, 'LineWidth', line_width, 'color', color_sequence(lambda_type, :));
     str_legend{end + 1} = lambda_types_names{lambda_type};
 end;
 %% Legend
-legend(str_legend, 'location', 'southwest', 'FontSize', legend_font_size);
+legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
 legend boxon;
 %% Theory
-xlim(x_lim_vec_C);
-% ylim(y_lim_vec_A);
 % y = 0
-h_theor_0 = plot(x_lim_vec_C, 0 * x_lim_vec_C, 'k--');
+% h_theor_0 = plot(x_lim_vec_C, 0 * x_lim_vec_C, 'k--');
 %% Adjust
-xlabel('$\langle bb'' \rangle$', 'interpreter', 'latex');
-ylabel('$\langle \delta b \rangle$', 'interpreter', 'latex');
+xlim(x_lim_vec);
+ylim(y_lim_vec);
+xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
+ylabel('$\langle \delta b \rangle$, $\mu\mathrm{m \cdot s^{-1/2}}$', 'interpreter', 'latex');
 text(sublabel_x, sublabel_y, strcat('(c)'), 'Units', 'Normalized', 'VerticalAlignment', 'Top');
 title('Average diffusivity bias', 'interpreter', 'latex');
+grid on;
 % Reorder curves
-uistack([h_theor_0], 'bottom');
+% uistack([h_theor_0], 'bottom');
 
 
 
@@ -154,6 +156,7 @@ ylabel('$bb''$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
 xlim(x_lim_vec);
 ylim(y_lim_vec);
 box on;
+grid on;
 title(sprintf('$bb''$ profile for $\\lambda^* = %.2f$', tmp_data_struct.lambda), 'interpreter', 'latex');
 % Sublabel
 text(sublabel_x, sublabel_y, '(d)', 'Units', 'Normalized', 'VerticalAlignment', 'Top');

@@ -10,7 +10,7 @@ function plot_simulated_diffusivity_and_force(fig_count, bl_save_figures)
 load_constants;
 load_color_scheme;
 x_marker_step = 0.05 * L;
-marker_step = 1;	% 10
+marker_step = 10;
 x_step = x_marker_step/marker_step;
 output_D_filename = 'Simulated_D_a_b.pdf';
 
