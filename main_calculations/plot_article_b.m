@@ -96,25 +96,34 @@ uistack(h_conf, 'bottom');
 
 
 %% == (C): b bias ==
+%% Calculate the theoretically expected bias based on integral series
+x_mesh = data_struct.x_bins_centers;
+bin_sizes = data_struct.x_bins_widths;
+
+
 %% Initialize
 subaxis(rows, cols, 3);
 hold on;
 % x_lim_vec_C = [-0.19,0.16];
 y_lim_vec = [-1, 1] * 7e-3;
 str_legend = {};
+
 %% Plot
 for lambda_type = 1:lambda_types_count
-    plot(data_struct.x_bins_centers(:),...
+    plot(data_struct.x_bins_centers,...
         (data_struct.MAP_b_mean(lambda_type, :, 1) - data_struct.b_theor_data(:, 1)'), markers_list{lambda_type},...
         'markers', marker_size, 'LineWidth', line_width, 'color', color_sequence(lambda_type, :));
     str_legend{end + 1} = lambda_types_names{lambda_type};
 end;
+
 %% Legend
 legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
 legend boxon;
+
 %% Theory
 % y = 0
 % h_theor_0 = plot(x_lim_vec_C, 0 * x_lim_vec_C, 'k--');
+
 %% Adjust
 xlim(x_lim_vec);
 ylim(y_lim_vec);
