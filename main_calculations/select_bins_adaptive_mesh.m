@@ -153,6 +153,9 @@ x_bins_borders(end, 2) = x_bins_borders(end, 2) + (x_bins_borders(end, 2) - x_bi
 x_bins_widths = x_bins_borders(:, 2) - x_bins_borders(:, 1);
 x_bins_centers = mean(x_bins_borders, 2);
 
+%
+display('Binning: Completed!');
+
 1;
 
 

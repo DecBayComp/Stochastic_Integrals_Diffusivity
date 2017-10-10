@@ -31,7 +31,7 @@ pdf_norm = [];
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
 trials = sum(~[cur_dir.isdir]);
-trials = 10;
+trials = 100;
 % trials = 11 * 10;
 
 

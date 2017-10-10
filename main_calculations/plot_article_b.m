@@ -5,10 +5,10 @@ function plot_article_b(data_struct, trials_data, fig_count, bl_save_figures)
 
 %% Constants
 load_constants;
-bin_plot_step = 3;	% 3
+bin_plot_step = 1;	% 3
 rows = 2;
 cols = 2;
-x_lim_vec = [0, x_max];
+x_lim_vec = [x_min, x_max];
 w = 10.0;
 % Subplots params
 SH = 0.07;

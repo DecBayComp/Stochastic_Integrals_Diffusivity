@@ -33,11 +33,11 @@ w = 10;
 
 %% Binning
 points_in_bin_avg = 1000;
-min_bin_to_jump_ratio = 2;	% require a bin to be at least several times larger than the mean jump in it
+min_bin_to_jump_ratio = 2;	% require a bin to be at least several times larger than the mean jump in it. This corresponds to a 61% probability to stay in bin after jump
 
 
 %% Regularization parameters
-alpha_reg = 1e0;
+alpha_reg = 0.5;
 
 
 %% Plot parameters
