@@ -10,6 +10,9 @@ function [x_bins_borders, x_bins_centers, bins_number, x_bins_widths,...
 %% The calculations assume no points have exactly the same locations
 
 
+% Start timer
+tic;
+
 %% Constants
 load_constants;
 REL_PRECISION = 1e-4;
@@ -169,8 +172,8 @@ x_bins_borders(end, 2) = x_bins_borders(end, 2) + (x_bins_borders(end, 2) - x_bi
 x_bins_widths = x_bins_borders(:, 2) - x_bins_borders(:, 1);
 x_bins_centers = mean(x_bins_borders, 2);
 
-%
-display('Binning: Completed!');
+% Print execution time
+fprintf('Binning: Completed in %.2f min', toc/60);
 
 1;
 
