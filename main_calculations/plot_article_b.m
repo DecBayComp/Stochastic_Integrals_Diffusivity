@@ -105,17 +105,17 @@ mean_jumps = data_struct.mean_jump_bins_all_trials';
 
 % b' part
 lambdas = [0, 0.5, 1];
-b_theor_bias = 2 * b_theor_data(:, 2).^2 .* mean_jumps.^2 ./ 6 ./ b_theor_data(:, 1);
+b_theor_bias = 2 * b_theor_data(:, 2).^2 .* (bin_sizes / 2).^2 ./ 6 ./ b_theor_data(:, 1);
 b_theor_bias = b_theor_bias * (2 * lambdas - 2);
 
 % b'' part
-b_theor_bias = b_theor_bias + b_theor_data(:, 3) .* (mean_jumps).^2 / 6 * [1, 1, 1];
+b_theor_bias = b_theor_bias + b_theor_data(:, 3) .* (bin_sizes / 2).^2 / 6 * [1, 1, 1];
 
 %% Initialize
 subaxis(rows, cols, 3);
 hold on;
 % x_lim_vec_C = [-0.19,0.16];
-y_lim_vec = [-1, 1] * 7e-3;
+y_lim_vec = [-1, 1] * 1e-2;
 str_legend = {};
 
 %% Plot
@@ -153,7 +153,7 @@ grid on;
 %% Initialize
 subaxis(rows, cols, 4);
 hold on;
-y_lim_vec = [-0.4, 0.4] * 1;
+y_lim_vec = [-1, 1] * 0.23;
 %% Calculate
 % Calculate simple bb' with MAP b using a finite elements scheme
 % Choose one lambda and corresponding data_struct

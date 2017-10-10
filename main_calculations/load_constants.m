@@ -37,7 +37,7 @@ min_bin_to_jump_ratio = 2;	% require a bin to be at least several times larger t
 
 
 %% Regularization parameters
-alpha_reg = 0.5;
+alpha_reg = 0.1;
 
 
 %% Plot parameters
