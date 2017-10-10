@@ -17,6 +17,8 @@ REL_PRECISION = 1e-4;
 % The bin size will be increased by the following number of points each time that the bin is smaller than the mean jump
 increase_step = ceil(points_in_bin / 1000);
 
+conv_factor = 1/2;	% convergence rate to the desired bin width
+
 
 %% Initialize
 N = length(x_data);
@@ -61,7 +63,8 @@ for bin = bins_number:-1:1
 	
 	% Keep increasing the bin width, while the mean jump in bin is not small enough compared to the bins and while there are unbinned points left
 	bl_small_mean_jump = false;
-	for ind = left_border_ind:-increase_step:1
+	ind = left_border_ind;
+	while ind >= 1
 		% Calculate the mean jump in bin
 		mean_jump = std(dx_data_sorted(ind:right_border_ind));
 		
@@ -92,6 +95,19 @@ for bin = bins_number:-1:1
 			bl_small_mean_jump = true;
 			break;
 		end;
+		
+		%% Estimate the index of the border which would give the right bin size
+		est_width_increase_ratio = mean_jump * min_bin_to_jump_ratio / bin_width;
+		
+		% Estimated number of points to add
+		est_points_increase = (right_border_ind - ind + 1) * (est_width_increase_ratio - 1);
+		
+		% Reduce by a convergence factor to be more accurate
+		est_points_increase = ceil(est_points_increase * conv_factor) + 1;
+		
+		% Calculate the next index to consider
+		ind = ind - est_points_increase;
+		
 	end;
 	
 	% If the condition was not satisfied, then we ran out of points, and the current points will be attached to the previous bin
