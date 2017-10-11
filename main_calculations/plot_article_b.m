@@ -115,13 +115,13 @@ b_theor_bias = b_theor_bias + b_theor_data(:, 3) .* (bin_sizes / 2).^2 / 6 * [1,
 subaxis(rows, cols, 3);
 hold on;
 % x_lim_vec_C = [-0.19,0.16];
-y_lim_vec = [-1, 1] * 1e-2;
+y_lim_vec = [-1, 1] * 7.5e-3;
 str_legend = {};
 
 %% Plot
 for lambda_type = 1:lambda_types_count
     plot(data_struct.x_bins_centers,...
-        (data_struct.MAP_b_mean(lambda_type, :, 1) - data_struct.b_theor_data(:, 1)'), markers_list{lambda_type},...
+        (data_struct.MAP_b_mean(lambda_type, :, 1) - data_struct.b_theor_data(:, 1)'), strcat('-', markers_list{lambda_type}),...
         'markers', marker_size, 'LineWidth', line_width, 'color', color_sequence(lambda_type, :));
     str_legend{end + 1} = lambda_types_names{lambda_type};
 end;
@@ -134,7 +134,14 @@ legend boxon;
 for lambda_ind = 1:length(lambdas)
 	plot(data_struct.x_bins_centers, b_theor_bias(:, lambda_ind), 'k--', 'color', color_sequence(lambda_ind, :));
 end;
-% h_theor_0 = plot(x_lim_vec_C, 0 * x_lim_vec_C, 'k--');
+%h_conf = plot(x_lim_vec, [1, 1] * (1 - CONF_LEVEL) * 100, 'k--', 'linewidth', line_width);
+
+
+
+%% Plot zero bias
+h_theor_0 = plot(x_lim_vec, 0 * x_lim_vec, 'k--');
+
+
 
 %% Adjust
 xlim(x_lim_vec);
@@ -145,7 +152,7 @@ text(sublabel_x, sublabel_y, strcat('(c)'), 'Units', 'Normalized', 'VerticalAlig
 title('Average diffusivity bias', 'interpreter', 'latex');
 grid on;
 % Reorder curves
-% uistack([h_theor_0], 'bottom');
+uistack([h_theor_0], 'bottom');
 
 
 
