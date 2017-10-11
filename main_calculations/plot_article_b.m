@@ -127,6 +127,10 @@ b_mean_series = b_mean_series + b_theor_data(:, 3) .* (bin_sizes / 2).^2 / 6 * [
 % Add the central value and subtract the theoretical mean
 b_theor_bias = b_mean_series + (data_struct.b_theor_data(:, 1) - b_mean_theor') * [1, 1, 1];
 
+%% Alternatively calculate the exact value of the mean integral without series
+lambda = 0;
+b_theor_exact_bias = b_theor_bias_func(bins_borders, lambda, b_mean_theor');
+
 %% Initialize
 subaxis(rows, cols, 3);
 hold on;
@@ -152,8 +156,12 @@ for lambda_ind = 1:length(lambdas)
 end;
 %h_conf = plot(x_lim_vec, [1, 1] * (1 - CONF_LEVEL) * 100, 'k--', 'linewidth', line_width);
 
-%% Plot zero bias
+%% Plot zero bias line
 h_theor_0 = plot(x_lim_vec, 0 * x_lim_vec, 'k--');
+
+%% Plot exact bias due
+plot(data_struct.x_bins_centers, b_theor_exact_bias, 'k:');
+
 
 %% Adjust
 xlim(x_lim_vec);
@@ -219,6 +227,8 @@ output_full_path = strcat(output_figures_folder, output_filename);
 if bl_save_figures
     print(h_fig, output_full_path, '-dpdf', '-r0');
 end;
+
+
 
 
 
