@@ -31,6 +31,14 @@ indices = data_struct.x_bins_centers >= x_left & data_struct.x_bins_centers <= x
 
 
 %% == (A): Plot diffusivity profile ==
+%% Calculate the mean theoretical values in bins
+bins_borders = [1; 1] * data_struct.x_bins_centers' + [-1/2; 1/2] * data_struct.x_bins_widths';
+% Calculate the theoretical anti-derivative of D at the borders
+[~, ~, ~, D_antider_theor] = D_func(selected_D_case, bins_borders, L);
+% Calculate theor mean D and b in bin
+D_mean_theor = (D_antider_theor(2, :) - D_antider_theor(1, :)) ./ (bins_borders(2, :) - bins_borders(1, :));
+b_mean_theor = sqrt(2 * D_mean_theor);
+
 % Initialize
 y_lim_vec_A = [0.09, 0.18];
 h_fig = figure(fig_count);
@@ -45,8 +53,12 @@ for lambda_type = 1:lambda_types_count
         strcat('-', markers_list{lambda_type}), 'color', color_sequence(lambda_type, :),  'LineWidth', line_width, 'markers', marker_size);
     str_legend{end + 1} = lambda_types_names{lambda_type};
 end;
-% Theory
-h_theor = plot(data_struct.x_fine_mesh, data_struct.b_theor_fine_data, '--k', 'LineWidth', line_width);
+%% Theory
+% Values in center
+h_theor_center = plot(data_struct.x_fine_mesh, data_struct.b_theor_fine_data, '-k', 'LineWidth', line_width);
+% Mean values in bins
+plot(data_struct.x_bins_centers, b_mean_theor, '--k', 'LineWidth', line_width);
+
 % Adjust
 xlim(x_lim_vec);
 ylim(y_lim_vec_A);
@@ -62,7 +74,7 @@ h_leg = legend(str_legend, 'location', 'south', 'FontSize', legend_font_size);
 legend boxon;
 grid on;
 % Send theoretical curve back
-uistack(h_theor, 'bottom');
+uistack(h_theor_center, 'bottom');
 
 
 %% == (B): Fail rate ==
@@ -96,6 +108,7 @@ uistack(h_conf, 'bottom');
 
 
 %% == (C): b bias ==
+
 %% Calculate the theoretically expected bias based on integral series
 % Load values
 x_mesh = data_struct.x_bins_centers;
@@ -105,11 +118,14 @@ mean_jumps = data_struct.mean_jump_bins_all_trials';
 
 % b' part
 lambdas = [0, 0.5, 1];
-b_theor_bias = 2 * b_theor_data(:, 2).^2 .* (bin_sizes / 2).^2 ./ 6 ./ b_theor_data(:, 1);
-b_theor_bias = b_theor_bias * (2 * lambdas - 2);
+b_mean_series = 2 * b_theor_data(:, 2).^2 .* (bin_sizes / 2).^2 ./ 6 ./ b_theor_data(:, 1);
+b_mean_series = b_mean_series * (2 * lambdas - 2);
 
 % b'' part
-b_theor_bias = b_theor_bias + b_theor_data(:, 3) .* (bin_sizes / 2).^2 / 6 * [1, 1, 1];
+b_mean_series = b_mean_series + b_theor_data(:, 3) .* (bin_sizes / 2).^2 / 6 * [1, 1, 1];
+
+% Add the central value and subtract the theoretical mean
+b_theor_bias = b_mean_series + (data_struct.b_theor_data(:, 1) - b_mean_theor') * [1, 1, 1];
 
 %% Initialize
 subaxis(rows, cols, 3);
@@ -121,7 +137,7 @@ str_legend = {};
 %% Plot
 for lambda_type = 1:lambda_types_count
     plot(data_struct.x_bins_centers,...
-        (data_struct.MAP_b_mean(lambda_type, :, 1) - data_struct.b_theor_data(:, 1)'), strcat('-', markers_list{lambda_type}),...
+        (data_struct.MAP_b_mean(lambda_type, :, 1) - b_mean_theor), strcat('-', markers_list{lambda_type}),...
         'markers', marker_size, 'LineWidth', line_width, 'color', color_sequence(lambda_type, :));
     str_legend{end + 1} = lambda_types_names{lambda_type};
 end;
@@ -136,12 +152,8 @@ for lambda_ind = 1:length(lambdas)
 end;
 %h_conf = plot(x_lim_vec, [1, 1] * (1 - CONF_LEVEL) * 100, 'k--', 'linewidth', line_width);
 
-
-
 %% Plot zero bias
 h_theor_0 = plot(x_lim_vec, 0 * x_lim_vec, 'k--');
-
-
 
 %% Adjust
 xlim(x_lim_vec);

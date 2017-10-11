@@ -123,6 +123,7 @@ parfor trial = 1:trials  % 765
     data_struct = initialize_data_structure(x_bins_number, fine_mesh_steps_count, conventions_count);
     data_struct.x_bins_centers = x_bins_centers;
     data_struct.x_bins_widths = x_bins_widths;
+	data_struct.x_bins_borders = x_bins_borders;
     data_struct.lambda = trials_lambdas(trial);
     % The following two parameters are the same for the forward and
     % backward calculations because they are just used in the prior

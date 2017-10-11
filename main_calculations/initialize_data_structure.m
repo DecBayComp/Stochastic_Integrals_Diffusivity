@@ -71,6 +71,7 @@ data_struct.V_j = zeros(1, bins_count);
 % data_struct.V_bck_j = cell(1, lambda_count);
 data_struct.x_bins_centers = zeros(1, bins_count);
 data_struct.x_bins_widths = zeros(1, bins_count);
+data_struct.x_bins_borders = zeros(2, bins_count);
 data_struct.x_fine_mesh = zeros(1, fine_mesh_steps_count);
 data_struct.x_bins_number = bins_count;
 data_struct.x_grad_mesh = zeros(1, bins_count - 1);

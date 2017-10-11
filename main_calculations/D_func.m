@@ -1,10 +1,12 @@
  
 
-function [D_func_value, D_prime_func_value, D_scnd_der_func_value] = D_func (D_case_number, x, L)
+function [D_func_value, D_prime_func_value, D_scnd_der_func_value, D_antider_value] = D_func (D_case_number, x, L)
 
 
 %% Iniitialize
 D_scnd_der_func_value = zeros('like', x);
+D_antider_func = @(x) NaN .* x;
+
 
 %% Select function
 switch D_case_number
@@ -49,7 +51,11 @@ switch D_case_number
         D_func_local = @(x) D_0/2.0 * (2 + sin(pi * w * x));
         D_prime_func = @(x) D_0/2.0 * pi * w * cos(pi * w * x);
         D_scnd_der_func = @(x) - D_0/2.0 * (pi * w).^2 * sin(pi * w * x);
-        D_scnd_der_func_value = D_scnd_der_func(x);
+        D_antider_func = @(x) D_0 * (x - cos(pi * w * x) / (2 * pi * w));
+		
+		D_scnd_der_func_value = D_scnd_der_func(x);
+		
+		
 % % %         % Overriding boundary conditions
 % % %         str_mode = 'left_wall_only'; 
 
@@ -59,4 +65,7 @@ end;
 %% Return the result
 D_func_value = D_func_local(x);
 D_prime_func_value = D_prime_func(x);
+D_antider_value = D_antider_func(x);
+
+
 
