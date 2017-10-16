@@ -52,7 +52,7 @@ line_width = 1.2;
 
 output_figures_folder = './figures_for_article/';
 output_data_folder = './processed_data/';
-input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_with_force';  % Ubuntu
+input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_no_force/';  % Ubuntu
 % input_data_folder = '/Users/alexander_serov/Calculations_data/ito-stratonovich/'; % Mac
 fail_rates_filename = 'Fail_rates.dat';
 CSV_DELIMITER = ';';
@@ -78,7 +78,7 @@ str_mode = 'inf_walls';     bc_type = ENUM_BC_INF_WALLS;
 
 
 % lambda_array = [0, 0.5, 1];
-lambda_names_array = {'Ito�', 'Stratonovich', 'Isothermal'}; 
+lambda_names_array = {'Ito', 'Stratonovich', 'Isothermal'}; 
 % lambda_count = length(lambda_array);
 
 

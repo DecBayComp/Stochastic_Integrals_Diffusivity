@@ -5,3 +5,4 @@ backup_workspace.mat
 figures_for_article/*.pdf
 # ./processed_data/*
 processed_data/trials_data.mat
+/*.mat
