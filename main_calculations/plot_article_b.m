@@ -10,6 +10,7 @@ rows = 2;
 cols = 2;
 x_lim_vec = [x_min, x_max];
 w = 10.0;
+
 % Subplots params
 SH = 0.07;
 SV = 0.125;
@@ -17,10 +18,17 @@ ML = 0.08;
 MR = 0.0125;
 MT = 0.04;
 MB = 0.075;
+
 % Label params
 sublabel_x = 0.025;
 sublabel_y = 0.07;
 output_filename = 'b.pdf';
+
+% Constants for bias integral calculations
+D0 =  1e-2;	% um^2/s
+w = 10;		% 1/um
+a0 = 10 / gamma_drag;	% um/s
+
 
 
 %% Calculate
@@ -65,8 +73,35 @@ var_over_t = ...
 			+ 5/2 * b_theor_data(:, 1).^2 .* b_theor_data(:, 2).^2 + 3/2 * b_theor_data(:, 1).^3 .* b_theor_data(:, 2));
 b_theor_expected = sqrt(var_over_t);
 b_theor_bias = b_theor_expected - b_mean_theor';
-1;
 
+
+
+%% Calculate the Fokker-Planck approximation, but averaged over one bin
+% The sinusoid force profile is hard-coded into this expression
+% var_over_t_antider = @(D0, w, a0, lambda, x) (1/(1536 * pi * w)) * D0^2 *  (pi * t_step * w * (pi * D0^2 * w * (12 * (42 * lambda+59) * sin(2 * pi * w * x) - 3 * (3 * lambda+4) * sin(4 * pi * w * x)...
+% 	-8 * (14 * lambda+19) * cos(3 * pi * w * x))-96 * a0 * (cos(2 * pi * w * x)-8 * sin(pi * w * x)))-12 * (pi * w * x * (17 * pi^2 * D0^2 * (lambda+2) * t_step * w^2-144)...
+% 	+8 * sin(2 * pi * w * x))+24 * cos(pi * w * x) * (pi^2 * D0^2 * (42 * lambda+65) * t_step * w^2-64));
+
+% order 1 in t_step
+var_over_t_antider = @(D0, w, a0, lambda, t_step, x) (D0*(32*pi*w*x - 16*cos(pi*w*x)))/(16*pi*w) + (1/(16*pi*w))*(D0*(t_step)*(-2*D0*(2 + lambda)*pi^3*w^3*x...
+	+ 8*D0*(3 + 2*lambda)*pi^2*w^2*cos(pi*w*x) + 8*a0*pi*w*sin(pi*w*x) + D0*(4 + 3*lambda)*pi^2*w^2*sin(2*pi*w*x)));
+
+% % order 2 in t_step (but calculations showed this is unnecessary)
+% var_over_t_antider = @(D0, w, a0, lambda, t_step, x) (D0*(288*pi*w*x - 144*cos(pi*w*x)))/(144*pi*w) + (1/(144*pi*w))*(D0*(t_step)*(-18*D0*(2 + lambda)*pi^3*w^3*x...
+% 	+ 72*D0*(3 + 2*lambda)*pi^2*w^2*cos(pi*w*x) + 72*a0*pi*w*sin(pi*w*x) + 9*D0*(4 + 3*lambda)*pi^2*w^2*sin(2*pi*w*x)))...
+% 	+ (1/(144*pi*w))*(D0*(t_step)^2*(6*D0^2*(4 + 3*lambda)*pi^5*w^5*x + 24*a0^2*pi^2*w^2*cos(pi*w*x) - 3*D0^2*(51 + lambda*(43 + 2*lambda))*pi^4*w^4*cos(pi*w*x)...
+% 	+ 9*a0*D0*(4 + 3*lambda)*pi^3*w^3*cos(2*pi*w*x) + D0^2*(17 + 3*lambda*(7 + 2*lambda))*pi^4*w^4*cos(3*pi*w*x) - 48*a0*D0*(3 + 2*lambda)*pi^3*w^3*sin(pi*w*x)...
+% 	- 3*D0^2*(34 + lambda*(37 + 8*lambda))*pi^4*w^4*sin(2*pi*w*x)));
+
+lambda = 1;
+var_theor_expected_avg = var_over_t_antider(D0, w, a0, lambda, t_step, bins_borders(2, :)) - var_over_t_antider(D0, w, a0, lambda, t_step, bins_borders(1, :));
+% Normalize to bin width
+var_theor_expected_avg = var_theor_expected_avg ./ (bins_borders(2, :) - bins_borders(1, :));
+b_theor_expected_avg = sqrt(var_theor_expected_avg)
+b_theor_expected_avg_bias = b_theor_expected_avg' - b_mean_theor';
+b_theor_expected'
+bins_borders;
+ 
 
 
 %% == (A): Plot diffusivity profile ==
@@ -90,7 +125,7 @@ h_theor_center = plot(data_struct.x_fine_mesh, data_struct.b_theor_fine_data, '-
 % Mean values in bins
 plot(data_struct.x_bins_centers, b_mean_theor, '--k', 'LineWidth', line_width);
 % The expected b due to Fokker-Planck equation
-plot(data_struct.x_bins_centers, b_theor_expected, '-m', 'LineWidth', line_width);
+plot(data_struct.x_bins_centers, b_theor_expected_avg, '-m', 'LineWidth', line_width);
 
 % Adjust
 xlim(x_lim_vec);
@@ -198,7 +233,8 @@ legend boxon;
 %% Theory
 %for lambda_ind =  1:length(lambdas)
 % lambda_ind = 3;
-plot(data_struct.x_bins_centers, b_theor_bias(:, 1), 'k');
+% plot(data_struct.x_bins_centers, b_theor_bias(:, 1), 'k');
+plot(data_struct.x_bins_centers, b_theor_expected_avg_bias, 'k'); 
 % end;
 %h_conf = plot(x_lim_vec, [1, 1] * (1 - CONF_LEVEL) * 100, 'k--', 'linewidth', line_width);
 
