@@ -30,7 +30,7 @@ x_right = (1/2 + 2*2)/w;
 indices = data_struct.x_bins_centers >= x_left & data_struct.x_bins_centers <= x_right;
 
 
-%% == (A): Plot diffusivity profile ==
+
 %% Calculate the mean theoretical values in bins
 bins_borders = [1; 1] * data_struct.x_bins_centers' + [-1/2; 1/2] * data_struct.x_bins_widths';
 % Calculate the theoretical anti-derivative of D at the borders
@@ -38,7 +38,38 @@ bins_borders = [1; 1] * data_struct.x_bins_centers' + [-1/2; 1/2] * data_struct.
 % Calculate theor mean D and b in bin
 D_mean_theor = (D_antider_theor(2, :) - D_antider_theor(1, :)) ./ (bins_borders(2, :) - bins_borders(1, :));
 b_mean_theor = sqrt(2 * D_mean_theor);
+% % b_mean_theor = data_struct.b_theor_data(:, 1)';
 
+
+
+%% Calculate the theoretically expected bias based on integral series
+% Load values
+% b and its first two derivatives in columns 1, 2, 3
+b_theor_data = data_struct.b_theor_data;
+% a in column 1, and we assume it has no gradient (zeros in column 2)
+a_theor_data = data_struct.a_theor_data;
+a_theor_data = [a_theor_data, zeros(length(a_theor_data), 1)];
+
+
+
+%% Calculate
+% x variance over t
+lambda = 1;
+var_over_t = ...
+			... % t-independent part
+			b_theor_data(:, 1).^2 ...
+			... % ~ (t * lambda) part
+			+ t_step * lambda * (2 * b_theor_data(:, 1).^2 .* b_theor_data(:, 2).^2 + b_theor_data(:, 1).^3 .* b_theor_data(:, 3))...
+			... % ~ (t) part
+			+ t_step * (b_theor_data(:, 1).^2 .* a_theor_data(:, 2) + a_theor_data(:, 1) .* b_theor_data(:, 1) .* b_theor_data(:, 2)...
+			+ 5/2 * b_theor_data(:, 1).^2 .* b_theor_data(:, 2).^2 + 3/2 * b_theor_data(:, 1).^3 .* b_theor_data(:, 2));
+b_theor_expected = sqrt(var_over_t);
+b_theor_bias = b_theor_expected - b_mean_theor';
+1;
+
+
+
+%% == (A): Plot diffusivity profile ==
 % Initialize
 y_lim_vec_A = [0.09, 0.18];
 h_fig = figure(fig_count);
@@ -58,6 +89,8 @@ end;
 h_theor_center = plot(data_struct.x_fine_mesh, data_struct.b_theor_fine_data, '-k', 'LineWidth', line_width);
 % Mean values in bins
 plot(data_struct.x_bins_centers, b_mean_theor, '--k', 'LineWidth', line_width);
+% The expected b due to Fokker-Planck equation
+plot(data_struct.x_bins_centers, b_theor_expected, '-m', 'LineWidth', line_width);
 
 % Adjust
 xlim(x_lim_vec);
@@ -109,21 +142,18 @@ uistack(h_conf, 'bottom');
 
 %% == (C): b bias ==
 
-%% Calculate the theoretically expected bias based on integral series
-% Load values
-% b and its first two derivatives in successful columns
-b_theor_data = data_struct.b_theor_data;
 
 
 
-% Calculate
-s0_theor_data = b_theor_data(:,1).^2;
-s2_theor_data = -2 * (b_theor_data(:, 2).^2 + b_theor_data(:, 1) .* b_theor_data(:, 3));
-lambda = 1;
-b_theor_expected = sqrt(s0_theor_data .* (1 - (t_step / 2) * s2_theor_data * (1 + 4 * lambda)/4) );	%  + (t_step / 2)^2 * s2_theor_data.^2 * lambda^2 / 2
-b_theor_bias = b_theor_expected - b_mean_theor';
-% % b_theor_bias = b_theor_expected - b_theor_data(:, 1);
-1;
+
+% % % Calculate
+% % s0_theor_data = b_theor_data(:,1).^2;
+% % s2_theor_data = -2 * (b_theor_data(:, 2).^2 + b_theor_data(:, 1) .* b_theor_data(:, 3));
+% % lambda = 1;
+% % b_theor_expected = sqrt(s0_theor_data .* (1 - (t_step / 2) * s2_theor_data * (1 + 4 * lambda)/4) );	%  + (t_step / 2)^2 * s2_theor_data.^2 * lambda^2 / 2
+% % b_theor_bias = b_theor_expected - b_mean_theor';
+% % % % b_theor_bias = b_theor_expected - b_theor_data(:, 1);
+% % 1;
 
 
 % % x_mesh = data_struct.x_bins_centers;
