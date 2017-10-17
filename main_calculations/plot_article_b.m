@@ -111,25 +111,40 @@ uistack(h_conf, 'bottom');
 
 %% Calculate the theoretically expected bias based on integral series
 % Load values
-x_mesh = data_struct.x_bins_centers;
-bin_sizes = data_struct.x_bins_widths;
+% b and its first two derivatives in successful columns
 b_theor_data = data_struct.b_theor_data;
-mean_jumps = data_struct.mean_jump_bins_all_trials';
 
-% b' part
-lambdas = [0, 0.5, 1];
-b_mean_series = 2 * b_theor_data(:, 2).^2 .* (bin_sizes / 2).^2 ./ 6 ./ b_theor_data(:, 1);
-b_mean_series = b_mean_series * (2 * lambdas - 2);
 
-% b'' part
-b_mean_series = b_mean_series + b_theor_data(:, 3) .* (bin_sizes / 2).^2 / 6 * [1, 1, 1];
 
-% Add the central value and subtract the theoretical mean
-b_theor_bias = b_mean_series + (data_struct.b_theor_data(:, 1) - b_mean_theor') * [1, 1, 1];
+% Calculate
+s0_theor_data = b_theor_data(:,1).^2;
+s2_theor_data = -2 * (b_theor_data(:, 2).^2 + b_theor_data(:, 1) .* b_theor_data(:, 3));
+lambda = 1;
+b_theor_expected = sqrt(s0_theor_data .* (1 - (t_step / 2) * s2_theor_data * (1 + 4 * lambda)/4) );	%  + (t_step / 2)^2 * s2_theor_data.^2 * lambda^2 / 2
+b_theor_bias = b_theor_expected - b_mean_theor';
+% % b_theor_bias = b_theor_expected - b_theor_data(:, 1);
+1;
 
-%% Alternatively calculate the exact value of the mean integral without series
-lambda = 0;
-b_theor_exact_bias = b_theor_bias_func(bins_borders, lambda, b_mean_theor');
+
+% % x_mesh = data_struct.x_bins_centers;
+% % bin_sizes = data_struct.x_bins_widths;
+% % 
+% % mean_jumps = data_struct.mean_jump_bins_all_trials';
+% % 
+% % % b' part
+% % lambdas = [0, 0.5, 1];
+% % b_mean_series = 2 * b_theor_data(:, 2).^2 .* (bin_sizes / 2).^2 ./ 6 ./ b_theor_data(:, 1);
+% % b_mean_series = b_mean_series * (2 * lambdas - 2);
+% % 
+% % % b'' part
+% % b_mean_series = b_mean_series + b_theor_data(:, 3) .* (bin_sizes / 2).^2 / 6 * [1, 1, 1];
+% % 
+% % % Add the central value and subtract the theoretical mean
+% % b_theor_bias = b_mean_series + (data_struct.b_theor_data(:, 1) - b_mean_theor') * [1, 1, 1];
+% % 
+% % %% Alternatively calculate the exact value of the mean integral without series
+% % lambda = 0;
+% % b_theor_exact_bias = b_theor_bias_func(bins_borders, lambda, b_mean_theor');
 
 %% Initialize
 subaxis(rows, cols, 3);
@@ -151,16 +166,17 @@ legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
 legend boxon;
 
 %% Theory
-for lambda_ind = 1:length(lambdas)
-	plot(data_struct.x_bins_centers, b_theor_bias(:, lambda_ind), 'k--', 'color', color_sequence(lambda_ind, :));
-end;
+%for lambda_ind =  1:length(lambdas)
+% lambda_ind = 3;
+plot(data_struct.x_bins_centers, b_theor_bias(:, 1), 'k');
+% end;
 %h_conf = plot(x_lim_vec, [1, 1] * (1 - CONF_LEVEL) * 100, 'k--', 'linewidth', line_width);
 
 %% Plot zero bias line
 h_theor_0 = plot(x_lim_vec, 0 * x_lim_vec, 'k--');
 
-%% Plot exact bias due
-plot(data_struct.x_bins_centers, b_theor_exact_bias, 'k:');
+% %% Plot exact bias
+% plot(data_struct.x_bins_centers, b_theor_bias, '--k');
 
 
 %% Adjust
