@@ -27,7 +27,7 @@ output_filename = 'b.pdf';
 % Constants for bias integral calculations
 D0 =  1e-2;	% um^2/s
 w = 10;		% 1/um
-a0 = 10 / gamma_drag;	% um/s
+a0 = 0*10 / gamma_drag;	% um/s
 
 
 
@@ -76,7 +76,7 @@ b_theor_bias = b_theor_expected - b_mean_theor';
 
 
 
-%% Calculate the Fokker-Planck approximation, but averaged over one bin
+%% Calculate the Fokker-Planck approximation averaged over one bin
 % The sinusoid force profile is hard-coded into this expression
 % var_over_t_antider = @(D0, w, a0, lambda, x) (1/(1536 * pi * w)) * D0^2 *  (pi * t_step * w * (pi * D0^2 * w * (12 * (42 * lambda+59) * sin(2 * pi * w * x) - 3 * (3 * lambda+4) * sin(4 * pi * w * x)...
 % 	-8 * (14 * lambda+19) * cos(3 * pi * w * x))-96 * a0 * (cos(2 * pi * w * x)-8 * sin(pi * w * x)))-12 * (pi * w * x * (17 * pi^2 * D0^2 * (lambda+2) * t_step * w^2-144)...
