@@ -1,3 +1,5 @@
+%% Calculate log probability density of b=sqrt(2*D)
+% Checked: OK
 
 
 function out =  bin_b_log_posterior_func (bin, b, t_step, data_struct, str_direction)
