@@ -15,9 +15,9 @@ data_struct = struct();
 
 % Lambda level
 % data_struct.elements_in_bins_count = cell(1, lambda_count);
-data_struct.dx_Mean = 0;
+data_struct.dx_mean_all_bins_all_trials = 0;
 data_struct.dx_mean_in_bins = zeros(1, bins_count);
-data_struct.mean_jump_bins = zeros(1, bins_count);
+data_struct.mean_jump_length_bins = zeros(1, bins_count);
 data_struct.mean_jump_bins_all_trials = zeros(1, bins_count);
 % data_struct.dx_bck_mean_in_bins_saved = cell(1, lambda_count);
 % data_struct.points_in_bins = cell(1, max_bins_number);
@@ -32,8 +32,10 @@ data_struct.MAP_bb_prime_regular_interp_mean = 0;
 % data_struct.MAP_fwd_fD_divine = cell(1, lambda_count);
 % data_struct.MAP_fwd_fD_divine_mean = cell(1, lambda_count);
 data_struct.MAP_b_mean = 0;
+data_struct.MAP_D_mean = 0;
 data_struct.b_theor_data = zeros(bins_count, 3);							% At bins centers, b and its two first derivatives (??)
 % data_struct.D_theor_data = zeros(bins_count, 3);                          % At bins centers, D and its two first derivatives
+data_struct.D_theor_fine_data = zeros(1, fine_mesh_steps_count);
 data_struct.b_theor_fine_data = zeros(1, fine_mesh_steps_count);
 data_struct.bb_prime_theor_fine_data = zeros(1, fine_mesh_steps_count);
 data_struct.a_theor_data = zeros(1, bins_count);                          % At bins centers

@@ -30,9 +30,9 @@ pdf_norm = [];
 %% Access trajectories folder and start loading trajectories
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
-trials = sum(~[cur_dir.isdir]);
-% trials = 4000;L
-% trials = 11 * 10;
+% trials = sum(~[cur_dir.isdir]);
+trials = 6*6;
+
 
 
 % Load trajectories
@@ -86,8 +86,8 @@ end;
             elements_in_bins_count, variance_in_bins, ~] = select_bins_adaptive_mesh(trials_x(:), trials_dx(:), points_in_bin_avg * trials);
 
 % Estimate dx_Mean and V used for prior only. Average over everything
-dx_Mean = mean(trials_dx(:));
-V = mean(trials_dx(:).^2) - dx_Mean^2;
+dx_mean_all_bins_all_trials = mean(trials_dx(:));
+V = var(trials_dx(:));
 
 % Calculate mean jump in each bin over all trials
 mean_jump_bins_all_trials = sqrt(variance_in_bins);
@@ -127,11 +127,12 @@ parfor trial = 1:trials  % 765
     data_struct.lambda = trials_lambdas(trial);
     % The following two parameters are the same for the forward and
     % backward calculations because they are just used in the prior
-    data_struct.dx_Mean = dx_Mean;
+    data_struct.dx_mean_all_bins_all_trials = dx_mean_all_bins_all_trials;
     data_struct.V = V;
 	data_struct.mean_jump_bins_all_trials = mean_jump_bins_all_trials;
     data_struct.x_fine_mesh = x_fine_mesh;
     data_struct.b_theor_fine_data = b_theor_fine_data;
+	data_struct.D_theor_fine_data = D_theor_fine_data;
     data_struct.bb_prime_theor_fine_data = bb_prime_theor_fine_data;
     data_struct.a_theor_fine_data = a_theor_fine_data;
     data_struct.D_theor_data = [D_bins, D_prime_bins, D_prime_prime_bins];
@@ -163,34 +164,38 @@ parfor trial = 1:trials  % 765
         counter_start = counter_end + 1;
 
         %% Save calculated values to the data structure
-        data_struct.dx_mean_in_bins(bin) = mean(points_in_bins{bin}(2, :));
-%         data_struct.dx_bck_mean_in_bins_saved{l_ind}(bin) = mean(points_in_bins{bin}(3, :));
         data_struct.n_j(bin) = elements_in_bins_count(bin);
-        data_struct.V_j(bin) = mean(points_in_bins{bin}(2, :).^2) - mean(points_in_bins{bin}(2, :))^2;
-		data_struct.mean_jump_bins = var(points_in_bins{bin}(2, :));
-%         data_struct.V_bck_j{l_ind}(bin) = mean(points_in_bins{bin}(3, :).^2) - mean(points_in_bins{bin}(3, :))^2;
+		data_struct.dx_mean_in_bins(bin) = mean(points_in_bins{bin}(2, :));
+        data_struct.V_j(bin) = var(points_in_bins{bin}(2, :));
+		data_struct.mean_jump_length_bins = sqrt(data_struct.V_j(bin));
 
-		%% I for this trial, we have no points in the bin, set flag
+		%% If for this trial, we have no points in the bin, set flag
 		if data_struct.n_j(bin) == 0
 			bl_empty_bin = true;
 		end
 		
 
-        %% Calculate MAP diffusivity
-        [mu_n, kappa_n, nu_n, sigma2_n] = get_n_parameters(bin, data_struct, 'forward');
-        % Prepare function
-        log_function_to_minimze = @(b) bin_b_log_posterior_func (bin, b, t_step, data_struct, 'forward');
+        %% Calculate MAP diffusivity D and b
+        % Prepare functions
+        log_D_function_to_minimze = @(D) bin_D_log_posterior_func (bin, D, t_step, data_struct, 'forward');
+		log_b_function_to_minimze = @(b) bin_b_log_posterior_func (bin, b, t_step, data_struct, 'forward');
         % Make an MLE guess
-        MLE_guess = sqrt(2 * nu_n / (nu_n + 2) * sigma2_n / (2 * t_step));
+        [mu_n, kappa_n, nu_n, sigma2_n] = get_n_parameters(bin, data_struct, 'forward');
+		MLE_guess_D = 2 * nu_n / (nu_n + 2) * sigma2_n / (2 * t_step);
+		MLE_guess_b = sqrt(MLE_guess_D);
         % Find confidence intervals if the bin is not empty
 		if ~bl_empty_bin
-			b_inference = find_confidence_interval(log_function_to_minimze, [b_PRECISION, b_ABS_MAX], true, MLE_guess, CONF_LEVEL,...
+			D_inference = find_confidence_interval(log_D_function_to_minimze, [D_PRECISION, D_ABS_MAX], true, MLE_guess_D, CONF_LEVEL,...
+				data_struct.D_theor_data(bin), trial, bin);
+			b_inference = find_confidence_interval(log_b_function_to_minimze, [b_PRECISION, b_ABS_MAX], true, MLE_guess_b, CONF_LEVEL,...
 				data_struct.b_theor_data(bin), trial, bin);
 		else
+			D_inference = ones(1, 4) * NaN;
 			b_inference = ones(1, 4) * NaN;
 		end;
         % Save
-        data_struct.MAP_b(bin, :) = b_inference;
+        data_struct.MAP_D(bin, :) = D_inference;
+		data_struct.MAP_b(bin, :) = b_inference;
 		data_struct.bl_empty_bin(bin) = bl_empty_bin;
     end;
 
@@ -336,11 +341,14 @@ data_struct = trials_data{end};
 t_mesh = (0:N) * t_step;
 
 % Combine predictions from all trials (needed for right parallelization)
+trials_MAP_D = zeros(trials, x_bins_number, 4);
 trials_MAP_b = zeros(trials, x_bins_number, 4);
 trials_MAP_a = zeros(trials, x_bins_number, conventions_count, 4);
 trials_MAP_bb_prime_regular_interp = zeros(trials, x_bins_number);
 for trial = 1:trials
-    % b
+    % D
+    trials_MAP_D(trial, :, :) = trials_data{trial}.MAP_D(:, :);
+	% b
     trials_MAP_b(trial, :, :) = trials_data{trial}.MAP_b(:, :);
     % fD
     trials_MAP_a(trial, :, :, :) = trials_data{trial}.MAP_a;
@@ -348,6 +356,7 @@ for trial = 1:trials
     trials_MAP_bb_prime_regular_interp(trial, :) = trials_data{trial}.MAP_bb_prime_regular_interp;
 end;
 % Save
+data_struct.trials_MAP_D = trials_MAP_D;
 data_struct.trials_MAP_b = trials_MAP_b;
 data_struct.trials_MAP_a = trials_MAP_a;
 data_struct.trials_MAP_bb_prime_regular_interp = trials_MAP_bb_prime_regular_interp;
@@ -356,6 +365,7 @@ data_struct.trials_MAP_bb_prime_regular_interp = trials_MAP_bb_prime_regular_int
 
 %% Calculate mean for each simulation type separately
 %% Also calculate the fail rate for each simulation type
+MAP_D_mean = zeros(lambda_types_count, x_bins_number, 4);
 MAP_b_mean = zeros(lambda_types_count, x_bins_number, 4);
 MAP_a_mean = zeros(lambda_types_count, x_bins_number, conventions_count, 4);
 MAP_bb_prime_regular_interp_mean = zeros(lambda_types_count, x_bins_number);
@@ -364,7 +374,8 @@ UR_a = zeros(lambda_types_count, x_bins_number, conventions_count);
 outside_count_a = zeros(lambda_types_count, x_bins_number, conventions_count);
 for lambda_type = 1:lambda_types_count
     % Mean
-    MAP_b_mean(lambda_type, :, :) = mean(trials_MAP_b(trial_simulation_type == lambda_type, :, :), 1, 'omitnan' );
+    MAP_D_mean(lambda_type, :, :) = mean(trials_MAP_D(trial_simulation_type == lambda_type, :, :), 1, 'omitnan' );
+	MAP_b_mean(lambda_type, :, :) = mean(trials_MAP_b(trial_simulation_type == lambda_type, :, :), 1, 'omitnan' );
     MAP_a_mean(lambda_type, :, :, :) = mean(trials_MAP_a(trial_simulation_type == lambda_type, :, :, :), 1, 'omitnan' );
     MAP_bb_prime_regular_interp_mean(lambda_type, :) = mean(trials_MAP_bb_prime_regular_interp(trial_simulation_type == lambda_type, :), 1, 'omitnan' );
     % Fail rate
@@ -374,6 +385,7 @@ for lambda_type = 1:lambda_types_count
     UR_a(lambda_type, :, :) = mean(double(trials_MAP_a(trial_simulation_type == lambda_type, :, :, 4) > CONF_LEVEL), 1, 'omitnan' );
 end;
 % Save
+data_struct.MAP_D_mean = MAP_D_mean;
 data_struct.MAP_b_mean = MAP_b_mean;
 data_struct.MAP_a_mean = MAP_a_mean;
 data_struct.MAP_bb_prime_regular_interp_mean = MAP_bb_prime_regular_interp_mean;

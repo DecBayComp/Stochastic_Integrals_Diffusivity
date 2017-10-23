@@ -173,7 +173,7 @@ x_bins_widths = x_bins_borders(:, 2) - x_bins_borders(:, 1);
 x_bins_centers = mean(x_bins_borders, 2);
 
 % Print execution time
-fprintf('Binning: Completed in %.2f min', toc/60);
+fprintf('Binning: Completed in %.2f min\n', toc/60);
 
 1;
 
