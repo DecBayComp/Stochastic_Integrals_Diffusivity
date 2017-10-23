@@ -69,13 +69,13 @@ for bin = bins_number:-1:1
 	ind = left_border_ind;
 	while ind >= 1
 		% Calculate the mean jump in bin
-		mean_jump = std(dx_data_sorted(ind:right_border_ind));
+		mean_jump_length = std(dx_data_sorted(ind:right_border_ind));
 		
 		% Calculate bin width
 		bin_width = x_data_sorted(right_border_ind) - x_data_sorted(ind);
 		
 		% Leave cycle if the condition is satisfied
-		if bin_width >= mean_jump * min_bin_to_jump_ratio
+		if bin_width >= mean_jump_length * min_bin_to_jump_ratio
 			% Save borders
 			indices_bins_borders(bin, 1) = ind;
 			indices_bins_borders(bin - 1, 2) = ind - 1;
@@ -89,7 +89,7 @@ for bin = bins_number:-1:1
 			
 			% Calculate varaince
 			variance_in_bins(bin) = var(points_binned{bin}(2, :));
-			mean_jumps(bin) = mean_jump;
+			mean_jumps(bin) = mean_jump_length;
 			
 			% Print progress
 			fprintf('The bin was smaller than %.1f * (mean jump) and was enlarged by %i points.\n', min_bin_to_jump_ratio, right_border_ind - ind + 1 - points_in_bin);
@@ -100,7 +100,7 @@ for bin = bins_number:-1:1
 		end;
 		
 		%% Estimate the index of the border which would give the right bin size
-		est_width_increase_ratio = mean_jump * min_bin_to_jump_ratio / bin_width;
+		est_width_increase_ratio = mean_jump_length * min_bin_to_jump_ratio / bin_width;
 		
 		% Estimated number of points to add
 		est_points_increase = (right_border_ind - ind + 1) * (est_width_increase_ratio - 1);
