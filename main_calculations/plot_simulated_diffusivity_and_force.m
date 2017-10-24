@@ -18,8 +18,12 @@ output_D_filename = 'Simulated_D_a_b.pdf';
 spacing = 0.08;
 ML = 0.07;
 MR = 0.0125;
-MT = 0.08;
+MT = 0.09;
 MB = 0.17;
+
+% Label params
+sublabel_x = 0.015;
+sublabel_y = 1.13;
 
 
 
@@ -50,7 +54,7 @@ h_sub = subaxis(1, 3, 1, 'Spacing', spacing, 'ML', ML, 'MR', MR, 'MT', MT, 'MB',
 
 
 
-%% a figure
+%% 'a' figure
 % Initialize subplot
 h_sub = subaxis(1, 3, 1);
 
@@ -61,12 +65,15 @@ plot(x_mesh, a_data, '-o', 'LineWidth', 2,...
 	'MarkerSize', marker_size, 'MarkerFaceColor', standard_colors(1).DeepBlue,...
     'MarkerIndices', 1:marker_step:x_mesh_length);
 
-% Label
+% Adjust
 ylim([0, max(a_data)]);
 box on;
 grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('$a$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
+
+% Subplot label
+text(sublabel_x, sublabel_y, 'A', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 
 
 
@@ -86,6 +93,9 @@ box on;
 grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('$D$, $\mu \mathrm{m^2/s}$', 'interpreter', 'latex');
+
+% Subplot label
+text(sublabel_x, sublabel_y, 'B', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 
 
 
@@ -107,6 +117,9 @@ box on;
 grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('$b$, $\mu \mathrm{m \cdot s^{-1/2}}$', 'interpreter', 'latex');
+
+% Subplot label
+text(sublabel_x, sublabel_y, 'C', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 
 
 
