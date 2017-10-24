@@ -26,6 +26,7 @@ output_filename = 'b.pdf';
 
 % Other plot parameters
 bin_plot_step = 1;	% 3
+lambda_type_for_gradient_plot = enum_lambda_Stratonovich;
 
 % Constants for bias integral calculations (taken from D_func.m)
 D0 =  1e-2;		% um^2/s
@@ -37,7 +38,7 @@ load_color_scheme;
 color_sequence = [standard_colors(1).DeepBlue; my_colors(5).Green; my_colors(1).Orange; my_colors(1).WarmBrown];
 
 
-
+%% == Calculations ==
 %% Calculate the average value expected in each bin (simple averaging in space)
 bins_number = data_struct.x_bins_number;
 bins_centers = data_struct.x_bins_centers';
@@ -74,6 +75,22 @@ end;
 % The expected b is the square root of variance over t
 b_estimate_avg = sqrt(var_overt_t_avg);
 b_estimate_avg_bias = b_estimate_avg - b_true_avg;
+
+
+
+%% Calculate diffusivity gradient D' = bb' from MAP b using a finite difference scheme
+
+% Choose one lambda and load corresponding data
+tmp_data_struct = trials_data{data_struct.trial_first_simulation_type_index(lambda_type_for_gradient_plot)};
+
+% Calculate distance between bins centers
+x_bins_steps = tmp_data_struct.x_bins_centers(2:end) - tmp_data_struct.x_bins_centers(1:end - 1);
+
+% Calculate bb' equal to D'
+% % % b_squared_over_2 = tmp_data_struct.MAP_b.^2 / 2;
+MAP_D = tmp_data_struct.MAP_D;
+FD_bb_prime = (MAP_D(2:end, 1) - MAP_D(1:end-1, 1)) ./ x_bins_steps;
+x_grad_mesh = tmp_data_struct.x_grad_mesh;
 
 
 
@@ -214,29 +231,30 @@ uistack(h_theor_0, 'bottom');
 
 
 
-%% == (D): D' profile ==
-%% Initialize
+%% == (D): bb' profile ==
+% Constants
+y_lim_vec = [-1, 1] * 0.18;
+
+% Initialize subplot
 subaxis(rows, cols, 4);
 hold on;
-y_lim_vec = [-1, 1] * 0.18;
-%% Calculate
-% Calculate simple bb' with MAP b using a finite elements scheme
-% Choose one lambda and corresponding data_struct
-tmp_data_struct = trials_data{data_struct.trial_first_simulation_type_index(enum_lambda_Stratonovich)};
-x_bins_steps = tmp_data_struct.x_bins_centers(2:end) - tmp_data_struct.x_bins_centers(1:end - 1);
-b_squared_over_2 = tmp_data_struct.MAP_b.^2 / 2;
-simple_bb_prime = (b_squared_over_2(2:end, 1) - b_squared_over_2(1:end-1, 1)) ./ x_bins_steps;
-x_grad_mesh = tmp_data_struct.x_grad_mesh;
+
+
+
 %% Plot
-% Simple difference
-plot(x_grad_mesh, simple_bb_prime, markers_list{1}, 'color', color_sequence(1, :), 'LineWidth', line_width, 'markers', marker_size);
+% Simple difference bb'
+plot(x_grad_mesh, FD_bb_prime, markers_list{1}, 'color', color_sequence(1, :), 'LineWidth', line_width, 'markers', marker_size);
+
 % Regularized gradient
 plot(x_grad_mesh, tmp_data_struct.MAP_bb_prime_regular,  markers_list{2}, 'color', color_sequence(2, :), 'LineWidth', line_width, 'markers', marker_size);
+
 % Regularized interpolated gradient
 plot(tmp_data_struct.x_bins_centers, tmp_data_struct.MAP_bb_prime_regular_interp, 'color', color_sequence(3, :), 'LineWidth', line_width, 'markers', marker_size);
-% Theory
+
+% True value
 h_theor = plot(tmp_data_struct.x_fine_mesh, tmp_data_struct.bb_prime_theor_fine_data, 'k--', 'LineWidth', line_width_theor);
-% Adjust
+
+% Adjust subplot
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('$bb''$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
 xlim(x_lim_vec);
@@ -244,12 +262,15 @@ ylim(y_lim_vec);
 box on;
 grid on;
 title(sprintf('Diffusivity gradient profile for $\\lambda^* = %.2f$', tmp_data_struct.lambda), 'interpreter', 'latex');
-% Sublabel
+
+% Subplot label
 text(sublabel_x, sublabel_y, 'D', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+
 % Legend
 str_legend_local = {'FD', 'R', 'RI'};
 legend(str_legend_local, 'location', 'southwest', 'interpreter', 'latex', 'FontSize', legend_font_size);
-% Send theoretical curve back
+
+% Send true profile back
 uistack(h_theor, 'bottom');
 
 
@@ -260,6 +281,7 @@ h_fig.PaperPositionMode = 'auto';
 h_fig.Units = 'Inches';
 fig_pos = h_fig.Position;
 set(h_fig, 'PaperUnits','Inches','PaperSize', [fig_pos(3), fig_pos(4)]);
+
 % Set filename
 output_full_path = strcat(output_figures_folder, output_filename);
 if bl_save_figures
