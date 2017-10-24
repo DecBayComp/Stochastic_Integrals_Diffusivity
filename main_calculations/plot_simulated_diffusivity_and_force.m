@@ -2,6 +2,10 @@
 
 
 
+function plot_simulated_diffusivity_and_force(fig_count, bl_save_figures)
+
+
+
 %% Constants
 load_constants;
 load_color_scheme;
@@ -37,9 +41,9 @@ b_data = sqrt(2*D_data);
 
 %% Initialize figure
 % Common figure
-h_fig = figure(10);
+h_fig = figure(fig_count);
 clf;
-set_article_figure_size(h_a_fig, 1, 2, 1);
+set_article_figure_size(h_fig, 1, 2, 1);
 
 % Initialize subplots
 h_sub = subaxis(1, 3, 1, 'Spacing', spacing, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
@@ -116,7 +120,9 @@ set(h_fig, 'PaperUnits','Inches','PaperSize', [fig_pos(3), fig_pos(4)]);
 % Set filename
 output_full_path = strcat(output_figures_folder, output_D_filename);
 % Print
-print(h_fig, output_full_path, '-dpdf', '-r0');
+if bl_save_figures
+	print(h_fig, output_full_path, '-dpdf', '-r0');
+end;
 
 
 

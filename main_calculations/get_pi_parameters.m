@@ -1,14 +1,13 @@
+%% Calculate '_n' parameters of the normal-inverse chi-squared function used as prior
+
+
+
 function [mu_pi, kappa_pi, nu_pi, sigma2_pi] = get_pi_parameters(data_struct)
 
 
-% %% Constants and globals
-% if length(varargin) > 0
-% else
-%     global dx_Mean;
-%     global V;
-% end;
 
-dx_Mean = data_struct.dx_Mean;
+%% Load data
+dx_Mean = data_struct.dx_mean_all_bins_all_trials;
 V = data_struct.V;
 
 

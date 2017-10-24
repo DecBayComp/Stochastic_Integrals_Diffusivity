@@ -30,7 +30,7 @@ for i=0:MAX_INITIAL_SEARCH_ITERATIONS * 10
 end;
 % Check convergence and throw error
 if func_growing(x_start) > 0
-    error('Unable to find the initial search interval for the error bars. Stopping');
+    error('Unable to find the initial search interval for the error bars. This normally indicates that the max. search interval is too small. Consider extending');
 end;
 if i > 0 
     fprintf('Search interval found after %i iterations.\n', i);
@@ -45,7 +45,7 @@ for i=0:MAX_INITIAL_SEARCH_ITERATIONS
 end;
 % Check convergence and throw error
 if func_growing(x_end) < 0
-    error('Unable to find the initial search interval for the error bars. Stopping');
+    error('Unable to find the initial search interval for the error bars. This normally indicates that the max. search interval is too small. Consider extending');
 end;
 if i > 0 
     fprintf('Search interval found after %i iterations.\n', i);

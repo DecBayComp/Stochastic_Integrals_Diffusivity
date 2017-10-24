@@ -1,9 +1,9 @@
-
+## The function defines local force in fN
 
 
 def f_func(f_case_number, x, L):
-	## Local constans
-	f_shift_7 = 10.0
+	## Local constans (set force to zero for a check)
+	f_shift_7 = 10.0 * 0.0
 
 
 	## Select f function

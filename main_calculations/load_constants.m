@@ -11,7 +11,6 @@ gamma_drag = 400;	% viscous drag, in fN * s / um
 % T = 100000;
 t_step = 1e-2;   % L^2 / D_max / 100 = 10 / 1 / 100 = 0.1
 N = 1e5;        % Times the system was explored: (N*t_step) / (L^2 / D_max) = N*t_step*D_max/L^2 = 1e4*0.1*1/100 = 10   OK
-points_in_bin_avg = 1000;
 T = t_step * N;
 internal_steps_number = 100;    % Integer. How many intermediate smaller steps are made before the next point is saved
 update_progress_every = 100;
@@ -32,16 +31,23 @@ CONF_LEVEL = 0.95;
 w = 10;
 
 
+%% Binning
+points_in_bin_avg = 1000;
+min_bin_to_jump_ratio = 2;	% require a bin to be at least several times larger than the mean jump in it. This corresponds to a 61% probability to stay in bin after jump
+
+
 %% Regularization parameters
-alpha_reg = 1e0;
+alpha_reg = 0.1;
 
 
 %% Plot parameters
 marker_size = 6;
 font_size = 12;
+subplot_label_font_size = 16;
 legend_font_size = font_size - 3;
 markers_list = {'s', 'o', '^', '+', 'x', 'd','v'};
 line_width = 1.2;
+line_width_theor = line_width - 0.5;
 % markers_list = {'-o','-s','-d','-^','-v'};
 
 
@@ -49,6 +55,7 @@ line_width = 1.2;
 output_figures_folder = './figures_for_article/';
 output_data_folder = './processed_data/';
 input_data_folder = '/home/aserov/Documents/Calculated_data/';  % Ubuntu
+% input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_no_force/';  % Ubuntu
 % input_data_folder = '/Users/alexander_serov/Calculations_data/ito-stratonovich/'; % Mac
 fail_rates_filename = 'Fail_rates.dat';
 CSV_DELIMITER = ';';
@@ -74,7 +81,7 @@ str_mode = 'inf_walls';     bc_type = ENUM_BC_INF_WALLS;
 
 
 % lambda_array = [0, 0.5, 1];
-lambda_names_array = {'Ito�', 'Stratonovich', 'Isothermal'}; 
+lambda_names_array = {'Ito', 'Stratonovich', 'Isothermal'}; 
 % lambda_count = length(lambda_array);
 
 

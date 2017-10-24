@@ -2,7 +2,7 @@
 
 
 ## Constants
-trials=1000
+trials=250
 sleep_time=0.2
 logs_folder="./logs/"
 args_file="./arguments.dat"

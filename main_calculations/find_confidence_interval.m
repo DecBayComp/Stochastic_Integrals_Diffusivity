@@ -1,8 +1,10 @@
-
-
-function out = find_confidence_interval(log_distr_func, max_search_range, bl_find_error_bars, MLE_guess, CONF_LEVEL, true_value)
-% The function returns the location of the maximum and the distances to the
+%% The function returns the location of the maximum and the distances to the
 % 95% confidence intervals borders below and above
+
+
+
+function out = find_confidence_interval(log_distr_func, max_search_range, bl_find_error_bars, MLE_guess, CONF_LEVEL, true_value, trial, bin)
+
 
 
 %% Constants
@@ -19,8 +21,14 @@ conf_percentile = (1 - CONF_LEVEL)/2;
 distr_func = @(x) exp(log_distr_func(x));
 
 
+%% Check if the supplied MLE is NaN
+if isnan(MLE_guess)
+	error(sprintf('Error: the supplied MLE guess is invalid. Call parameters\n Trial: %i\tBin: %i', trial, bin));
+end;
+
+
 %% Check if the function is 0 at the ends of the search interval. It should not be
-% The interval should then be reduced
+% Reduce the search interval if it is
 MLE_search_range = max_search_range;
 half_width  = (max_search_range(2) - max_search_range(1)) / 2;
 for i = 0:MAX_INITIAL_SEARCH_ITERATIONS
@@ -71,8 +79,19 @@ if bl_find_error_bars
     % Search for the initial interval
     interval = [max_search_range(1), MLE];
     interval = find_initial_interval_zero_search(func_wrap, interval, true);
-    lower_boundary = ...
-        fzero(func_wrap, interval, optim_options);
+	try
+		lower_boundary = ...
+			fzero(func_wrap, interval, optim_options);
+	catch exc
+		% Print call parameters
+		fprintf('Error: Search for the root of a function failed\n');
+		fprintf('The supplied search interval [%f; %f] may be invalid\n', interval(1), interval(2));
+		fprintf('Call environment: MLE: %f, max_search range: [%f; %f], trial: %i, bin: %i\n', MLE, max_search_range(1), max_search_range(2), trial, bin);
+		
+		% Rethrow error
+		rethrow (exc);
+	end;
+	
     if bl_verbose
         fprintf('Lower boundary found: %.3f\n', lower_boundary);
     end;
@@ -83,8 +102,19 @@ if bl_find_error_bars
     interval = [MLE, max_search_range(2)];
     interval = find_initial_interval_zero_search(func_wrap, interval, true);
     % Exact value
-    upper_boundary = ...
-        fzero(func_wrap, interval, optim_options);
+	try
+		upper_boundary = ...
+			fzero(func_wrap, interval, optim_options);
+	catch exc
+		% Print call parameters
+		fprintf('Error: Search for the root of a function failed\n');
+		fprintf('The supplied search interval [%f; %f] may be invalid\n', interval(1), interval(2));
+		fprintf('Call environment: MLE: %f, max_search range: [%f; %f], trial: %i, bin: %i\n', MLE, max_search_range(1), max_search_range(2), trial, bin);
+		
+		% Rethrow error
+		rethrow (exc);
+	end;
+	
     if bl_verbose
         fprintf('Upper boundary found: %.3f\n', upper_boundary);
         fprintf('FINISHED: Calculating the confidence intervals for the current bin. Time: %.2fs\n', toc);
