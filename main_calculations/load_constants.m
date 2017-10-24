@@ -47,6 +47,7 @@ subplot_label_font_size = 16;
 legend_font_size = font_size - 3;
 markers_list = {'s', 'o', '^', '+', 'x', 'd','v'};
 line_width = 1.2;
+line_width_theor = line_width - 0.5;
 % markers_list = {'-o','-s','-d','-^','-v'};
 
 

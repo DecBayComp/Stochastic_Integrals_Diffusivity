@@ -3,14 +3,15 @@
 function plot_article_b(data_struct, trials_data, fig_count, bl_save_figures)
 
 
+
 %% Constants
 load_constants;
-bin_plot_step = 1;	% 3
+x_lim_vec = [x_min, x_max];
+lambdas_array = [0, 0.5, 1];
+
+% Subplot params
 rows = 2;
 cols = 2;
-x_lim_vec = [x_min, x_max];
-
-% Subplots params
 SH = 0.08;
 SV = 0.125;
 ML = 0.08;
@@ -24,164 +25,105 @@ sublabel_y = 1.11;
 output_filename = 'b.pdf';
 
 % Other plot parameters
-line_width_theor = line_width - 0.5;
+bin_plot_step = 1;	% 3
 
-% Constants for bias integral calculations
-D0 =  1e-2;	% um^2/s
+% Constants for bias integral calculations (taken from D_func.m)
+D0 =  1e-2;		% um^2/s
 w = 10.0;		% 1/um
 a0 = 10 / gamma_drag;	% um/s
 
-
-
-%% Define plot colors
+% Define plot colors
 load_color_scheme;
 color_sequence = [standard_colors(1).DeepBlue; my_colors(5).Green; my_colors(1).Orange; my_colors(1).WarmBrown];
 
 
 
-%% Calculate
-% % Filter indices from one best period
-% x_left = (1/2 + 2*1)/w;
-% x_right = (1/2 + 2*2)/w;
-% indices = data_struct.x_bins_centers >= x_left & data_struct.x_bins_centers <= x_right;
-
-
-
-%% Calculate the mean theoretical values in bins
+%% Calculate the average value expected in each bin (simple averaging in space)
+bins_number = data_struct.x_bins_number;
 bins_centers = data_struct.x_bins_centers';
 bins_borders = [1; 1] * data_struct.x_bins_centers' + [-1/2; 1/2] * data_struct.x_bins_widths';
-bins_number = data_struct.x_bins_number;
-% Calculate the theoretical anti-derivative of D at the borders
-[~, ~, ~, D_antider_theor] = D_func(selected_D_case, bins_borders, L);
-% Calculate theor mean D and b in bin
-D_mean_theor = (D_antider_theor(2, :) - D_antider_theor(1, :)) ./ (bins_borders(2, :) - bins_borders(1, :));
-% Mean b is calculated as a sqaure root of average D in a bin
-b_mean_theor = sqrt(2 * D_mean_theor);
-% % b_mean_theor = data_struct.b_theor_data(:, 1)';
+
+% Anti-derivative of D at the borders
+[~, ~, ~, D_true_antider] = D_func(selected_D_case, bins_borders, L);
+
+% Calculate true average D
+D_true_avg = (D_true_antider(2, :) - D_true_antider(1, :)) ./ (bins_borders(2, :) - bins_borders(1, :));
+
+% Averate b is calculated as a sqaure root of average D
+b_true_avg = sqrt(2 * D_true_avg);
 
 
 
-%% Calculate the theoretically expected bias based on integral series
-% Load values
-% b and its first two derivatives in columns 1, 2, 3
-% b_theor_data = data_struct.b_theor_data;
-% a in column 1, and we assume it has no gradient (zeros in column 2)
-% a_theor_data = data_struct.a_theor_data;
-% a_theor_data = [a_theor_data, zeros(length(a_theor_data), 1)];
+%% Make an analytical estimation of estimate bias due to (i) evolution following Fokker-Planck equation and (ii) averaging over bin size
 
+%% Define analytical functions calculated in Mathematica in "b bias analysis.nb"
+% Jump variance, order 2 in t_step
+var_over_t_func = @(D0, w, a0, lambda, t_step, x0) D0.*(2 + sin(pi.*w.*x0)) + (1./4).*(t_step).* (2.*D0.*pi.*w.*cos(pi.*w.*x0).*(a0 + (1./2).*D0.*lambda.*pi.*w.* cos(pi.*w.*x0)) - D0.^2.*pi.^2.*w.^2.*sin(pi.*w.*x0).* (2 + sin(pi.*w.*x0)) + 4.*D0.*(2 + sin(pi.*w.*x0)).* ((D0.*lambda.*pi.^2.*w.^2.*cos(pi.*w.*x0).^2)./ (4.*(2 + sin(pi.*w.*x0))) + lambda.*sqrt(D0.*(2 + sin(pi.*w.*x0))).* (-((D0.^2.*pi.^2.*w.^2.*cos(pi.*w.*x0).^2)./ (4.*(D0.*(2 + sin(pi.*w.*x0))).^(3./2))) - (D0.*pi.^2.*w.^2.*sin(pi.*w.*x0))./ (2.*sqrt(D0.*(2 + sin(pi.*w.*x0)))))));
+% Jump variance, order 2 in t_step, average over bin
+var_over_t_avg_func = @(D0, w, a0, lambda, t_step, x1, x2) (1./(1024.*(x1 - x2).^2)).*(-2048.*D0.*x1.*(-x1 + x2) + 2048.*D0.*x2.*(-x1 + x2) + (1024.*D0.*(-x1 + x2).* cos(pi.*w.*x1))./(pi.*w) - (1024.*D0.*(-x1 + x2).*cos(pi.*w.*x2))./(pi.*w)) + (1./(1024.*(x1 - x2).^2)).*((t_step).*(-1024.*a0.^2.*x1.^2 + 2048.*a0.^2.*x1.*x2 - 1024.*a0.^2.*x2.^2 - 1024.*a0.^2.*x1.*(-x1 + x2) + 128.*D0.^2.*pi.^2.*w.^2.*x1.* (-x1 + x2) + 128.*D0.^2.*lambda.*pi.^2.*w.^2.*x1.* (-x1 + x2) - 128.*D0.^2.*lambda.^2.*pi.^2.*w.^2.*x1.* (-x1 + x2) + 1024.*a0.^2.*x2.*(-x1 + x2) - 128.*D0.^2.*pi.^2.*w.^2.*x2.*(-x1 + x2) - 128.*D0.^2.*lambda.*pi.^2.*w.^2.*x2.*(-x1 + x2) + 128.*D0.^2.*lambda.^2.*pi.^2.*w.^2.*x2.*(-x1 + x2) - 512.*D0.^2.*(1 + 2.*lambda).*pi.*w.*(-x1 + x2).* cos(pi.*w.*x1) + 512.*D0.^2.*(1 + 2.*lambda).*pi.*w.* (-x1 + x2).*cos(pi.*w.*x2) - 512.*a0.*D0.*(1 + 2.*lambda).* (-x1 + x2).*sin(pi.*w.*x1) - 64.*D0.^2.*(1 + 3.*lambda + lambda.^2).*pi.*w.*(-x1 + x2).* sin(2.*pi.*w.*x1) - 1024.*a0.*D0.*lambda.*x1.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)) + 1024.*a0.*D0.*lambda.*x2.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)) - 256.*D0.^2.*lambda.^2.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)).^2 + 512.*a0.*D0.*(-x1 + x2).*sin(pi.*w.*x2) + 1024.*a0.*D0.*lambda.*(-x1 + x2).*sin(pi.*w.*x2) + 64.*D0.^2.*pi.*w.*(-x1 + x2).*sin(2.*pi.*w.*x2) + 192.*D0.^2.*lambda.*pi.*w.*(-x1 + x2).*sin(2.*pi.*w.*x2) + 64.*D0.^2.*lambda.^2.*pi.*w.*(-x1 + x2).*sin(2.*pi.*w.*x2)));
 
-
-% % % %% Calculate
-% % % % x variance over t
-% % % lambda = 0;
-% % % var_over_t = ...
-% % % 			... % t-independent part
-% % % 			b_theor_data(:, 1).^2 ...
-% % % 			... % ~ (t * lambda) part
-% % % 			+ t_step * lambda * (2 * b_theor_data(:, 1).^2 .* b_theor_data(:, 2).^2 + b_theor_data(:, 1).^3 .* b_theor_data(:, 3))...
-% % % 			... % ~ (t) part
-% % % 			+ t_step * (b_theor_data(:, 1).^2 .* a_theor_data(:, 2) + a_theor_data(:, 1) .* b_theor_data(:, 1) .* b_theor_data(:, 2)...
-% % % 			+ 5/2 * b_theor_data(:, 1).^2 .* b_theor_data(:, 2).^2 + 3/2 * b_theor_data(:, 1).^3 .* b_theor_data(:, 2));
-% % % b_theor_expected = sqrt(var_over_t);
-% % % b_theor_bias = b_theor_expected - b_mean_theor';
-
-
-
-%% Calculate the Fokker-Planck approximation averaged over one bin
-% The sinusoid force profile is hard-coded into this expression
-% var_over_t_antider = @(D0, w, a0, lambda, x) (1/(1536 * pi * w)) * D0^2 *  (pi * t_step * w * (pi * D0^2 * w * (12 * (42 * lambda+59) * sin(2 * pi * w * x) - 3 * (3 * lambda+4) * sin(4 * pi * w * x)...
-% 	-8 * (14 * lambda+19) * cos(3 * pi * w * x))-96 * a0 * (cos(2 * pi * w * x)-8 * sin(pi * w * x)))-12 * (pi * w * x * (17 * pi^2 * D0^2 * (lambda+2) * t_step * w^2-144)...
-% 	+8 * sin(2 * pi * w * x))+24 * cos(pi * w * x) * (pi^2 * D0^2 * (42 * lambda+65) * t_step * w^2-64));
-
-% % % order 1 in t_step
-% % var_over_t = @(D0, w, a0, lambda, t_step, x) (D0*(32*pi*w*x - 16*cos(pi*w*x)))/(16*pi*w) + (1/(16*pi*w))*(D0*(t_step)*(-2*D0*(2 + lambda)*pi^3*w^3*x...
-% % 	+ 8*D0*(3 + 2*lambda)*pi^2*w^2*cos(pi*w*x) + 8*a0*pi*w*sin(pi*w*x) + D0*(4 + 3*lambda)*pi^2*w^2*sin(2*pi*w*x)));
-
-% % order 2 in t_step (but calculations showed this is unnecessary)
-% var_over_t_antider = @(D0, w, a0, lambda, t_step, x) (D0*(288*pi*w*x - 144*cos(pi*w*x)))/(144*pi*w) + (1/(144*pi*w))*(D0*(t_step)*(-18*D0*(2 + lambda)*pi^3*w^3*x...
-% 	+ 72*D0*(3 + 2*lambda)*pi^2*w^2*cos(pi*w*x) + 72*a0*pi*w*sin(pi*w*x) + 9*D0*(4 + 3*lambda)*pi^2*w^2*sin(2*pi*w*x)))...
-% 	+ (1/(144*pi*w))*(D0*(t_step)^2*(6*D0^2*(4 + 3*lambda)*pi^5*w^5*x + 24*a0^2*pi^2*w^2*cos(pi*w*x) - 3*D0^2*(51 + lambda*(43 + 2*lambda))*pi^4*w^4*cos(pi*w*x)...
-% 	+ 9*a0*D0*(4 + 3*lambda)*pi^3*w^3*cos(2*pi*w*x) + D0^2*(17 + 3*lambda*(7 + 2*lambda))*pi^4*w^4*cos(3*pi*w*x) - 48*a0*D0*(3 + 2*lambda)*pi^3*w^3*sin(pi*w*x)...
-% 	- 3*D0^2*(34 + lambda*(37 + 8*lambda))*pi^4*w^4*sin(2*pi*w*x)));
-
-% order 2 in t_step, with averaging over bin
-var_over_t_avg = @(D0, w, a0, lambda, t_step, x1, x2) (1./(1024.*(x1 - x2).^2)).*(-2048.*D0.*x1.*(-x1 + x2) + 2048.*D0.*x2.*(-x1 + x2) + (1024.*D0.*(-x1 + x2).* cos(pi.*w.*x1))./(pi.*w) - (1024.*D0.*(-x1 + x2).*cos(pi.*w.*x2))./(pi.*w)) + (1./(1024.*(x1 - x2).^2)).*((t_step).*(-1024.*a0.^2.*x1.^2 + 2048.*a0.^2.*x1.*x2 - 1024.*a0.^2.*x2.^2 - 1024.*a0.^2.*x1.*(-x1 + x2) + 128.*D0.^2.*pi.^2.*w.^2.*x1.* (-x1 + x2) + 128.*D0.^2.*lambda.*pi.^2.*w.^2.*x1.* (-x1 + x2) - 128.*D0.^2.*lambda.^2.*pi.^2.*w.^2.*x1.* (-x1 + x2) + 1024.*a0.^2.*x2.*(-x1 + x2) - 128.*D0.^2.*pi.^2.*w.^2.*x2.*(-x1 + x2) - 128.*D0.^2.*lambda.*pi.^2.*w.^2.*x2.*(-x1 + x2) + 128.*D0.^2.*lambda.^2.*pi.^2.*w.^2.*x2.*(-x1 + x2) - 512.*D0.^2.*(1 + 2.*lambda).*pi.*w.*(-x1 + x2).* cos(pi.*w.*x1) + 512.*D0.^2.*(1 + 2.*lambda).*pi.*w.* (-x1 + x2).*cos(pi.*w.*x2) - 512.*a0.*D0.*(1 + 2.*lambda).* (-x1 + x2).*sin(pi.*w.*x1) - 64.*D0.^2.*(1 + 3.*lambda + lambda.^2).*pi.*w.*(-x1 + x2).* sin(2.*pi.*w.*x1) - 1024.*a0.*D0.*lambda.*x1.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)) + 1024.*a0.*D0.*lambda.*x2.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)) - 256.*D0.^2.*lambda.^2.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)).^2 + 512.*a0.*D0.*(-x1 + x2).*sin(pi.*w.*x2) + 1024.*a0.*D0.*lambda.*(-x1 + x2).*sin(pi.*w.*x2) + 64.*D0.^2.*pi.*w.*(-x1 + x2).*sin(2.*pi.*w.*x2) + 192.*D0.^2.*lambda.*pi.*w.*(-x1 + x2).*sin(2.*pi.*w.*x2) + 64.*D0.^2.*lambda.^2.*pi.*w.*(-x1 + x2).*sin(2.*pi.*w.*x2)));
-% same, but with no spatial averaging
-var_over_t = @(D0, w, a0, lambda, t_step, x0) D0.*(2 + sin(pi.*w.*x0)) + (1./4).*(t_step).* (2.*D0.*pi.*w.*cos(pi.*w.*x0).*(a0 + (1./2).*D0.*lambda.*pi.*w.* cos(pi.*w.*x0)) - D0.^2.*pi.^2.*w.^2.*sin(pi.*w.*x0).* (2 + sin(pi.*w.*x0)) + 4.*D0.*(2 + sin(pi.*w.*x0)).* ((D0.*lambda.*pi.^2.*w.^2.*cos(pi.*w.*x0).^2)./ (4.*(2 + sin(pi.*w.*x0))) + lambda.*sqrt(D0.*(2 + sin(pi.*w.*x0))).* (-((D0.^2.*pi.^2.*w.^2.*cos(pi.*w.*x0).^2)./ (4.*(D0.*(2 + sin(pi.*w.*x0))).^(3./2))) - (D0.*pi.^2.*w.^2.*sin(pi.*w.*x0))./ (2.*sqrt(D0.*(2 + sin(pi.*w.*x0)))))));
-
-
-
-lambda = 1;
-% Use a correction to lambda that I cannot explain yet
-% lambda_prime = lambda-1;
-var_theor_expected_avg = zeros(3, bins_number);
-var_theor_expected = zeros(3, bins_number);
-lambdas_array = [0, 0.5, 1];
-
+%% Evaluate jump variance for each lambda
+var_over_t = zeros(3, bins_number);
+var_overt_t_avg = zeros(3, bins_number);
 for lambda_ind = 1:lambda_types_count-1
 	lambda = lambdas_array(lambda_ind);
-	var_theor_expected_avg(lambda_ind, :) = var_over_t_avg(D0, w, a0, lambda, t_step, bins_borders(1, :), bins_borders(2, :));
-	var_theor_expected(lambda_ind, :) = var_over_t(D0, w, a0, lambda, t_step, bins_centers);
+	var_over_t(lambda_ind, :) = var_over_t_func(D0, w, a0, lambda, t_step, bins_centers);
+	var_overt_t_avg(lambda_ind, :) = var_over_t_avg_func(D0, w, a0, lambda, t_step, bins_borders(1, :), bins_borders(2, :));
 end;
 
-% D_theor_expected_avg = var_theor_expected_avg/2;
-% % % % Normalize to bin width
-% % % var_theor_expected_avg = var_theor_expected_avg ./ (bins_borders(2, :) - bins_borders(1, :));
-b_theor_expected_avg = sqrt(var_theor_expected_avg);
-% b_theor_expected = sqrt(var_theor_expected);
-b_theor_expected_avg_bias = b_theor_expected_avg - b_mean_theor;
-% b_theor_expected_bias = b_theor_expected' - b_mean_theor';
-% b_theor_expected';
-% bins_borders;
+% The expected b is the square root of variance over t
+b_estimate_avg = sqrt(var_overt_t_avg);
+b_estimate_avg_bias = b_estimate_avg - b_true_avg;
 
 
 
-% % % %% Check Delta_x mean predictions in bins
-% % % dx_mean_theor_func = @(D0, w, a0, lambda, t_step, x1, x2) (1./(32.*(-x1 + x2))).*((t_step).^2.* (-8.*a0.*D0.*pi.*w.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)) - 8.*a0.*D0.*lambda.*pi.*w.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)) - 2.*D0.^2.*pi.^2.*w.^2.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)) - 3.*D0.^2.*lambda.*pi.^2.*w.^2.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)) - D0.^2.*lambda.^2.*pi.^2.*w.^2.* (cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)) + 8.*D0.^2.*pi.^2.*w.^2.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)) + 8.*D0.^2.*lambda.*pi.^2.*w.^2.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)))) + (1./(32.*(-x1 + x2))).* ((t_step).*(-32.*a0.*x1 + 32.*a0.*x2 + 16.*D0.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)) + 16.*D0.*lambda.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2))));
-% % % % Calculate
-% % % dx_mean_theor = dx_mean_theor_func(D0, w, a0, lambda, t_step, bins_borders(1, :), bins_borders(2, :));
-% % % % Compare with data
-% % % [data_struct.dx_mean_in_bins; dx_mean_theor]
-
-
-%% == (A): Plot diffusivity profile ==
-% Initialize
-y_lim_vec_A = [0.095, 0.18];
+%% Initialize figure
 h_fig = figure(fig_count);
 set_article_figure_size(h_fig, rows, 2, 1);
 clf;
+
+
+
+%% == (A): Plot diffusivity profile ==
+% Constants
+y_lim_vec_A = [0.095, 0.18];
+
+% Initialize subplot
 h_sub = subaxis(rows, cols, 1, 'SH', SH, 'SV', SV, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
 hold on;
-% Plot
+
+% Plot numerical data
 str_legend = {};
 for lambda_type = 1:lambda_types_count
     plot(data_struct.x_bins_centers(1:bin_plot_step:end),  data_struct.MAP_b_mean(lambda_type, 1:bin_plot_step:end, 1),...
         strcat('-', markers_list{lambda_type}), 'color', color_sequence(lambda_type, :),  'LineWidth', line_width, 'markers', marker_size);
     str_legend{end + 1} = lambda_types_names{lambda_type};
 end;
-%% Theory
-% Values in center
-h_theor_center = plot(data_struct.x_fine_mesh, data_struct.b_theor_fine_data, '-k', 'LineWidth', line_width_theor);
-% Mean values in bins
-h_mean_theor = plot(data_struct.x_bins_centers, b_mean_theor, '--k', 'LineWidth', line_width_theor);
-% % The expected b due to Fokker-Planck equation
-% plot(data_struct.x_bins_centers, b_theor_expected_avg, '-m', 'LineWidth', line_width);
 
-% Adjust
+% Plot theory
+% Simulated profile
+h_theor_center = plot(data_struct.x_fine_mesh, data_struct.b_theor_fine_data, '-k', 'LineWidth', line_width_theor);
+
+% Average values
+h_mean_theor = plot(data_struct.x_bins_centers, b_true_avg, '--k', 'LineWidth', line_width_theor);
+
+% Adjust plot
 xlim(x_lim_vec);
 ylim(y_lim_vec_A);
 box on;
+grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('$\langle b \rangle$, $\mu\mathrm{m \cdot s^{-1/2}}$', 'interpreter', 'latex');
 title('Average diffusivity profile', 'interpreter', 'latex');
+
 % Subplot label
 text(sublabel_x, sublabel_y, 'A', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+
 % Legend
-% str_legend = lambda_types_names;
 h_leg = legend(str_legend, 'location', 'west', 'FontSize', legend_font_size);
 legend boxon;
-grid on;
-% Send theoretical curve back
+
+% Send theoretical curves back
 uistack([h_theor_center, h_mean_theor], 'bottom');
 
 
@@ -264,7 +206,7 @@ str_legend = {};
 %% Plot
 for lambda_type = 1:lambda_types_count
     plot(data_struct.x_bins_centers,...
-        (data_struct.MAP_b_mean(lambda_type, :, 1) - b_mean_theor) / scale, strcat(markers_list{lambda_type}),...
+        (data_struct.MAP_b_mean(lambda_type, :, 1) - b_true_avg) / scale, strcat(markers_list{lambda_type}),...
         'markers', marker_size, 'LineWidth', line_width, 'color', color_sequence(lambda_type, :));
     str_legend{end + 1} = lambda_types_names{lambda_type};
 end;
@@ -278,7 +220,7 @@ legend boxon;
 % lambda_ind = 3;
 % plot(data_struct.x_bins_centers, b_theor_bias(:, 1), 'k');
 for lambda_ind = 1:lambda_types_count-1
-	plot(data_struct.x_bins_centers, b_theor_expected_avg_bias(lambda_ind, :) / scale, 'LineWidth', line_width, 'color', color_sequence(lambda_ind, :)); 
+	plot(data_struct.x_bins_centers, b_estimate_avg_bias(lambda_ind, :) / scale, 'LineWidth', line_width, 'color', color_sequence(lambda_ind, :)); 
 end;
 % plot(data_struct.x_bins_centers, b_theor_expected_bias / scale, 'g'); 
 % end;
