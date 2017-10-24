@@ -127,19 +127,27 @@ legend boxon;
 uistack([h_theor_center, h_mean_theor], 'bottom');
 
 
-%% == (B): Fail rate ==
+
+%% == (B): Posterior overlap (1 - fail_rate) ==
+% Constants
+y_lim_vec = [-2, 100];
+
+% Initialize subplot
 subaxis(rows, cols, 2);
 hold on;
-y_lim_vec = [-2, 100];
+
+% Plot numerical data
 str_legend = {};
 for lambda_type = 1:lambda_types_count
     plot(data_struct.x_bins_centers,  (1 - data_struct.UR_b(lambda_type, :)) * 100,...
         strcat('-', markers_list{lambda_type}), 'color', color_sequence(lambda_type, :),  'LineWidth', line_width, 'markers', marker_size);
     str_legend{end + 1} = lambda_types_names{lambda_type};
 end;
-% Plot the used confidence level
+
+% Plot the optimal overlap level (confidence level)
 h_conf = plot(x_lim_vec, [1, 1] * CONF_LEVEL * 100, 'k--', 'linewidth', line_width_theor);
-% Adjust
+
+% Adjust plot
 xlim(x_lim_vec);
 ylim(y_lim_vec);
 box on;
@@ -147,13 +155,14 @@ grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('Posterior overlap, \%', 'interpreter', 'latex');
 title('Posterior overlap', 'interpreter', 'latex');
-% Legend
-% str_legend = lambda_types_names;
 
+% Legend
 legend(str_legend, 'location', 'southwest', 'FontSize', legend_font_size);
 legend boxon;
+
 % Subplot label
 text(sublabel_x, sublabel_y, 'B', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+
 % Send confidence level back
 uistack(h_conf, 'bottom');
 
