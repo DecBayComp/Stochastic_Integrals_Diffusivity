@@ -168,51 +168,17 @@ uistack(h_conf, 'bottom');
 
 
 
-%% == (C): b bias ==
-
-
-
-
-
-% % % Calculate
-% % s0_theor_data = b_theor_data(:,1).^2;
-% % s2_theor_data = -2 * (b_theor_data(:, 2).^2 + b_theor_data(:, 1) .* b_theor_data(:, 3));
-% % lambda = 1;
-% % b_theor_expected = sqrt(s0_theor_data .* (1 - (t_step / 2) * s2_theor_data * (1 + 4 * lambda)/4) );	%  + (t_step / 2)^2 * s2_theor_data.^2 * lambda^2 / 2
-% % b_theor_bias = b_theor_expected - b_mean_theor';
-% % % % b_theor_bias = b_theor_expected - b_theor_data(:, 1);
-% % 1;
-
-
-% % x_mesh = data_struct.x_bins_centers;
-% % bin_sizes = data_struct.x_bins_widths;
-% % 
-% % mean_jumps = data_struct.mean_jump_bins_all_trials';
-% % 
-% % % b' part
-% % lambdas = [0, 0.5, 1];
-% % b_mean_series = 2 * b_theor_data(:, 2).^2 .* (bin_sizes / 2).^2 ./ 6 ./ b_theor_data(:, 1);
-% % b_mean_series = b_mean_series * (2 * lambdas - 2);
-% % 
-% % % b'' part
-% % b_mean_series = b_mean_series + b_theor_data(:, 3) .* (bin_sizes / 2).^2 / 6 * [1, 1, 1];
-% % 
-% % % Add the central value and subtract the theoretical mean
-% % b_theor_bias = b_mean_series + (data_struct.b_theor_data(:, 1) - b_mean_theor') * [1, 1, 1];
-% % 
-% % %% Alternatively calculate the exact value of the mean integral without series
-% % lambda = 0;
-% % b_theor_exact_bias = b_theor_bias_func(bins_borders, lambda, b_mean_theor');
-
-%% Initialize
-subaxis(rows, cols, 3);
-hold on;
-% x_lim_vec_C = [-0.19,0.16];
+%% == (C): Average b bias ==
+% Constants
 scale = 1e-3;
 y_lim_vec = [-1, 1] * 6e-3 / scale;
-str_legend = {};
 
-%% Plot
+% Initialize subplot
+subaxis(rows, cols, 3);
+hold on;
+
+% Plot numerical data
+str_legend = {};
 for lambda_type = 1:lambda_types_count
     plot(data_struct.x_bins_centers,...
         (data_struct.MAP_b_mean(lambda_type, :, 1) - b_true_avg) / scale, strcat(markers_list{lambda_type}),...
@@ -220,52 +186,32 @@ for lambda_type = 1:lambda_types_count
     str_legend{end + 1} = lambda_types_names{lambda_type};
 end;
 
-%% Legend
-legend(str_legend, 'location', 'southwest', 'FontSize', legend_font_size);
-legend boxon;
-
-%% Theory
-%for lambda_ind =  1:length(lambdas)
-% lambda_ind = 3;
-% plot(data_struct.x_bins_centers, b_theor_bias(:, 1), 'k');
+% Plot the analytical bias estimate
 for lambda_ind = 1:lambda_types_count-1
 	plot(data_struct.x_bins_centers, b_estimate_avg_bias(lambda_ind, :) / scale, 'LineWidth', line_width, 'color', color_sequence(lambda_ind, :)); 
 end;
-% plot(data_struct.x_bins_centers, b_theor_expected_bias / scale, 'g'); 
-% end;
-%h_conf = plot(x_lim_vec, [1, 1] * (1 - CONF_LEVEL) * 100, 'k--', 'linewidth', line_width);
 
-%% Plot zero bias line
+% Plot zero bias line
 h_theor_0 = plot(x_lim_vec, 0 * x_lim_vec, 'k--', 'LineWidth', line_width_theor);
 
-% %% Plot exact bias
-% plot(data_struct.x_bins_centers, b_theor_bias, '--k');
-
-
-%% Adjust
+% Adjust
 xlim(x_lim_vec);
 ylim(y_lim_vec);
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('$\langle \delta b \rangle$, $10^{-3}\mu\mathrm{m \cdot s^{-1/2}}$', 'interpreter', 'latex');
+
+% Subplot label
 text(sublabel_x, sublabel_y, 'C', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 title('Average diffusivity bias', 'interpreter', 'latex');
 grid on;
+
+% Legend
+legend(str_legend, 'location', 'southwest', 'FontSize', legend_font_size);
+legend boxon;
+
 % Reorder curves
-uistack([h_theor_0], 'bottom');
+uistack(h_theor_0, 'bottom');
 
-
-% % % %% == (D): D profile (temporarily) ==
-% % % subaxis(rows, cols, 4);
-% % % hold on;
-% % % for lambda_type = 1:lambda_types_count
-% % %     plot(data_struct.x_bins_centers(1:bin_plot_step:end),  data_struct.MAP_D_mean(lambda_type, 1:bin_plot_step:end, 1),...
-% % %         strcat('-', markers_list{lambda_type}), 'color', color_sequence(lambda_type, :),  'LineWidth', line_width, 'markers', marker_size);
-% % % %     str_legend{end + 1} = lambda_types_names{lambda_type};
-% % % end;
-% % % % Theory
-% % % h_theor_center = plot(data_struct.x_fine_mesh, data_struct.D_theor_fine_data, '-k', 'LineWidth', line_width);
-% % % % The expected D due to Fokker-Planck equation
-% % % plot(data_struct.x_bins_centers, D_theor_expected_avg, '-m', 'LineWidth', line_width);
 
 
 %% == (D): D' profile ==
