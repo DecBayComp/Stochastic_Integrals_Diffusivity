@@ -11,7 +11,7 @@ cols = 2;
 x_lim_vec = [x_min, x_max];
 
 % Subplots params
-SH = 0.07;
+SH = 0.08;
 SV = 0.125;
 ML = 0.08;
 MR = 0.0125;
@@ -20,13 +20,16 @@ MB = 0.075;
 
 % Label params
 sublabel_x = 0.015;
-sublabel_y = 0.99;
+sublabel_y = 1.11;
 output_filename = 'b.pdf';
+
+% Other plot parameters
+line_width_theor = line_width - 0.5;
 
 % Constants for bias integral calculations
 D0 =  1e-2;	% um^2/s
 w = 10.0;		% 1/um
-a0 = 0*10 / gamma_drag;	% um/s
+a0 = 10 / gamma_drag;	% um/s
 
 
 
@@ -47,6 +50,7 @@ color_sequence = [standard_colors(1).DeepBlue; my_colors(5).Green; my_colors(1).
 %% Calculate the mean theoretical values in bins
 bins_centers = data_struct.x_bins_centers';
 bins_borders = [1; 1] * data_struct.x_bins_centers' + [-1/2; 1/2] * data_struct.x_bins_widths';
+bins_number = data_struct.x_bins_number;
 % Calculate the theoretical anti-derivative of D at the borders
 [~, ~, ~, D_antider_theor] = D_func(selected_D_case, bins_borders, L);
 % Calculate theor mean D and b in bin
@@ -110,26 +114,34 @@ var_over_t = @(D0, w, a0, lambda, t_step, x0) D0.*(2 + sin(pi.*w.*x0)) + (1./4).
 lambda = 1;
 % Use a correction to lambda that I cannot explain yet
 % lambda_prime = lambda-1;
-var_theor_expected_avg = var_over_t_avg(D0, w, a0, lambda, t_step, bins_borders(1, :), bins_borders(2, :));
-var_theor_expected = var_over_t(D0, w, a0, lambda, t_step, bins_centers);
-D_theor_expected_avg = var_theor_expected_avg/2;
+var_theor_expected_avg = zeros(3, bins_number);
+var_theor_expected = zeros(3, bins_number);
+lambdas_array = [0, 0.5, 1];
+
+for lambda_ind = 1:lambda_types_count-1
+	lambda = lambdas_array(lambda_ind);
+	var_theor_expected_avg(lambda_ind, :) = var_over_t_avg(D0, w, a0, lambda, t_step, bins_borders(1, :), bins_borders(2, :));
+	var_theor_expected(lambda_ind, :) = var_over_t(D0, w, a0, lambda, t_step, bins_centers);
+end;
+
+% D_theor_expected_avg = var_theor_expected_avg/2;
 % % % % Normalize to bin width
 % % % var_theor_expected_avg = var_theor_expected_avg ./ (bins_borders(2, :) - bins_borders(1, :));
 b_theor_expected_avg = sqrt(var_theor_expected_avg);
-b_theor_expected = sqrt(var_theor_expected);
-b_theor_expected_avg_bias = b_theor_expected_avg' - b_mean_theor';
-b_theor_expected_bias = b_theor_expected' - b_mean_theor';
+% b_theor_expected = sqrt(var_theor_expected);
+b_theor_expected_avg_bias = b_theor_expected_avg - b_mean_theor;
+% b_theor_expected_bias = b_theor_expected' - b_mean_theor';
 % b_theor_expected';
-bins_borders;
+% bins_borders;
 
 
 
-%% Check Delta_x mean predictions in bins
-dx_mean_theor_func = @(D0, w, a0, lambda, t_step, x1, x2) (1./(32.*(-x1 + x2))).*((t_step).^2.* (-8.*a0.*D0.*pi.*w.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)) - 8.*a0.*D0.*lambda.*pi.*w.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)) - 2.*D0.^2.*pi.^2.*w.^2.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)) - 3.*D0.^2.*lambda.*pi.^2.*w.^2.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)) - D0.^2.*lambda.^2.*pi.^2.*w.^2.* (cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)) + 8.*D0.^2.*pi.^2.*w.^2.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)) + 8.*D0.^2.*lambda.*pi.^2.*w.^2.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)))) + (1./(32.*(-x1 + x2))).* ((t_step).*(-32.*a0.*x1 + 32.*a0.*x2 + 16.*D0.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)) + 16.*D0.*lambda.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2))));
-% Calculate
-dx_mean_theor = dx_mean_theor_func(D0, w, a0, lambda, t_step, bins_borders(1, :), bins_borders(2, :));
-% Compare with data
-[data_struct.dx_mean_in_bins; dx_mean_theor]
+% % % %% Check Delta_x mean predictions in bins
+% % % dx_mean_theor_func = @(D0, w, a0, lambda, t_step, x1, x2) (1./(32.*(-x1 + x2))).*((t_step).^2.* (-8.*a0.*D0.*pi.*w.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)) - 8.*a0.*D0.*lambda.*pi.*w.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)) - 2.*D0.^2.*pi.^2.*w.^2.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)) - 3.*D0.^2.*lambda.*pi.^2.*w.^2.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)) - D0.^2.*lambda.^2.*pi.^2.*w.^2.* (cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)) + 8.*D0.^2.*pi.^2.*w.^2.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)) + 8.*D0.^2.*lambda.*pi.^2.*w.^2.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)))) + (1./(32.*(-x1 + x2))).* ((t_step).*(-32.*a0.*x1 + 32.*a0.*x2 + 16.*D0.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)) + 16.*D0.*lambda.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2))));
+% % % % Calculate
+% % % dx_mean_theor = dx_mean_theor_func(D0, w, a0, lambda, t_step, bins_borders(1, :), bins_borders(2, :));
+% % % % Compare with data
+% % % [data_struct.dx_mean_in_bins; dx_mean_theor]
 
 
 %% == (A): Plot diffusivity profile ==
@@ -149,9 +161,9 @@ for lambda_type = 1:lambda_types_count
 end;
 %% Theory
 % Values in center
-h_theor_center = plot(data_struct.x_fine_mesh, data_struct.b_theor_fine_data, '-k', 'LineWidth', line_width);
+h_theor_center = plot(data_struct.x_fine_mesh, data_struct.b_theor_fine_data, '-k', 'LineWidth', line_width_theor);
 % Mean values in bins
-h_mean_theor = plot(data_struct.x_bins_centers, b_mean_theor, '--k', 'LineWidth', line_width);
+h_mean_theor = plot(data_struct.x_bins_centers, b_mean_theor, '--k', 'LineWidth', line_width_theor);
 % % The expected b due to Fokker-Planck equation
 % plot(data_struct.x_bins_centers, b_theor_expected_avg, '-m', 'LineWidth', line_width);
 
@@ -176,25 +188,27 @@ uistack([h_theor_center, h_mean_theor], 'bottom');
 %% == (B): Fail rate ==
 subaxis(rows, cols, 2);
 hold on;
-y_lim_vec = [-2, 102];
+y_lim_vec = [-2, 100];
 str_legend = {};
 for lambda_type = 1:lambda_types_count
-    plot(data_struct.x_bins_centers,  data_struct.UR_b(lambda_type, :) * 100,...
+    plot(data_struct.x_bins_centers,  (1 - data_struct.UR_b(lambda_type, :)) * 100,...
         strcat('-', markers_list{lambda_type}), 'color', color_sequence(lambda_type, :),  'LineWidth', line_width, 'markers', marker_size);
     str_legend{end + 1} = lambda_types_names{lambda_type};
 end;
 % Plot the used confidence level
-h_conf = plot(x_lim_vec, [1, 1] * (1 - CONF_LEVEL) * 100, 'k--', 'linewidth', line_width);
+h_conf = plot(x_lim_vec, [1, 1] * CONF_LEVEL * 100, 'k--', 'linewidth', line_width_theor);
 % Adjust
 xlim(x_lim_vec);
 ylim(y_lim_vec);
 box on;
+grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('Fail rate, \%', 'interpreter', 'latex');
-title('Fail rate', 'interpreter', 'latex');
+ylabel('Posterior overlap, \%', 'interpreter', 'latex');
+title('Posterior overlap', 'interpreter', 'latex');
 % Legend
 % str_legend = lambda_types_names;
-legend(str_legend, 'location', 'north', 'FontSize', legend_font_size);
+
+legend(str_legend, 'location', 'southwest', 'FontSize', legend_font_size);
 legend boxon;
 % Subplot label
 text(sublabel_x, sublabel_y, 'B', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
@@ -243,32 +257,35 @@ uistack(h_conf, 'bottom');
 subaxis(rows, cols, 3);
 hold on;
 % x_lim_vec_C = [-0.19,0.16];
-y_lim_vec = [-1, 1] * 7.5e-3;
+scale = 1e-3;
+y_lim_vec = [-1, 1] * 6e-3 / scale;
 str_legend = {};
 
 %% Plot
 for lambda_type = 1:lambda_types_count
     plot(data_struct.x_bins_centers,...
-        (data_struct.MAP_b_mean(lambda_type, :, 1) - b_mean_theor), strcat('-', markers_list{lambda_type}),...
+        (data_struct.MAP_b_mean(lambda_type, :, 1) - b_mean_theor) / scale, strcat(markers_list{lambda_type}),...
         'markers', marker_size, 'LineWidth', line_width, 'color', color_sequence(lambda_type, :));
     str_legend{end + 1} = lambda_types_names{lambda_type};
 end;
 
 %% Legend
-legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
+legend(str_legend, 'location', 'southwest', 'FontSize', legend_font_size);
 legend boxon;
 
 %% Theory
 %for lambda_ind =  1:length(lambdas)
 % lambda_ind = 3;
 % plot(data_struct.x_bins_centers, b_theor_bias(:, 1), 'k');
-plot(data_struct.x_bins_centers, b_theor_expected_avg_bias, 'k'); 
-plot(data_struct.x_bins_centers, b_theor_expected_bias, 'g'); 
+for lambda_ind = 1:lambda_types_count-1
+	plot(data_struct.x_bins_centers, b_theor_expected_avg_bias(lambda_ind, :) / scale, 'LineWidth', line_width, 'color', color_sequence(lambda_ind, :)); 
+end;
+% plot(data_struct.x_bins_centers, b_theor_expected_bias / scale, 'g'); 
 % end;
 %h_conf = plot(x_lim_vec, [1, 1] * (1 - CONF_LEVEL) * 100, 'k--', 'linewidth', line_width);
 
 %% Plot zero bias line
-h_theor_0 = plot(x_lim_vec, 0 * x_lim_vec, 'k--');
+h_theor_0 = plot(x_lim_vec, 0 * x_lim_vec, 'k--', 'LineWidth', line_width_theor);
 
 % %% Plot exact bias
 % plot(data_struct.x_bins_centers, b_theor_bias, '--k');
@@ -278,7 +295,7 @@ h_theor_0 = plot(x_lim_vec, 0 * x_lim_vec, 'k--');
 xlim(x_lim_vec);
 ylim(y_lim_vec);
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('$\langle \delta b \rangle$, $\mu\mathrm{m \cdot s^{-1/2}}$', 'interpreter', 'latex');
+ylabel('$\langle \delta b \rangle$, $10^{-3}\mu\mathrm{m \cdot s^{-1/2}}$', 'interpreter', 'latex');
 text(sublabel_x, sublabel_y, 'C', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 title('Average diffusivity bias', 'interpreter', 'latex');
 grid on;
@@ -304,7 +321,7 @@ uistack([h_theor_0], 'bottom');
 %% Initialize
 subaxis(rows, cols, 4);
 hold on;
-y_lim_vec = [-1, 1] * 0.23;
+y_lim_vec = [-1, 1] * 0.18;
 %% Calculate
 % Calculate simple bb' with MAP b using a finite elements scheme
 % Choose one lambda and corresponding data_struct
@@ -321,7 +338,7 @@ plot(x_grad_mesh, tmp_data_struct.MAP_bb_prime_regular,  markers_list{2}, 'color
 % Regularized interpolated gradient
 plot(tmp_data_struct.x_bins_centers, tmp_data_struct.MAP_bb_prime_regular_interp, 'color', color_sequence(3, :), 'LineWidth', line_width, 'markers', marker_size);
 % Theory
-h_theor = plot(tmp_data_struct.x_fine_mesh, tmp_data_struct.bb_prime_theor_fine_data, 'k--', 'LineWidth', line_width);
+h_theor = plot(tmp_data_struct.x_fine_mesh, tmp_data_struct.bb_prime_theor_fine_data, 'k--', 'LineWidth', line_width_theor);
 % Adjust
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('$bb''$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
@@ -329,7 +346,7 @@ xlim(x_lim_vec);
 ylim(y_lim_vec);
 box on;
 grid on;
-title(sprintf('$bb''$ profile for $\\lambda^* = %.2f$', tmp_data_struct.lambda), 'interpreter', 'latex');
+title(sprintf('Diffusivity gradient profile for $\\lambda^* = %.2f$', tmp_data_struct.lambda), 'interpreter', 'latex');
 % Sublabel
 text(sublabel_x, sublabel_y, 'D', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 % Legend
