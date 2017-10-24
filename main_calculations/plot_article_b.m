@@ -9,7 +9,6 @@ bin_plot_step = 1;	% 3
 rows = 2;
 cols = 2;
 x_lim_vec = [x_min, x_max];
-w = 10.0;
 
 % Subplots params
 SH = 0.07;
@@ -20,26 +19,33 @@ MT = 0.04;
 MB = 0.075;
 
 % Label params
-sublabel_x = 0.025;
-sublabel_y = 0.07;
+sublabel_x = 0.015;
+sublabel_y = 0.99;
 output_filename = 'b.pdf';
 
 % Constants for bias integral calculations
 D0 =  1e-2;	% um^2/s
-w = 10;		% 1/um
+w = 10.0;		% 1/um
 a0 = 0*10 / gamma_drag;	% um/s
 
 
 
+%% Define plot colors
+load_color_scheme;
+color_sequence = [standard_colors(1).DeepBlue; my_colors(5).Green; my_colors(1).Orange; my_colors(1).WarmBrown];
+
+
+
 %% Calculate
-% Filter indices from one best period
-x_left = (1/2 + 2*1)/w;
-x_right = (1/2 + 2*2)/w;
-indices = data_struct.x_bins_centers >= x_left & data_struct.x_bins_centers <= x_right;
+% % Filter indices from one best period
+% x_left = (1/2 + 2*1)/w;
+% x_right = (1/2 + 2*2)/w;
+% indices = data_struct.x_bins_centers >= x_left & data_struct.x_bins_centers <= x_right;
 
 
 
 %% Calculate the mean theoretical values in bins
+bins_centers = data_struct.x_bins_centers';
 bins_borders = [1; 1] * data_struct.x_bins_centers' + [-1/2; 1/2] * data_struct.x_bins_widths';
 % Calculate the theoretical anti-derivative of D at the borders
 [~, ~, ~, D_antider_theor] = D_func(selected_D_case, bins_borders, L);
@@ -94,23 +100,25 @@ b_mean_theor = sqrt(2 * D_mean_theor);
 % 	+ 9*a0*D0*(4 + 3*lambda)*pi^3*w^3*cos(2*pi*w*x) + D0^2*(17 + 3*lambda*(7 + 2*lambda))*pi^4*w^4*cos(3*pi*w*x) - 48*a0*D0*(3 + 2*lambda)*pi^3*w^3*sin(pi*w*x)...
 % 	- 3*D0^2*(34 + lambda*(37 + 8*lambda))*pi^4*w^4*sin(2*pi*w*x)));
 
-% order 2 in t_step, with correct averaging over the bin for Delta x
-var_over_t = @(D0, w, a0, lambda, t_step, x1, x2) (1./(1024.*(x1 - x2).^2)).*(-2048.*D0.*x1.*(-x1 + x2) + 2048.*D0.*x2.*(-x1 + x2) + (1024.*D0.*(-x1 + x2).* cos(pi.*w.*x1))./(pi.*w) - (1024.*D0.*(-x1 + x2).*cos(pi.*w.*x2))./(pi.*w)) + (1./(1024.*(x1 - x2).^2)).*((t_step).*(-1024.*a0.^2.*x1.^2 + 2048.*a0.^2.*x1.*x2 - 1024.*a0.^2.*x2.^2 - 1024.*a0.^2.*x1.*(-x1 + x2) + 128.*D0.^2.*pi.^2.*w.^2.*x1.* (-x1 + x2) + 128.*D0.^2.*lambda.*pi.^2.*w.^2.*x1.* (-x1 + x2) - 128.*D0.^2.*lambda.^2.*pi.^2.*w.^2.*x1.* (-x1 + x2) + 1024.*a0.^2.*x2.*(-x1 + x2) - 128.*D0.^2.*pi.^2.*w.^2.*x2.*(-x1 + x2) - 128.*D0.^2.*lambda.*pi.^2.*w.^2.*x2.*(-x1 + x2) + 128.*D0.^2.*lambda.^2.*pi.^2.*w.^2.*x2.*(-x1 + x2) - 512.*D0.^2.*(1 + 2.*lambda).*pi.*w.*(-x1 + x2).* cos(pi.*w.*x1) + 512.*D0.^2.*(1 + 2.*lambda).*pi.*w.* (-x1 + x2).*cos(pi.*w.*x2) - 512.*a0.*D0.*(1 + 2.*lambda).* (-x1 + x2).*sin(pi.*w.*x1) - 64.*D0.^2.*(1 + 3.*lambda + lambda.^2).*pi.*w.*(-x1 + x2).* sin(2.*pi.*w.*x1) - 1024.*a0.*D0.*lambda.*x1.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)) + 1024.*a0.*D0.*lambda.*x2.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)) - 256.*D0.^2.*lambda.^2.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)).^2 + 512.*a0.*D0.*(-x1 + x2).*sin(pi.*w.*x2) + 1024.*a0.*D0.*lambda.*(-x1 + x2).*sin(pi.*w.*x2) + 64.*D0.^2.*pi.*w.*(-x1 + x2).*sin(2.*pi.*w.*x2) + 192.*D0.^2.*lambda.*pi.*w.*(-x1 + x2).*sin(2.*pi.*w.*x2) + 64.*D0.^2.*lambda.^2.*pi.*w.*(-x1 + x2).*sin(2.*pi.*w.*x2)));
-% % Same with order 3 in t_step
-% var_over_t = @(D0, w, a0, lambda, t_step, x1, x2) (576.*D0.*x1.*(x1 - x2) + 576.*D0.*x2.*(-x1 + x2) + (288.*D0.*(-x1 + x2).*(cos(pi.*w.*x1) - cos(pi.*w.*x2)))./ (pi.*w))./(288.*(x1 - x2).^2) + (1./(16.*(x1 - x2).^2)).* ((t_step).*(-16.*a0.^2.*x1.^2 + 16.*a0.^2.*x1.*(x1 - x2) - 2.*D0.^2.*pi.^2.*w.^2.*(x1 - x2).^2 + 2.*D0.^2.*lambda.*pi.^2.*w.^2.* (x1 - x2).^2 + 2.*D0.^2.*lambda.^2.*pi.^2.*w.^2.*(x1 - x2).^2 + 32.*a0.^2.*x1.*x2 - 16.*a0.^2.*x2.^2 + 16.*a0.^2.*x2.*(-x1 + x2) + 24.*D0.^2.*pi.*w.*(x1 - x2).* (cos(pi.*w.*x1) - cos(pi.*w.*x2)) + 16.*D0.^2.*lambda.*pi.*w.* (x1 - x2).*(cos(pi.*w.*x1) - cos(pi.*w.*x2)) + 24.*a0.*D0.*(x1 - x2).*(sin(pi.*w.*x1) - sin(pi.*w.*x2)) + 16.*a0.*D0.*lambda.*(x1 - x2).*(sin(pi.*w.*x1) - sin(pi.*w.*x2)) + 16.*a0.*D0.*x2.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)) + 16.*a0.*D0.*lambda.*x2.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)) - 4.*D0.^2.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)).^2 - 8.*D0.^2.*lambda.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)).^2 - 4.*D0.^2.*lambda.^2.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)).^2 + 16.*a0.*D0.*x1.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)) + 16.*a0.*D0.*lambda.*x1.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)) + 5.*D0.^2.*pi.*w.*(x1 - x2).*(sin(2.*pi.*w.*x1) - sin(2.*pi.*w.*x2)) + 5.*D0.^2.*lambda.*pi.*w.*(x1 - x2).* (sin(2.*pi.*w.*x1) - sin(2.*pi.*w.*x2)) + D0.^2.*lambda.^2.*pi.*w.*(x1 - x2).*(sin(2.*pi.*w.*x1) - sin(2.*pi.*w.*x2)))) + (1./(288.*(x1 - x2).^2)).* (D0.*pi.*w.*(t_step).^2.*(12.*D0.^2.*pi.^3.*w.^3.*(x1 - x2).^2 - 36.*D0.^2.*lambda.*pi.^3.*w.^3.*(x1 - x2).^2 - 36.*D0.^2.*lambda.^2.*pi.^3.*w.^3.*(x1 - x2).^2 - 144.*a0.^2.*x1.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)) - 144.*a0.^2.*lambda.*x1.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)) + 192.*a0.^2.*(x1 - x2).*(cos(pi.*w.*x1) - cos(pi.*w.*x2)) + 144.*a0.^2.*lambda.*(x1 - x2).*(cos(pi.*w.*x1) - cos(pi.*w.*x2)) + 24.*D0.^2.*lambda.^2.*pi.^2.*w.^2.*(x1 - x2).* (cos(pi.*w.*x1) - cos(pi.*w.*x2)) + 9.*D0.^2.*lambda.^3.*pi.^2.* w.^2.*(x1 - x2).*(cos(pi.*w.*x1) - cos(pi.*w.*x2)) + 144.*a0.^2.*x2.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)) + 144.*a0.^2.*lambda.*x2.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)) + 288.*D0.^2.*pi.^2.*w.^2.*(-x1 + x2).*(cos(pi.*w.*x1) - cos(pi.*w.*x2)) + 213.*D0.^2.*lambda.*pi.^2.*w.^2.*(-x1 + x2).* (cos(pi.*w.*x1) - cos(pi.*w.*x2)) - 36.*a0.*D0.*pi.*w.*x1.* (cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)) - 54.*a0.*D0.*lambda.*pi.*w.*x1.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)) - 18.*a0.*D0.*lambda.^2.*pi.*w.*x1.* (cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)) + 126.*a0.*D0.*pi.*w.*(x1 - x2).*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)) + 144.*a0.*D0.*lambda.*pi.*w.*(x1 - x2).* (cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)) + 36.*a0.*D0.*lambda.^2.*pi.*w.*(x1 - x2).*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)) + 36.*a0.*D0.*pi.*w.*x2.* (cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)) + 54.*a0.*D0.*lambda.*pi.*w.*x2.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)) + 18.*a0.*D0.*lambda.^2.*pi.*w.*x2.* (cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)) + 40.*D0.^2.*pi.^2.*w.^2.*(x1 - x2).*(cos(3.*pi.*w.*x1) - cos(3.*pi.*w.*x2)) + 57.*D0.^2.*lambda.*pi.^2.*w.^2.*(x1 - x2).* (cos(3.*pi.*w.*x1) - cos(3.*pi.*w.*x2)) + 24.*D0.^2.*lambda.^2.*pi.^2.*w.^2.*(x1 - x2).* (cos(3.*pi.*w.*x1) - cos(3.*pi.*w.*x2)) + 3.*D0.^2.*lambda.^3.*pi.^2.*w.^2.*(x1 - x2).*(cos(3.*pi.*w.*x1) - cos(3.*pi.*w.*x2)) + 144.*a0.*D0.*pi.*w.*x1.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)) + 144.*a0.*D0.*lambda.*pi.* w.*x1.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)) - 144.*a0.*D0.*pi.*w.*x2.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)) - 144.*a0.*D0.*lambda.*pi.*w.*x2.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)) + 432.*a0.*D0.*pi.*w.*(-x1 + x2).* (sin(pi.*w.*x1) - sin(pi.*w.*x2)) + 336.*a0.*D0.*lambda.*pi.* w.*(-x1 + x2).*(sin(pi.*w.*x1) - sin(pi.*w.*x2)) + 72.*D0.^2.*pi.*w.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)).^2 + 144.*D0.^2.*lambda.*pi.*w.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)).^ 2 + 72.*D0.^2.*lambda.^2.*pi.*w.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)).^2 + 72.*a0.*D0.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)).* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)) + 144.*a0.*D0.*lambda.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)).* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)) + 72.*a0.*D0.*lambda.^2.* (cos(pi.*w.*x1) - cos(pi.*w.*x2)).*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)) + 36.*D0.^2.*pi.*w.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)).^2.*(sin(pi.*w.*x1) + sin(pi.*w.*x2)) + 90.*D0.^2.*lambda.*pi.*w.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)).^2.*(sin(pi.*w.*x1) + sin(pi.*w.*x2)) + 72.*D0.^2.*lambda.^2.*pi.*w.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)).^2.*(sin(pi.*w.*x1) + sin(pi.*w.*x2)) + 18.*D0.^2.*lambda.^3.*pi.*w.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)).^2.*(sin(pi.*w.*x1) + sin(pi.*w.*x2)) + 222.*D0.^2.*pi.^2.*w.^2.*(-x1 + x2).* (sin(2.*pi.*w.*x1) - sin(2.*pi.*w.*x2)) + 258.*D0.^2.*lambda.*pi.^2.*w.^2.*(-x1 + x2).* (sin(2.*pi.*w.*x1) - sin(2.*pi.*w.*x2)) + 66.*D0.^2.*lambda.^2.*pi.^2.*w.^2.*(-x1 + x2).* (sin(2.*pi.*w.*x1) - sin(2.*pi.*w.*x2))));
-% % Same with order 4 in t_step
-% var_over_t = @(D0, w, a0, lambda, t_step, x1, x2)-((2.*D0.*x1)./(-x1 + x2)) + (2.*D0.*x2)./(-x1 + x2) + (D0.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)))./(pi.*w.*(-x1 + x2)) + (t_step).^2.*((1./24).*D0.^3.*pi.^4.*w.^4 + (D0.^3.*lambda.*pi.^4.*w.^4.*(x1 - x2))./(8.*(-x1 + x2)) + (D0.^3.*lambda.^2.*pi.^4.*w.^4.*(x1 - x2))./(8.*(-x1 + x2)) - (a0.^2.*D0.*pi.*w.*x1.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)))./ (2.*(-x1 + x2).^2) - (a0.^2.*D0.*lambda.*pi.*w.*x1.* (cos(pi.*w.*x1) - cos(pi.*w.*x2)))./(2.*(-x1 + x2).^2) + (a0.^2.*D0.*pi.*w.*x2.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)))./ (2.*(-x1 + x2).^2) + (a0.^2.*D0.*lambda.*pi.*w.*x2.* (cos(pi.*w.*x1) - cos(pi.*w.*x2)))./(2.*(-x1 + x2).^2) - (2.*a0.^2.*D0.*pi.*w.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)))./ (3.*(-x1 + x2)) - (a0.^2.*D0.*lambda.*pi.*w.* (cos(pi.*w.*x1) - cos(pi.*w.*x2)))./(2.*(-x1 + x2)) + (D0.^3.*pi.^3.*w.^3.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)))./ (-x1 + x2) + (71.*D0.^3.*lambda.*pi.^3.*w.^3.* (cos(pi.*w.*x1) - cos(pi.*w.*x2)))./(96.*(-x1 + x2)) - (D0.^3.*lambda.^2.*pi.^3.*w.^3.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)))./ (12.*(-x1 + x2)) - (D0.^3.*lambda.^3.*pi.^3.*w.^3.* (cos(pi.*w.*x1) - cos(pi.*w.*x2)))./(32.*(-x1 + x2)) - (a0.*D0.^2.*pi.^2.*w.^2.*x1.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)))./(8.*(-x1 + x2).^2) - (3.*a0.*D0.^2.*lambda.*pi.^2.*w.^2.*x1.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)))./(16.*(-x1 + x2).^2) - (a0.*D0.^2.*lambda.^2.*pi.^2.*w.^2.*x1.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)))./(16.*(-x1 + x2).^2) + (a0.*D0.^2.*pi.^2.*w.^2.*x2.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)))./(8.*(-x1 + x2).^2) + (3.*a0.*D0.^2.*lambda.*pi.^2.*w.^2.*x2.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)))./(16.*(-x1 + x2).^2) + (a0.*D0.^2.*lambda.^2.*pi.^2.*w.^2.*x2.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)))./(16.*(-x1 + x2).^2) - (7.*a0.*D0.^2.*pi.^2.*w.^2.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)))./ (16.*(-x1 + x2)) - (a0.*D0.^2.*lambda.*pi.^2.*w.^2.* (cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)))./(2.*(-x1 + x2)) - (a0.*D0.^2.*lambda.^2.*pi.^2.*w.^2.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)))./(8.*(-x1 + x2)) - (5.*D0.^3.*pi.^3.*w.^3.*(cos(3.*pi.*w.*x1) - cos(3.*pi.*w.*x2)))./ (36.*(-x1 + x2)) - (19.*D0.^3.*lambda.*pi.^3.*w.^3.* (cos(3.*pi.*w.*x1) - cos(3.*pi.*w.*x2)))./(96.*(-x1 + x2)) - (D0.^3.*lambda.^2.*pi.^3.*w.^3.*(cos(3.*pi.*w.*x1) - cos(3.*pi.*w.*x2)))./(12.*(-x1 + x2)) - (D0.^3.*lambda.^3.*pi.^3.*w.^3.*(cos(3.*pi.*w.*x1) - cos(3.*pi.*w.*x2)))./(96.*(-x1 + x2)) + (a0.*D0.^2.*pi.^2.*w.^2.*x1.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)))./ (2.*(-x1 + x2).^2) + (a0.*D0.^2.*lambda.*pi.^2.*w.^2.*x1.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)))./(2.*(-x1 + x2).^2) - (a0.*D0.^2.*pi.^2.*w.^2.*x2.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)))./ (2.*(-x1 + x2).^2) - (a0.*D0.^2.*lambda.*pi.^2.*w.^2.*x2.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)))./(2.*(-x1 + x2).^2) + (3.*a0.*D0.^2.*pi.^2.*w.^2.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)))./ (2.*(-x1 + x2)) + (7.*a0.*D0.^2.*lambda.*pi.^2.*w.^2.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)))./(6.*(-x1 + x2)) + (a0.*D0.^2.*pi.*w.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)).* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./(4.*(-x1 + x2).^2) + (a0.*D0.^2.*lambda.*pi.*w.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)).* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./(2.*(-x1 + x2).^2) + (1./(4.*(-x1 + x2).^2)).*(a0.*D0.^2.*lambda.^2.*pi.*w.* (cos(pi.*w.*x1) - cos(pi.*w.*x2)).*(-sin(pi.*w.*x1) + sin(pi.*w.*x2))) + (D0.^3.*pi.^2.*w.^2.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)).*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./ (16.*(-x1 + x2).^2) + (1./(32.*(-x1 + x2).^2)).* (5.*D0.^3.*lambda.*pi.^2.*w.^2.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)).*(-sin(pi.*w.*x1) + sin(pi.*w.*x2))) + (1./(8.*(-x1 + x2).^2)).*(D0.^3.*lambda.^2.*pi.^2.*w.^2.* (cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)).* (-sin(pi.*w.*x1) + sin(pi.*w.*x2))) + (1./(32.*(-x1 + x2).^2)).*(D0.^3.*lambda.^3.*pi.^2.*w.^2.* (cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)).* (-sin(pi.*w.*x1) + sin(pi.*w.*x2))) - (D0.^3.*pi.^2.*w.^2.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)).* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./(4.*(-x1 + x2).^2) - (D0.^3.*lambda.*pi.^2.*w.^2.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)).* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./(2.*(-x1 + x2).^2) - (D0.^3.*lambda.^2.*pi.^2.*w.^2.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)).* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./(4.*(-x1 + x2).^2) + (37.*D0.^3.*pi.^3.*w.^3.*(sin(2.*pi.*w.*x1) - sin(2.*pi.*w.*x2)))./ (48.*(-x1 + x2)) + (43.*D0.^3.*lambda.*pi.^3.*w.^3.* (sin(2.*pi.*w.*x1) - sin(2.*pi.*w.*x2)))./(48.*(-x1 + x2)) + (11.*D0.^3.*lambda.^2.*pi.^3.*w.^3.*(sin(2.*pi.*w.*x1) - sin(2.*pi.*w.*x2)))./(48.*(-x1 + x2))) + (t_step).*((1./8).*D0.^2.*lambda.*pi.^2.*w.^2 + (1./8).*D0.^2.*lambda.^2.*pi.^2.*w.^2 - (a0.^2.*x1.^2)./(-x1 + x2).^2 + (2.*a0.^2.*x1.*x2)./ (-x1 + x2).^2 - (a0.^2.*x2.^2)./(-x1 + x2).^2 - (a0.^2.*x1)./(-x1 + x2) + (D0.^2.*pi.^2.*w.^2.*(x1 - x2))./ (8.*(-x1 + x2)) + (a0.^2.*x2)./(-x1 + x2) - (3.*D0.^2.*pi.*w.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)))./ (2.*(-x1 + x2)) - (D0.^2.*lambda.*pi.*w.* (cos(pi.*w.*x1) - cos(pi.*w.*x2)))./(-x1 + x2) + (a0.*D0.*x1.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./ (-x1 + x2).^2 + (a0.*D0.*lambda.*x1.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./(-x1 + x2).^2 - (a0.*D0.*x2.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./ (-x1 + x2).^2 - (a0.*D0.*lambda.*x2.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./(-x1 + x2).^2 + (3.*a0.*D0.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./ (2.*(-x1 + x2)) + (a0.*D0.*lambda.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./(-x1 + x2) - (D0.^2.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)).^2)./ (4.*(-x1 + x2).^2) - (D0.^2.*lambda.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)).^2)./ (2.*(-x1 + x2).^2) - (D0.^2.*lambda.^2.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)).^2)./ (4.*(-x1 + x2).^2) + (5.*D0.^2.*pi.*w.*(-sin(2.*pi.*w.*x1) + sin(2.*pi.*w.*x2)))./(16.*(-x1 + x2)) + (5.*D0.^2.*lambda.*pi.*w.*(-sin(2.*pi.*w.*x1) + sin(2.*pi.*w.*x2)))./(16.*(-x1 + x2)) + (D0.^2.*lambda.^2.*pi.*w.*(-sin(2.*pi.*w.*x1) + sin(2.*pi.*w.*x2)))./(16.*(-x1 + x2))) + (t_step).^3.*((1./32).*D0.^3.*lambda.*pi.^4.*w.^4 + (1./32).*D0.^3.*lambda.^2.*pi.^4.*w.^4 + (a0.^2.*D0.^2.*lambda.*pi.^4.*w.^4.*x1.*(x1 - x2))./ (24.*(-x1 + x2).^2) + (a0.^2.*D0.^2.*lambda.^2.*pi.^4.*w.^4.*x1.* (x1 - x2))./(24.*(-x1 + x2).^2) - (a0.^2.*D0.^2.*lambda.*pi.^4.*w.^4.*(x1 - x2).*x2)./ (24.*(-x1 + x2).^2) - (a0.^2.*D0.^2.*lambda.^2.*pi.^4.*w.^4.* (x1 - x2).*x2)./(24.*(-x1 + x2).^2) + (D0.^3.*pi.^4.*w.^4.*(x1 - x2))./(96.*(-x1 + x2)) + (a0.^2.*D0.^2.*pi.^3.*w.^3.*x1.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)))./ (3.*(-x1 + x2).^2) + (a0.^2.*D0.^2.*lambda.*pi.^3.*w.^3.*x1.* (cos(pi.*w.*x1) - cos(pi.*w.*x2)))./(3.*(-x1 + x2).^2) - (a0.^2.*D0.^2.*pi.^3.*w.^3.*x2.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)))./ (3.*(-x1 + x2).^2) - (a0.^2.*D0.^2.*lambda.*pi.^3.*w.^3.*x2.* (cos(pi.*w.*x1) - cos(pi.*w.*x2)))./(3.*(-x1 + x2).^2) + (a0.^2.*D0.*pi.*w.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)))./ (6.*(-x1 + x2)) + (a0.^2.*D0.*lambda.*pi.*w.* (cos(pi.*w.*x1) - cos(pi.*w.*x2)))./(8.*(-x1 + x2)) - (D0.^3.*pi.^3.*w.^3.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)))./ (4.*(-x1 + x2)) - (71.*D0.^3.*lambda.*pi.^3.*w.^3.* (cos(pi.*w.*x1) - cos(pi.*w.*x2)))./(384.*(-x1 + x2)) + (D0.^3.*lambda.^2.*pi.^3.*w.^3.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)))./ (48.*(-x1 + x2)) + (D0.^3.*lambda.^3.*pi.^3.*w.^3.* (cos(pi.*w.*x1) - cos(pi.*w.*x2)))./(128.*(-x1 + x2)) - (a0.^2.*D0.^2.*pi.^2.*w.^2.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)).^2)./ (16.*(-x1 + x2).^2) - (a0.^2.*D0.^2.*lambda.*pi.^2.*w.^2.* (cos(pi.*w.*x1) - cos(pi.*w.*x2)).^2)./(8.*(-x1 + x2).^2) - (a0.^2.*D0.^2.*lambda.^2.*pi.^2.*w.^2.* (cos(pi.*w.*x1) - cos(pi.*w.*x2)).^2)./(16.*(-x1 + x2).^2) + (5.*a0.*D0.^3.*pi.^4.*w.^4.*x1.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)))./(24.*(-x1 + x2).^2) + (5.*a0.*D0.^3.*lambda.*pi.^4.*w.^4.*x1.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)))./(16.*(-x1 + x2).^2) + (5.*a0.*D0.^3.*lambda.^2.*pi.^4.*w.^4.*x1.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)))./(48.*(-x1 + x2).^2) - (5.*a0.*D0.^3.*pi.^4.*w.^4.*x2.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)))./(24.*(-x1 + x2).^2) - (5.*a0.*D0.^3.*lambda.*pi.^4.*w.^4.*x2.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)))./(16.*(-x1 + x2).^2) - (5.*a0.*D0.^3.*lambda.^2.*pi.^4.*w.^4.*x2.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)))./(48.*(-x1 + x2).^2) + (7.*a0.*D0.^2.*pi.^2.*w.^2.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)))./ (64.*(-x1 + x2)) + (a0.*D0.^2.*lambda.*pi.^2.*w.^2.* (cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)))./(8.*(-x1 + x2)) + (a0.*D0.^2.*lambda.^2.*pi.^2.*w.^2.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)))./(32.*(-x1 + x2)) - (a0.*D0.^3.*pi.^3.*w.^3.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)).* (cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)))./ (32.*(-x1 + x2).^2) - (1./(64.*(-x1 + x2).^2)).* (5.*a0.*D0.^3.*lambda.*pi.^3.*w.^3.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)).*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2))) - (1./(16.*(-x1 + x2).^2)).*(a0.*D0.^3.*lambda.^2.*pi.^3.*w.^3.* (cos(pi.*w.*x1) - cos(pi.*w.*x2)).*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2))) - (1./(64.*(-x1 + x2).^2)).* (a0.*D0.^3.*lambda.^3.*pi.^3.*w.^3.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)).*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2))) - (D0.^4.*pi.^4.*w.^4.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)).^2)./ (256.*(-x1 + x2).^2) - (3.*D0.^4.*lambda.*pi.^4.*w.^4.* (cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)).^2)./ (256.*(-x1 + x2).^2) - (13.*D0.^4.*lambda.^2.*pi.^4.*w.^4.* (cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)).^2)./ (1024.*(-x1 + x2).^2) - (3.*D0.^4.*lambda.^3.*pi.^4.*w.^4.* (cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)).^2)./ (512.*(-x1 + x2).^2) - (D0.^4.*lambda.^4.*pi.^4.*w.^4.* (cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)).^2)./ (1024.*(-x1 + x2).^2) + (5.*D0.^3.*pi.^3.*w.^3.*(cos(3.*pi.*w.*x1) - cos(3.*pi.*w.*x2)))./ (144.*(-x1 + x2)) + (19.*D0.^3.*lambda.*pi.^3.*w.^3.* (cos(3.*pi.*w.*x1) - cos(3.*pi.*w.*x2)))./ (384.*(-x1 + x2)) + (D0.^3.*lambda.^2.*pi.^3.*w.^3.* (cos(3.*pi.*w.*x1) - cos(3.*pi.*w.*x2)))./(48.*(-x1 + x2)) + (D0.^3.*lambda.^3.*pi.^3.*w.^3.*(cos(3.*pi.*w.*x1) - cos(3.*pi.*w.*x2)))./(384.*(-x1 + x2)) + (a0.^3.*D0.*pi.^2.*w.^2.*x1.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)))./ (6.*(-x1 + x2).^2) + (a0.^3.*D0.*lambda.*pi.^2.*w.^2.*x1.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)))./(6.*(-x1 + x2).^2) + (a0.*D0.^3.*lambda.^2.*pi.^4.*w.^4.*x1.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)))./(24.*(-x1 + x2).^2) + (a0.*D0.^3.*lambda.^3.*pi.^4.*w.^4.*x1.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)))./(48.*(-x1 + x2).^2) - (a0.^3.*D0.*pi.^2.*w.^2.*x2.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)))./ (6.*(-x1 + x2).^2) - (a0.^3.*D0.*lambda.*pi.^2.*w.^2.*x2.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)))./(6.*(-x1 + x2).^2) - (a0.*D0.^3.*lambda.^2.*pi.^4.*w.^4.*x2.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)))./(24.*(-x1 + x2).^2) - (a0.*D0.^3.*lambda.^3.*pi.^4.*w.^4.*x2.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)))./(48.*(-x1 + x2).^2) + (a0.*D0.^3.*pi.^3.*w.^3.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)).* (sin(pi.*w.*x1) - sin(pi.*w.*x2)))./(8.*(-x1 + x2).^2) + (a0.*D0.^3.*lambda.*pi.^3.*w.^3.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)).* (sin(pi.*w.*x1) - sin(pi.*w.*x2)))./(4.*(-x1 + x2).^2) + (1./(8.*(-x1 + x2).^2)).*(a0.*D0.^3.*lambda.^2.*pi.^3.*w.^3.* (cos(pi.*w.*x1) - cos(pi.*w.*x2)).*(sin(pi.*w.*x1) - sin(pi.*w.*x2))) + (D0.^4.*pi.^4.*w.^4.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)).*(sin(pi.*w.*x1) - sin(pi.*w.*x2)))./ (32.*(-x1 + x2).^2) + (1./(64.*(-x1 + x2).^2)).* (5.*D0.^4.*lambda.*pi.^4.*w.^4.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)).*(sin(pi.*w.*x1) - sin(pi.*w.*x2))) + (1./(16.*(-x1 + x2).^2)).*(D0.^4.*lambda.^2.*pi.^4.*w.^4.* (cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)).* (sin(pi.*w.*x1) - sin(pi.*w.*x2))) + (1./(64.*(-x1 + x2).^2)).*(D0.^4.*lambda.^3.*pi.^4.*w.^4.* (cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)).* (sin(pi.*w.*x1) - sin(pi.*w.*x2))) - (D0.^4.*pi.^4.*w.^4.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)).^2)./ (16.*(-x1 + x2).^2) - (D0.^4.*lambda.*pi.^4.*w.^4.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)).^2)./(8.*(-x1 + x2).^2) - (D0.^4.*lambda.^2.*pi.^4.*w.^4.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)).^ 2)./(16.*(-x1 + x2).^2) + (5.*a0.*D0.^3.*pi.^4.*w.^4.*x1.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./ (24.*(-x1 + x2).^2) + (3.*a0.*D0.^3.*lambda.*pi.^4.*w.^4.*x1.* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./(16.*(-x1 + x2).^2) - (a0.*D0.^3.*lambda.*pi.^4.*w.^4.*(x1 - x2).*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./(48.*(-x1 + x2).^2) - (a0.*D0.^3.*lambda.^2.*pi.^4.*w.^4.*(x1 - x2).* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./(24.*(-x1 + x2).^2) - (a0.*D0.^3.*lambda.^3.*pi.^4.*w.^4.*(x1 - x2).* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./(48.*(-x1 + x2).^2) - (5.*a0.*D0.^3.*pi.^4.*w.^4.*x2.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./ (24.*(-x1 + x2).^2) - (3.*a0.*D0.^3.*lambda.*pi.^4.*w.^4.*x2.* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./(16.*(-x1 + x2).^2) + (3.*a0.*D0.^2.*pi.^2.*w.^2.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./ (8.*(-x1 + x2)) + (7.*a0.*D0.^2.*lambda.*pi.^2.*w.^2.* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./(24.*(-x1 + x2)) - (a0.*D0.^3.*pi.^3.*w.^3.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)).* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./(6.*(-x1 + x2).^2) - (1./(3.*(-x1 + x2).^2)).*(a0.*D0.^3.*lambda.*pi.^3.*w.^3.* (cos(pi.*w.*x1) - cos(pi.*w.*x2)).*(-sin(pi.*w.*x1) + sin(pi.*w.*x2))) - (1./(6.*(-x1 + x2).^2)).* (a0.*D0.^3.*lambda.^2.*pi.^3.*w.^3.*(cos(pi.*w.*x1) - cos(pi.*w.*x2)).*(-sin(pi.*w.*x1) + sin(pi.*w.*x2))) - (5.*D0.^4.*pi.^4.*w.^4.*(cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)).* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./(48.*(-x1 + x2).^2) - (1./(96.*(-x1 + x2).^2)).*(25.*D0.^4.*lambda.*pi.^4.*w.^4.* (cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)).* (-sin(pi.*w.*x1) + sin(pi.*w.*x2))) - (1./(24.*(-x1 + x2).^2)).*(5.*D0.^4.*lambda.^2.*pi.^4.*w.^4.* (cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)).* (-sin(pi.*w.*x1) + sin(pi.*w.*x2))) - (1./(96.*(-x1 + x2).^2)).*(5.*D0.^4.*lambda.^3.*pi.^4.*w.^4.* (cos(2.*pi.*w.*x1) - cos(2.*pi.*w.*x2)).* (-sin(pi.*w.*x1) + sin(pi.*w.*x2))) - (a0.^2.*D0.^2.*pi.^2.*w.^2.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)).* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./(12.*(-x1 + x2).^2) - (1./(6.*(-x1 + x2).^2)).*(a0.^2.*D0.^2.*lambda.*pi.^2.*w.^2.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)).*(-sin(pi.*w.*x1) + sin(pi.*w.*x2))) - (1./(12.*(-x1 + x2).^2)).* (a0.^2.*D0.^2.*lambda.^2.*pi.^2.*w.^2.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)).*(-sin(pi.*w.*x1) + sin(pi.*w.*x2))) - (D0.^4.*lambda.^2.*pi.^4.*w.^4.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)).* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./(48.*(-x1 + x2).^2) - (D0.^4.*lambda.^3.*pi.^4.*w.^4.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)).* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./(32.*(-x1 + x2).^2) - (D0.^4.*lambda.^4.*pi.^4.*w.^4.*(sin(pi.*w.*x1) - sin(pi.*w.*x2)).* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)))./(96.*(-x1 + x2).^2) - (5.*D0.^4.*pi.^4.*w.^4.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)).^2)./ (48.*(-x1 + x2).^2) - (19.*D0.^4.*lambda.*pi.^4.*w.^4.* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)).^2)./ (96.*(-x1 + x2).^2) - (3.*D0.^4.*lambda.^2.*pi.^4.*w.^4.* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)).^2)./ (32.*(-x1 + x2).^2) + (a0.^2.*D0.^2.*pi.^3.*w.^3.*x1.* (sin(2.*pi.*w.*x1) - sin(2.*pi.*w.*x2)))./ (8.*(-x1 + x2).^2) + (3.*a0.^2.*D0.^2.*lambda.*pi.^3.*w.^3.*x1.* (sin(2.*pi.*w.*x1) - sin(2.*pi.*w.*x2)))./ (16.*(-x1 + x2).^2) + (a0.^2.*D0.^2.*lambda.^2.*pi.^3.*w.^3.*x1.* (sin(2.*pi.*w.*x1) - sin(2.*pi.*w.*x2)))./ (16.*(-x1 + x2).^2) - (a0.^2.*D0.^2.*pi.^3.*w.^3.*x2.* (sin(2.*pi.*w.*x1) - sin(2.*pi.*w.*x2)))./ (8.*(-x1 + x2).^2) - (3.*a0.^2.*D0.^2.*lambda.*pi.^3.*w.^3.*x2.* (sin(2.*pi.*w.*x1) - sin(2.*pi.*w.*x2)))./ (16.*(-x1 + x2).^2) - (a0.^2.*D0.^2.*lambda.^2.*pi.^3.*w.^3.*x2.* (sin(2.*pi.*w.*x1) - sin(2.*pi.*w.*x2)))./ (16.*(-x1 + x2).^2) - (a0.*D0.^3.*pi.^3.*w.^3.* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)).*(sin(2.*pi.*w.*x1) - sin(2.*pi.*w.*x2)))./(16.*(-x1 + x2).^2) - (1./(32.*(-x1 + x2).^2)).*(5.*a0.*D0.^3.*lambda.*pi.^3.*w.^3.* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)).*(sin(2.*pi.*w.*x1) - sin(2.*pi.*w.*x2))) - (1./(8.*(-x1 + x2).^2)).* (a0.*D0.^3.*lambda.^2.*pi.^3.*w.^3.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)).*(sin(2.*pi.*w.*x1) - sin(2.*pi.*w.*x2))) - (1./(32.*(-x1 + x2).^2)).*(a0.*D0.^3.*lambda.^3.*pi.^3.*w.^3.* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)).*(sin(2.*pi.*w.*x1) - sin(2.*pi.*w.*x2))) + (37.*D0.^3.*pi.^3.*w.^3.* (-sin(2.*pi.*w.*x1) + sin(2.*pi.*w.*x2)))./ (192.*(-x1 + x2)) + (43.*D0.^3.*lambda.*pi.^3.*w.^3.* (-sin(2.*pi.*w.*x1) + sin(2.*pi.*w.*x2)))./ (192.*(-x1 + x2)) + (11.*D0.^3.*lambda.^2.*pi.^3.*w.^3.* (-sin(2.*pi.*w.*x1) + sin(2.*pi.*w.*x2)))./ (192.*(-x1 + x2)) + (a0.*D0.^3.*pi.^4.*w.^4.*x1.* (sin(3.*pi.*w.*x1) - sin(3.*pi.*w.*x2)))./ (24.*(-x1 + x2).^2) + (11.*a0.*D0.^3.*lambda.*pi.^4.*w.^4.*x1.* (sin(3.*pi.*w.*x1) - sin(3.*pi.*w.*x2)))./ (144.*(-x1 + x2).^2) + (a0.*D0.^3.*lambda.^2.*pi.^4.*w.^4.*x1.* (sin(3.*pi.*w.*x1) - sin(3.*pi.*w.*x2)))./ (24.*(-x1 + x2).^2) + (a0.*D0.^3.*lambda.^3.*pi.^4.*w.^4.*x1.* (sin(3.*pi.*w.*x1) - sin(3.*pi.*w.*x2)))./ (144.*(-x1 + x2).^2) - (a0.*D0.^3.*pi.^4.*w.^4.*x2.* (sin(3.*pi.*w.*x1) - sin(3.*pi.*w.*x2)))./ (24.*(-x1 + x2).^2) - (11.*a0.*D0.^3.*lambda.*pi.^4.*w.^4.*x2.* (sin(3.*pi.*w.*x1) - sin(3.*pi.*w.*x2)))./ (144.*(-x1 + x2).^2) - (a0.*D0.^3.*lambda.^2.*pi.^4.*w.^4.*x2.* (sin(3.*pi.*w.*x1) - sin(3.*pi.*w.*x2)))./ (24.*(-x1 + x2).^2) - (a0.*D0.^3.*lambda.^3.*pi.^4.*w.^4.*x2.* (sin(3.*pi.*w.*x1) - sin(3.*pi.*w.*x2)))./ (144.*(-x1 + x2).^2) - (D0.^4.*pi.^4.*w.^4.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)).* (sin(3.*pi.*w.*x1) - sin(3.*pi.*w.*x2)))./ (48.*(-x1 + x2).^2) - (1./(288.*(-x1 + x2).^2)).* (17.*D0.^4.*lambda.*pi.^4.*w.^4.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)).*(sin(3.*pi.*w.*x1) - sin(3.*pi.*w.*x2))) - (1./(288.*(-x1 + x2).^2)).*(17.*D0.^4.*lambda.^2.*pi.^4.*w.^4.* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)).*(sin(3.*pi.*w.*x1) - sin(3.*pi.*w.*x2))) - (1./(288.*(-x1 + x2).^2)).* (7.*D0.^4.*lambda.^3.*pi.^4.*w.^4.*(-sin(pi.*w.*x1) + sin(pi.*w.*x2)).*(sin(3.*pi.*w.*x1) - sin(3.*pi.*w.*x2))) - (1./(288.*(-x1 + x2).^2)).*(D0.^4.*lambda.^4.*pi.^4.*w.^4.* (-sin(pi.*w.*x1) + sin(pi.*w.*x2)).*(sin(3.*pi.*w.*x1) - sin(3.*pi.*w.*x2))))
+% order 2 in t_step, with averaging over bin
+var_over_t_avg = @(D0, w, a0, lambda, t_step, x1, x2) (1./(1024.*(x1 - x2).^2)).*(-2048.*D0.*x1.*(-x1 + x2) + 2048.*D0.*x2.*(-x1 + x2) + (1024.*D0.*(-x1 + x2).* cos(pi.*w.*x1))./(pi.*w) - (1024.*D0.*(-x1 + x2).*cos(pi.*w.*x2))./(pi.*w)) + (1./(1024.*(x1 - x2).^2)).*((t_step).*(-1024.*a0.^2.*x1.^2 + 2048.*a0.^2.*x1.*x2 - 1024.*a0.^2.*x2.^2 - 1024.*a0.^2.*x1.*(-x1 + x2) + 128.*D0.^2.*pi.^2.*w.^2.*x1.* (-x1 + x2) + 128.*D0.^2.*lambda.*pi.^2.*w.^2.*x1.* (-x1 + x2) - 128.*D0.^2.*lambda.^2.*pi.^2.*w.^2.*x1.* (-x1 + x2) + 1024.*a0.^2.*x2.*(-x1 + x2) - 128.*D0.^2.*pi.^2.*w.^2.*x2.*(-x1 + x2) - 128.*D0.^2.*lambda.*pi.^2.*w.^2.*x2.*(-x1 + x2) + 128.*D0.^2.*lambda.^2.*pi.^2.*w.^2.*x2.*(-x1 + x2) - 512.*D0.^2.*(1 + 2.*lambda).*pi.*w.*(-x1 + x2).* cos(pi.*w.*x1) + 512.*D0.^2.*(1 + 2.*lambda).*pi.*w.* (-x1 + x2).*cos(pi.*w.*x2) - 512.*a0.*D0.*(1 + 2.*lambda).* (-x1 + x2).*sin(pi.*w.*x1) - 64.*D0.^2.*(1 + 3.*lambda + lambda.^2).*pi.*w.*(-x1 + x2).* sin(2.*pi.*w.*x1) - 1024.*a0.*D0.*lambda.*x1.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)) + 1024.*a0.*D0.*lambda.*x2.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)) - 256.*D0.^2.*lambda.^2.* (sin(pi.*w.*x1) - sin(pi.*w.*x2)).^2 + 512.*a0.*D0.*(-x1 + x2).*sin(pi.*w.*x2) + 1024.*a0.*D0.*lambda.*(-x1 + x2).*sin(pi.*w.*x2) + 64.*D0.^2.*pi.*w.*(-x1 + x2).*sin(2.*pi.*w.*x2) + 192.*D0.^2.*lambda.*pi.*w.*(-x1 + x2).*sin(2.*pi.*w.*x2) + 64.*D0.^2.*lambda.^2.*pi.*w.*(-x1 + x2).*sin(2.*pi.*w.*x2)));
+% same, but with no spatial averaging
+var_over_t = @(D0, w, a0, lambda, t_step, x0) D0.*(2 + sin(pi.*w.*x0)) + (1./4).*(t_step).* (2.*D0.*pi.*w.*cos(pi.*w.*x0).*(a0 + (1./2).*D0.*lambda.*pi.*w.* cos(pi.*w.*x0)) - D0.^2.*pi.^2.*w.^2.*sin(pi.*w.*x0).* (2 + sin(pi.*w.*x0)) + 4.*D0.*(2 + sin(pi.*w.*x0)).* ((D0.*lambda.*pi.^2.*w.^2.*cos(pi.*w.*x0).^2)./ (4.*(2 + sin(pi.*w.*x0))) + lambda.*sqrt(D0.*(2 + sin(pi.*w.*x0))).* (-((D0.^2.*pi.^2.*w.^2.*cos(pi.*w.*x0).^2)./ (4.*(D0.*(2 + sin(pi.*w.*x0))).^(3./2))) - (D0.*pi.^2.*w.^2.*sin(pi.*w.*x0))./ (2.*sqrt(D0.*(2 + sin(pi.*w.*x0)))))));
+
 
 
 lambda = 1;
 % Use a correction to lambda that I cannot explain yet
 % lambda_prime = lambda-1;
-var_theor_expected_avg = var_over_t(D0, w, a0, lambda, t_step, bins_borders(1, :), bins_borders(2, :));
+var_theor_expected_avg = var_over_t_avg(D0, w, a0, lambda, t_step, bins_borders(1, :), bins_borders(2, :));
+var_theor_expected = var_over_t(D0, w, a0, lambda, t_step, bins_centers);
 D_theor_expected_avg = var_theor_expected_avg/2;
 % % % % Normalize to bin width
 % % % var_theor_expected_avg = var_theor_expected_avg ./ (bins_borders(2, :) - bins_borders(1, :));
 b_theor_expected_avg = sqrt(var_theor_expected_avg);
+b_theor_expected = sqrt(var_theor_expected);
 b_theor_expected_avg_bias = b_theor_expected_avg' - b_mean_theor';
+b_theor_expected_bias = b_theor_expected' - b_mean_theor';
 % b_theor_expected';
 bins_borders;
 
@@ -126,7 +134,7 @@ dx_mean_theor = dx_mean_theor_func(D0, w, a0, lambda, t_step, bins_borders(1, :)
 
 %% == (A): Plot diffusivity profile ==
 % Initialize
-y_lim_vec_A = [0.09, 0.18];
+y_lim_vec_A = [0.095, 0.18];
 h_fig = figure(fig_count);
 set_article_figure_size(h_fig, rows, 2, 1);
 clf;
@@ -143,26 +151,26 @@ end;
 % Values in center
 h_theor_center = plot(data_struct.x_fine_mesh, data_struct.b_theor_fine_data, '-k', 'LineWidth', line_width);
 % Mean values in bins
-plot(data_struct.x_bins_centers, b_mean_theor, '--k', 'LineWidth', line_width);
-% The expected b due to Fokker-Planck equation
-plot(data_struct.x_bins_centers, b_theor_expected_avg, '-m', 'LineWidth', line_width);
+h_mean_theor = plot(data_struct.x_bins_centers, b_mean_theor, '--k', 'LineWidth', line_width);
+% % The expected b due to Fokker-Planck equation
+% plot(data_struct.x_bins_centers, b_theor_expected_avg, '-m', 'LineWidth', line_width);
 
 % Adjust
 xlim(x_lim_vec);
-% ylim(y_lim_vec_A);
+ylim(y_lim_vec_A);
 box on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('$\langle b \rangle$, $\mu\mathrm{m \cdot s^{-1/2}}$', 'interpreter', 'latex');
 title('Average diffusivity profile', 'interpreter', 'latex');
 % Subplot label
-text(sublabel_x, sublabel_y, '(a)', 'Units', 'Normalized', 'VerticalAlignment', 'Top');
+text(sublabel_x, sublabel_y, 'A', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 % Legend
 % str_legend = lambda_types_names;
-h_leg = legend(str_legend, 'location', 'south', 'FontSize', legend_font_size);
+h_leg = legend(str_legend, 'location', 'west', 'FontSize', legend_font_size);
 legend boxon;
 grid on;
 % Send theoretical curve back
-uistack(h_theor_center, 'bottom');
+uistack([h_theor_center, h_mean_theor], 'bottom');
 
 
 %% == (B): Fail rate ==
@@ -189,7 +197,7 @@ title('Fail rate', 'interpreter', 'latex');
 legend(str_legend, 'location', 'north', 'FontSize', legend_font_size);
 legend boxon;
 % Subplot label
-text(sublabel_x, sublabel_y, '(b)', 'Units', 'Normalized', 'VerticalAlignment', 'Top');
+text(sublabel_x, sublabel_y, 'B', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 % Send confidence level back
 uistack(h_conf, 'bottom');
 
@@ -255,6 +263,7 @@ legend boxon;
 % lambda_ind = 3;
 % plot(data_struct.x_bins_centers, b_theor_bias(:, 1), 'k');
 plot(data_struct.x_bins_centers, b_theor_expected_avg_bias, 'k'); 
+plot(data_struct.x_bins_centers, b_theor_expected_bias, 'g'); 
 % end;
 %h_conf = plot(x_lim_vec, [1, 1] * (1 - CONF_LEVEL) * 100, 'k--', 'linewidth', line_width);
 
@@ -270,64 +279,64 @@ xlim(x_lim_vec);
 ylim(y_lim_vec);
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('$\langle \delta b \rangle$, $\mu\mathrm{m \cdot s^{-1/2}}$', 'interpreter', 'latex');
-text(sublabel_x, sublabel_y, strcat('(c)'), 'Units', 'Normalized', 'VerticalAlignment', 'Top');
+text(sublabel_x, sublabel_y, 'C', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 title('Average diffusivity bias', 'interpreter', 'latex');
 grid on;
 % Reorder curves
 uistack([h_theor_0], 'bottom');
 
 
-%% == (D): D profile (temporarily) ==
+% % % %% == (D): D profile (temporarily) ==
+% % % subaxis(rows, cols, 4);
+% % % hold on;
+% % % for lambda_type = 1:lambda_types_count
+% % %     plot(data_struct.x_bins_centers(1:bin_plot_step:end),  data_struct.MAP_D_mean(lambda_type, 1:bin_plot_step:end, 1),...
+% % %         strcat('-', markers_list{lambda_type}), 'color', color_sequence(lambda_type, :),  'LineWidth', line_width, 'markers', marker_size);
+% % % %     str_legend{end + 1} = lambda_types_names{lambda_type};
+% % % end;
+% % % % Theory
+% % % h_theor_center = plot(data_struct.x_fine_mesh, data_struct.D_theor_fine_data, '-k', 'LineWidth', line_width);
+% % % % The expected D due to Fokker-Planck equation
+% % % plot(data_struct.x_bins_centers, D_theor_expected_avg, '-m', 'LineWidth', line_width);
+
+
+%% == (D): D' profile ==
+%% Initialize
 subaxis(rows, cols, 4);
 hold on;
-for lambda_type = 1:lambda_types_count
-    plot(data_struct.x_bins_centers(1:bin_plot_step:end),  data_struct.MAP_D_mean(lambda_type, 1:bin_plot_step:end, 1),...
-        strcat('-', markers_list{lambda_type}), 'color', color_sequence(lambda_type, :),  'LineWidth', line_width, 'markers', marker_size);
-%     str_legend{end + 1} = lambda_types_names{lambda_type};
-end;
+y_lim_vec = [-1, 1] * 0.23;
+%% Calculate
+% Calculate simple bb' with MAP b using a finite elements scheme
+% Choose one lambda and corresponding data_struct
+tmp_data_struct = trials_data{data_struct.trial_first_simulation_type_index(enum_lambda_Stratonovich)};
+x_bins_steps = tmp_data_struct.x_bins_centers(2:end) - tmp_data_struct.x_bins_centers(1:end - 1);
+b_squared_over_2 = tmp_data_struct.MAP_b.^2 / 2;
+simple_bb_prime = (b_squared_over_2(2:end, 1) - b_squared_over_2(1:end-1, 1)) ./ x_bins_steps;
+x_grad_mesh = tmp_data_struct.x_grad_mesh;
+%% Plot
+% Simple difference
+plot(x_grad_mesh, simple_bb_prime, markers_list{1}, 'color', color_sequence(1, :), 'LineWidth', line_width, 'markers', marker_size);
+% Regularized gradient
+plot(x_grad_mesh, tmp_data_struct.MAP_bb_prime_regular,  markers_list{2}, 'color', color_sequence(2, :), 'LineWidth', line_width, 'markers', marker_size);
+% Regularized interpolated gradient
+plot(tmp_data_struct.x_bins_centers, tmp_data_struct.MAP_bb_prime_regular_interp, 'color', color_sequence(3, :), 'LineWidth', line_width, 'markers', marker_size);
 % Theory
-h_theor_center = plot(data_struct.x_fine_mesh, data_struct.D_theor_fine_data, '-k', 'LineWidth', line_width);
-% The expected D due to Fokker-Planck equation
-plot(data_struct.x_bins_centers, D_theor_expected_avg, '-m', 'LineWidth', line_width);
-
-
-% % % % %% == (D): D' profile ==
-% % % % %% Initialize
-% % % % subaxis(rows, cols, 4);
-% % % % hold on;
-% % % % y_lim_vec = [-1, 1] * 0.23;
-% % % % %% Calculate
-% % % % % Calculate simple bb' with MAP b using a finite elements scheme
-% % % % % Choose one lambda and corresponding data_struct
-% % % % tmp_data_struct = trials_data{data_struct.trial_first_simulation_type_index(enum_lambda_Stratonovich)};
-% % % % x_bins_steps = tmp_data_struct.x_bins_centers(2:end) - tmp_data_struct.x_bins_centers(1:end - 1);
-% % % % b_squared_over_2 = tmp_data_struct.MAP_b.^2 / 2;
-% % % % simple_bb_prime = (b_squared_over_2(2:end, 1) - b_squared_over_2(1:end-1, 1)) ./ x_bins_steps;
-% % % % x_grad_mesh = tmp_data_struct.x_grad_mesh;
-% % % % %% Plot
-% % % % % Simple difference
-% % % % plot(x_grad_mesh, simple_bb_prime, markers_list{1}, 'color', color_sequence(1, :), 'LineWidth', line_width, 'markers', marker_size);
-% % % % % Regularized gradient
-% % % % plot(x_grad_mesh, tmp_data_struct.MAP_bb_prime_regular,  markers_list{2}, 'color', color_sequence(2, :), 'LineWidth', line_width, 'markers', marker_size);
-% % % % % Regularized interpolated gradient
-% % % % plot(tmp_data_struct.x_bins_centers, tmp_data_struct.MAP_bb_prime_regular_interp, 'color', color_sequence(3, :), 'LineWidth', line_width, 'markers', marker_size);
-% % % % % Theory
-% % % % h_theor = plot(tmp_data_struct.x_fine_mesh, tmp_data_struct.bb_prime_theor_fine_data, 'k--', 'LineWidth', line_width);
-% % % % % Adjust
-% % % % xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-% % % % ylabel('$bb''$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
-% % % % xlim(x_lim_vec);
-% % % % ylim(y_lim_vec);
-% % % % box on;
-% % % % grid on;
-% % % % title(sprintf('$bb''$ profile for $\\lambda^* = %.2f$', tmp_data_struct.lambda), 'interpreter', 'latex');
-% % % % % Sublabel
-% % % % text(sublabel_x, sublabel_y, '(d)', 'Units', 'Normalized', 'VerticalAlignment', 'Top');
-% % % % % Legend
-% % % % str_legend_local = {'FD', 'R', 'RI'};
-% % % % legend(str_legend_local, 'location', 'southwest', 'interpreter', 'latex', 'FontSize', legend_font_size);
-% % % % % Send theoretical curve back
-% % % % uistack(h_theor, 'bottom');
+h_theor = plot(tmp_data_struct.x_fine_mesh, tmp_data_struct.bb_prime_theor_fine_data, 'k--', 'LineWidth', line_width);
+% Adjust
+xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
+ylabel('$bb''$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
+xlim(x_lim_vec);
+ylim(y_lim_vec);
+box on;
+grid on;
+title(sprintf('$bb''$ profile for $\\lambda^* = %.2f$', tmp_data_struct.lambda), 'interpreter', 'latex');
+% Sublabel
+text(sublabel_x, sublabel_y, 'D', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+% Legend
+str_legend_local = {'FD', 'R', 'RI'};
+legend(str_legend_local, 'location', 'southwest', 'interpreter', 'latex', 'FontSize', legend_font_size);
+% Send theoretical curve back
+uistack(h_theor, 'bottom');
 
 
 
