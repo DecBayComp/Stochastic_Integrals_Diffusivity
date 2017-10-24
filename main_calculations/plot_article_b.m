@@ -130,7 +130,7 @@ ylim(y_lim_vec_A);
 box on;
 grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('$\langle b \rangle$, $\mu\mathrm{m \cdot s^{-1/2}}$', 'interpreter', 'latex');
+ylabel('$\langle b \rangle$, $\mu\mathrm{m / s^{1/2}}$', 'interpreter', 'latex');
 title('Average diffusivity profile', 'interpreter', 'latex');
 
 % Subplot label
@@ -215,7 +215,7 @@ h_theor_0 = plot(x_lim_vec, 0 * x_lim_vec, 'k--', 'LineWidth', line_width_theor)
 xlim(x_lim_vec);
 ylim(y_lim_vec);
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('$\langle \delta b \rangle$, $10^{-3}\mu\mathrm{m \cdot s^{-1/2}}$', 'interpreter', 'latex');
+ylabel('$\langle \delta b \rangle$, $10^{-3}\mu\mathrm{m / s^{1/2}}$', 'interpreter', 'latex');
 
 % Subplot label
 text(sublabel_x, sublabel_y, 'C', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
