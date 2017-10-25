@@ -345,6 +345,7 @@ trials_MAP_D = zeros(trials, x_bins_number, 4);
 trials_MAP_b = zeros(trials, x_bins_number, 4);
 trials_MAP_a = zeros(trials, x_bins_number, conventions_count, 4);
 trials_MAP_bb_prime_regular_interp = zeros(trials, x_bins_number);
+trials_n_j = zeros(trials, x_bins_number);
 for trial = 1:trials
     % D
     trials_MAP_D(trial, :, :) = trials_data{trial}.MAP_D(:, :);
@@ -354,6 +355,8 @@ for trial = 1:trials
     trials_MAP_a(trial, :, :, :) = trials_data{trial}.MAP_a;
     % D grad
     trials_MAP_bb_prime_regular_interp(trial, :) = trials_data{trial}.MAP_bb_prime_regular_interp;
+	% n_j
+	trials_n_j(trial, :) = trials_data{trial}.n_j;
 end;
 % Save
 data_struct.trials_MAP_D = trials_MAP_D;
@@ -372,12 +375,15 @@ MAP_bb_prime_regular_interp_mean = zeros(lambda_types_count, x_bins_number);
 UR_b = zeros(lambda_types_count, x_bins_number);
 UR_a = zeros(lambda_types_count, x_bins_number, conventions_count);
 outside_count_a = zeros(lambda_types_count, x_bins_number, conventions_count);
+n_j_mean = zeros(lambda_types_count, x_bins_number);
 for lambda_type = 1:lambda_types_count
     % Mean
     MAP_D_mean(lambda_type, :, :) = mean(trials_MAP_D(trial_simulation_type == lambda_type, :, :), 1, 'omitnan' );
 	MAP_b_mean(lambda_type, :, :) = mean(trials_MAP_b(trial_simulation_type == lambda_type, :, :), 1, 'omitnan' );
     MAP_a_mean(lambda_type, :, :, :) = mean(trials_MAP_a(trial_simulation_type == lambda_type, :, :, :), 1, 'omitnan' );
     MAP_bb_prime_regular_interp_mean(lambda_type, :) = mean(trials_MAP_bb_prime_regular_interp(trial_simulation_type == lambda_type, :), 1, 'omitnan' );
+	% n_j
+	n_j_mean(lambda_type, :, :) = mean(trials_n_j(trial_simulation_type == lambda_type, :), 1, 'omitnan' );
     % Fail rate
     % b
     UR_b(lambda_type, :) = mean(double(trials_MAP_b(trial_simulation_type == lambda_type, :, 4) > CONF_LEVEL), 1, 'omitnan' );
@@ -391,6 +397,7 @@ data_struct.MAP_a_mean = MAP_a_mean;
 data_struct.MAP_bb_prime_regular_interp_mean = MAP_bb_prime_regular_interp_mean;
 data_struct.UR_b = UR_b;
 data_struct.UR_a = UR_a;
+data_struct.n_j_mean = n_j_mean;
 
 
 %% Calculate mean and average fail rate of each inference convention

@@ -55,6 +55,7 @@ data_struct.bl_empty_bin = zeros(1, bins_count);
 % data_struct.fD_theor = cell(1, lambda_count);
 data_struct.lambda = -1;
 data_struct.n_j = zeros(1, bins_count);
+data_struct.n_j_mean = zeros(1, bins_count);
 data_struct.trials_MAP_b = 0;
 data_struct.trials_MAP_a = 0;
 data_struct.trials_MAP_bb_prime_regular_interp = 0;

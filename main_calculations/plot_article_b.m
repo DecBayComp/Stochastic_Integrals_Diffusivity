@@ -118,6 +118,10 @@ for lambda_type = 1:lambda_types_count
     str_legend{end + 1} = lambda_types_names{lambda_type};
 end;
 
+% Legend
+h_leg = legend(str_legend, 'location', 'west', 'FontSize', legend_font_size);
+legend boxon;
+
 % Plot theory
 % Simulated profile
 h_theor_center = plot(data_struct.x_fine_mesh, data_struct.b_theor_fine_data, '-k', 'LineWidth', line_width_theor);
@@ -134,18 +138,21 @@ xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('$\langle \hat b \rangle$, $\mu\mathrm{m / s^{1/2}}$', 'interpreter', 'latex');
 title('Average diffusivity profile', 'interpreter', 'latex');
 
+% Send theoretical curves back
+uistack([h_theor_center, h_mean_theor], 'bottom');
+
 % Modify ticks
 set(gca,'xtick', x_min:x_tick_increment:x_max);
 
 % Subplot label
 text(sublabel_x, sublabel_y, 'A', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 
-% Legend
-h_leg = legend(str_legend, 'location', 'west', 'FontSize', legend_font_size);
-legend boxon;
 
-% Send theoretical curves back
-uistack([h_theor_center, h_mean_theor], 'bottom');
+
+% Color bin borders
+color_bins(bins_borders, ylim(), bin_color);
+
+
 
 
 

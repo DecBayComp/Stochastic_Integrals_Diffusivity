@@ -15,9 +15,16 @@ bl_save_figures = true;
 fig_count = 0;
 
 
+
 %% Plot simulated diffusivity and force
 fig_count = fig_count + 1; 
 plot_simulated_diffusivity_and_force(fig_count, bl_save_figures);
+
+
+
+%% Plot point density and bin locations
+fig_count = fig_count + 1; 
+plot_article_point_density(data_struct, fig_count, bl_save_figures);
 
 
 

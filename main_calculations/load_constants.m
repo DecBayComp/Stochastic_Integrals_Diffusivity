@@ -48,6 +48,11 @@ legend_font_size = font_size - 3;
 markers_list = {'s', 'o', '^', '+', 'x', 'd','v'};
 line_width = 1.2;
 line_width_theor = line_width - 0.5;
+
+% Bin colors
+load_color_scheme;
+bin_color = my_colors(3).White;
+
 % markers_list = {'-o','-s','-d','-^','-v'};
 
 
