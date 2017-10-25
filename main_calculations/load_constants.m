@@ -54,7 +54,7 @@ line_width_theor = line_width - 0.5;
 
 output_figures_folder = './figures_for_article/';
 output_data_folder = './processed_data/';
-input_data_folder = '/home/aserov/Documents/Calculated_data/';  % Ubuntu
+input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_with_force/';  % Ubuntu
 % input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_no_force/';  % Ubuntu
 % input_data_folder = '/Users/alexander_serov/Calculations_data/ito-stratonovich/'; % Mac
 fail_rates_filename = 'Fail_rates.dat';

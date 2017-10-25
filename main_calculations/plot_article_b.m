@@ -27,6 +27,7 @@ output_filename = 'b.pdf';
 % Other plot parameters
 bin_plot_step = 1;	% 3
 lambda_type_for_gradient_plot = enum_lambda_Stratonovich;
+x_tick_increment = 0.1;
 
 % Constants for bias integral calculations (taken from D_func.m)
 D0 =  1e-2;		% um^2/s
@@ -130,8 +131,11 @@ ylim(y_lim_vec_A);
 box on;
 grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('$\langle b \rangle$, $\mu\mathrm{m / s^{1/2}}$', 'interpreter', 'latex');
+ylabel('$\langle \hat b \rangle$, $\mu\mathrm{m / s^{1/2}}$', 'interpreter', 'latex');
 title('Average diffusivity profile', 'interpreter', 'latex');
+
+% Modify ticks
+set(gca,'xtick', x_min:x_tick_increment:x_max);
 
 % Subplot label
 text(sublabel_x, sublabel_y, 'A', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
@@ -172,6 +176,9 @@ grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('Posterior overlap, \%', 'interpreter', 'latex');
 title('Posterior overlap', 'interpreter', 'latex');
+
+% Modify ticks
+set(gca,'xtick', x_min:x_tick_increment:x_max);
 
 % Legend
 legend(str_legend, 'location', 'southwest', 'FontSize', legend_font_size);
@@ -216,6 +223,9 @@ xlim(x_lim_vec);
 ylim(y_lim_vec);
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('$\langle \delta b \rangle$, $10^{-3}\mu\mathrm{m / s^{1/2}}$', 'interpreter', 'latex');
+
+% Modify ticks
+set(gca,'xtick', x_min:x_tick_increment:x_max);
 
 % Subplot label
 text(sublabel_x, sublabel_y, 'C', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
@@ -262,6 +272,9 @@ ylim(y_lim_vec);
 box on;
 grid on;
 title(sprintf('Diffusivity gradient profile for $\\lambda^* = %.2f$', tmp_data_struct.lambda), 'interpreter', 'latex');
+
+% Modify ticks
+set(gca,'xtick', x_min:x_tick_increment:x_max);
 
 % Subplot label
 text(sublabel_x, sublabel_y, 'D', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);

@@ -30,8 +30,8 @@ pdf_norm = [];
 %% Access trajectories folder and start loading trajectories
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
-% trials = sum(~[cur_dir.isdir]);
-trials = 6*6;
+trials = sum(~[cur_dir.isdir]);
+% trials = 6*6;
 
 
 
