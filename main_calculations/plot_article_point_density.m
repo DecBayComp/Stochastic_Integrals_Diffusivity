@@ -7,14 +7,12 @@ function plot_article_point_density(data_struct, fig_count, bl_save_figures)
 %% Constants
 load_constants;
 x_tick_increment = 0.1;
+output_filename = 'Point_density.pdf';
 
 % Define plot colors
 load_color_scheme;
-% transp = 0.2;
 color_sequence = [standard_colors(1).DeepBlue; my_colors(5).Green; my_colors(1).Orange; my_colors(1).WarmBrown];
 % bin_color = [standard_colors(1).LightBlue, transp];
-
-output_filename = 'Point_density.pdf';
 
 
 
@@ -26,20 +24,22 @@ hold on;
 
 
 
-%% Calculate
+%% Initialize
 bins_number = data_struct.x_bins_number;
 bin_widths = data_struct.x_bins_widths;
-bin_borders = [1; 1] * data_struct.x_bins_centers' + [-1/2; 1/2] * data_struct.x_bins_widths';
+bin_borders = [1; 1] * data_struct.x_bins_centers' + [-1/2; 1/2] * bin_widths';
+
+b_profile = data_struct.b_theor_fine_data;
+
+x_lim_vec = [x_min, x_max];
 
 
 
-
-%% Plot
+%% Plot point number in bins n_j
 norm_points_density = zeros(lambda_types_count, bins_number);
 str_legend = {};
 for lambda_type = 1:lambda_types_count
-% 	% Normalize the number of points to bin size
-% 	norm_points_density(lambda_type, :) = data_struct.n_j_mean(lambda_type, :) ./ bin_widths';
+	% Load data
 	norm_points_density(lambda_type, :) = data_struct.n_j_mean(lambda_type, :);
 	
 	% Normalize to total points number
@@ -51,22 +51,9 @@ for lambda_type = 1:lambda_types_count
     str_legend{end + 1} = lambda_types_names{lambda_type};
 end;
 
-y_lim_vec = ylim();
-
-% Color bin borders
-color_bins(bin_borders, y_lim_vec, bin_color);
-
-% % Plot simulated diffusivity profile
-% h_theor_center = plot(data_struct.x_fine_mesh, data_struct.b_theor_fine_data, '--k', 'LineWidth', line_width_theor);
-
-
-
 % Adjust plot
-x_lim_vec = [x_min, x_max];
 xlim(x_lim_vec);
-% ylim(y_lim_vec_A);
 box on;
-% grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('Points in bin, \%', 'interpreter', 'latex');
 title('Point density and bin locations', 'interpreter', 'latex');
@@ -76,6 +63,17 @@ set(gca,'xtick', x_min:x_tick_increment:x_max);
 
 % Legend 
 legend(str_legend, 'Location', 'northwest');
+
+% Normalize and plot simulated diffusivity profile
+y_lim_vec = ylim();
+b_profile = b_profile - min(b_profile);
+b_profile = b_profile / max(b_profile) * y_lim_vec(2);
+h_theor_center = plot(data_struct.x_fine_mesh, b_profile, '-k', 'LineWidth', line_width_theor);
+% Send curve back
+uistack(h_theor_center, 'bottom');
+
+% Color bin borders
+color_bins(bin_borders, y_lim_vec, bin_color);
 
 
 
