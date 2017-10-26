@@ -31,7 +31,7 @@ pdf_norm = [];
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
 trials = sum(~[cur_dir.isdir]);
-trials = 6*6;
+trials = 6*2;
 
 
 
@@ -366,6 +366,43 @@ data_struct.trials_MAP_bb_prime_regular_interp = trials_MAP_bb_prime_regular_int
 
 
 
+%% Calculate Kolmogorov-Smirnov distance for each trial
+% MAP b distribution over trials and b posterior from one trial
+trials_b_KS_distance = zeros(trials, x_bins_number);
+for trial = 1:trials
+	fprintf('Calculating Kolmogorov-Smirnov distance for diffusivity in trial %i/%i\n', trial, trials);	
+	% Load trial data
+	cur_data_struct = trials_data{trial};
+	
+	for bin = 1:x_bins_number
+		
+% 		fprintf('Bin %i\n', bin);
+	
+		% Skip empty bins
+		if cur_data_struct.bl_empty_bin(bin)
+			trials_b_KS_distance(trial, bin) = NaN;
+			continue;
+		end;
+		
+		% Load MAP b distribution data
+		MAP_b_distr_bin = trials_MAP_b(:, bin, 1);
+		
+		% Drop NaN values of MAP b
+		MAP_b_distr_bin = MAP_b_distr_bin(~isnan(MAP_b_distr_bin));
+
+		% Load the posterior for this bin and trial
+		b_posterior_func_wrap = @(b) bin_b_posterior_func (bin, b, t_step, cur_data_struct, 'forward');
+
+		% Calculate distance
+		trials_b_KS_distance(trial, bin) = calculate_KS_distance(MAP_b_distr_bin, b_posterior_func_wrap);
+	end;
+end;
+
+% Save
+data_struct.trials_b_KS_distance = trials_b_KS_distance;
+
+
+
 %% Calculate mean for each simulation type separately
 %% Also calculate the fail rate for each simulation type
 MAP_D_mean = zeros(lambda_types_count, x_bins_number, 4);
@@ -376,6 +413,7 @@ UR_b = zeros(lambda_types_count, x_bins_number);
 UR_a = zeros(lambda_types_count, x_bins_number, conventions_count);
 outside_count_a = zeros(lambda_types_count, x_bins_number, conventions_count);
 n_j_mean = zeros(lambda_types_count, x_bins_number);
+b_KS_distance_mean = zeros(lambda_types_count, x_bins_number);
 for lambda_type = 1:lambda_types_count
     % Mean
     MAP_D_mean(lambda_type, :, :) = mean(trials_MAP_D(trial_simulation_type == lambda_type, :, :), 1, 'omitnan' );
@@ -389,11 +427,14 @@ for lambda_type = 1:lambda_types_count
     UR_b(lambda_type, :) = mean(double(trials_MAP_b(trial_simulation_type == lambda_type, :, 4) > CONF_LEVEL), 1, 'omitnan' );
     % a
     UR_a(lambda_type, :, :) = mean(double(trials_MAP_a(trial_simulation_type == lambda_type, :, :, 4) > CONF_LEVEL), 1, 'omitnan' );
+	% Kolmogorov-Smirnov distance for b
+	b_KS_distance_mean(lambda_type, :) = mean(trials_b_KS_distance(trial_simulation_type == lambda_type, :), 1, 'omitnan');
 end;
 % Save
 data_struct.MAP_D_mean = MAP_D_mean;
 data_struct.MAP_b_mean = MAP_b_mean;
 data_struct.MAP_a_mean = MAP_a_mean;
+data_struct.b_KS_distance_mean = b_KS_distance_mean;
 data_struct.MAP_bb_prime_regular_interp_mean = MAP_bb_prime_regular_interp_mean;
 data_struct.UR_b = UR_b;
 data_struct.UR_a = UR_a;
@@ -426,6 +467,7 @@ data_struct.UR_b_bin_mean = UR_b_bin_mean;
 data_struct.UR_b_bin_max = UR_b_bin_max;
 data_struct.UR_a_bin_mean = UR_a_bin_mean;
 data_struct.UR_a_bin_max = UR_a_bin_max;
+
 
 
 % Print execution time

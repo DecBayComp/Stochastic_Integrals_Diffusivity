@@ -156,9 +156,9 @@ color_bins(bins_borders, ylim(), bin_color);
 
 
 
-%% == (B): Posterior overlap (1 - fail_rate) ==
+%% == (B): Kolmogorov-Smirnov distance between MAP distribution of b and predicted posterior in each trial. Averaged over the number of trials ==
 % Constants
-y_lim_vec = [-2, 100];
+y_lim_vec = [0, 1];
 
 % Initialize subplot
 subaxis(rows, cols, 2);
@@ -167,13 +167,13 @@ hold on;
 % Plot numerical data
 str_legend = {};
 for lambda_type = 1:lambda_types_count
-    plot(data_struct.x_bins_centers,  (1 - data_struct.UR_b(lambda_type, :)) * 100,...
+    plot(data_struct.x_bins_centers,  data_struct.b_KS_distance_mean(lambda_type, :),...
         strcat('-', markers_list{lambda_type}), 'color', color_sequence(lambda_type, :),  'LineWidth', line_width, 'markers', marker_size);
     str_legend{end + 1} = lambda_types_names{lambda_type};
 end;
 
-% Plot the optimal overlap level (confidence level)
-h_conf = plot(x_lim_vec, [1, 1] * CONF_LEVEL * 100, 'k--', 'linewidth', line_width_theor);
+% % Plot the optimal overlap level (confidence level)
+% h_conf = plot(x_lim_vec, [1, 1] * CONF_LEVEL * 100, 'k--', 'linewidth', line_width_theor);
 
 % Adjust plot
 xlim(x_lim_vec);
@@ -181,21 +181,21 @@ ylim(y_lim_vec);
 box on;
 grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('Posterior overlap, \%', 'interpreter', 'latex');
-title('Posterior overlap', 'interpreter', 'latex');
+ylabel('KS distance for b', 'interpreter', 'latex');
+% title('Posterior overlap', 'interpreter', 'latex');
 
 % Modify ticks
 set(gca,'xtick', x_min:x_tick_increment:x_max);
 
 % Legend
-legend(str_legend, 'location', 'southwest', 'FontSize', legend_font_size);
+legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
 legend boxon;
 
 % Subplot label
 text(sublabel_x, sublabel_y, 'B', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 
-% Send confidence level back
-uistack(h_conf, 'bottom');
+% % Send confidence level back
+% uistack(h_conf, 'bottom');
 
 
 
