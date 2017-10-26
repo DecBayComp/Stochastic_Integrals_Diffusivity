@@ -182,7 +182,7 @@ box on;
 grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('KS distance for $b$', 'interpreter', 'latex');
-% title('Posterior overlap', 'interpreter', 'latex');
+title('KS distance', 'interpreter', 'latex');
 
 % Modify ticks
 set(gca,'xtick', x_min:x_tick_increment:x_max);
