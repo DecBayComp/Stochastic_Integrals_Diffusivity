@@ -31,7 +31,7 @@ pdf_norm = [];
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
 trials = sum(~[cur_dir.isdir]);
-trials = 6*2;
+trials = 6*16;
 
 
 
@@ -120,7 +120,7 @@ tic;
 parfor trial = 1:trials  % 765
     %% Initialize
     % Initialize the data structure
-    data_struct = initialize_data_structure(x_bins_number, fine_mesh_steps_count, conventions_count);
+    data_struct = initialize_data_structure(x_bins_number, fine_mesh_steps_count, conventions_count, lambda_types_count);
     data_struct.x_bins_centers = x_bins_centers;
     data_struct.x_bins_widths = x_bins_widths;
 	data_struct.x_bins_borders = x_bins_borders;
@@ -369,8 +369,8 @@ data_struct.trials_MAP_bb_prime_regular_interp = trials_MAP_bb_prime_regular_int
 %% Calculate Kolmogorov-Smirnov distance for each trial
 % MAP b distribution over trials and b posterior from one trial
 trials_b_KS_distance = zeros(trials, x_bins_number);
-for trial = 1:trials
-	fprintf('Calculating Kolmogorov-Smirnov distance for diffusivity in trial %i/%i\n', trial, trials);	
+parfor trial = 1:trials
+	fprintf('Calculating Kolmogorov-Smirnov distance for diffusivity. Trial: %i/%i\n', trial, trials);	
 	% Load trial data
 	cur_data_struct = trials_data{trial};
 	
@@ -389,6 +389,9 @@ for trial = 1:trials
 		
 		% Drop NaN values of MAP b
 		MAP_b_distr_bin = MAP_b_distr_bin(~isnan(MAP_b_distr_bin));
+		
+		% Sort data
+		MAP_b_distr_bin = sort(MAP_b_distr_bin);
 
 		% Load the posterior for this bin and trial
 		b_posterior_func_wrap = @(b) bin_b_posterior_func (bin, b, t_step, cur_data_struct, 'forward');

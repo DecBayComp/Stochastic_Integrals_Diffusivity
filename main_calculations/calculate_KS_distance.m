@@ -4,25 +4,27 @@
 % but a simpler algorithm also mentioned in that article
 
 
-function distance = calculate_KS_distance(emp_data, cont_distrib_func)
+function distance = calculate_KS_distance(emp_sorted_data, cont_distrib_func)
 
 
 %% Constants
-ABS_TOLERANCE = 1e-4;
-REL_TOLERANCE = 1e-4;
+ABS_TOLERANCE = 1e-3;
+REL_TOLERANCE = 1e-3;
 
-% Sort empirical distribution
-emp_data = sort(emp_data);
-n = length(emp_data);
+% % % % % Sort empirical distribution
+% % % % emp_sorted_data = sort(emp_sorted_data);
 
-% Continuous CDF
-cum_cont_distrib_func = @(f) integral(cont_distrib_func, -Inf, 0, 'RelTol', REL_TOLERANCE,'AbsTol', ABS_TOLERANCE)...
-    + integral(cont_distrib_func, 0, f, 'RelTol', REL_TOLERANCE,'AbsTol', ABS_TOLERANCE);
+% Initialize
+n = length(emp_sorted_data);
+
+% Define the continuous CDF
+cum_cont_distrib_func = @(f) ... %integral(cont_distrib_func, -Inf, 0, 'RelTol', REL_TOLERANCE,'AbsTol', ABS_TOLERANCE) +...
+    integral(cont_distrib_func, -Inf, f, 'RelTol', REL_TOLERANCE,'AbsTol', ABS_TOLERANCE);
 
 % Evaluate CDF at empirical points
 cum_cont_distrib = zeros(1, n);
 for i = 1:n
-    cum_cont_distrib(i) = cum_cont_distrib_func(emp_data(i));
+    cum_cont_distrib(i) = cum_cont_distrib_func(emp_sorted_data(i));
 	1;
 end;
 

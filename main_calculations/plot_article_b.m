@@ -181,7 +181,7 @@ ylim(y_lim_vec);
 box on;
 grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('KS distance for b', 'interpreter', 'latex');
+ylabel('KS distance for $b$', 'interpreter', 'latex');
 % title('Posterior overlap', 'interpreter', 'latex');
 
 % Modify ticks
