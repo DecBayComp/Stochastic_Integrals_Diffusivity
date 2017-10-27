@@ -473,9 +473,6 @@ data_struct.UR_a_bin_max = UR_a_bin_max;
 
 
 
-% Print execution time
-fprintf('All trajectories processed in %.2f min\n', toc/60);
-
 
 %% Clean up & backup current workspace
 trials_x = [];
@@ -483,6 +480,9 @@ trials_dx = [];
 points_binned = [];
 save('backup_workspace.mat');
 save(strcat(output_data_folder, 'trials_data.mat'), 'data_struct', 'trials_data');
+
+% Print execution time
+fprintf('All trajectories processed in %.2f min\n', toc/60);
 
 
 %% Plot
