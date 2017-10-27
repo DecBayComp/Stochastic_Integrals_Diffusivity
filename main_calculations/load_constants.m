@@ -21,7 +21,7 @@ D_MAX = 100;
 ABS_TOLERANCE = 1e-7;
 REL_TOLERANCE = 1e-7;
 % selected_x_over_L_coordinates = [-0.25, 0, 0.25];
-selected_x_over_L = 0.4;    % 0.4
+selected_x_over_L = 0.05;    % 0.4
 fD_marginalized_steps = 1 + 2^5;    % 1 + 2^5
 SIMULATION_TRIES_PER_CASE = 30;
 bl_use_adaptive_mesh = true;
@@ -115,6 +115,7 @@ enum_lambda_Hanggi = 3;
 enum_lambda_rand = 4;
 lambda_types_count = 4;
 lambda_types_names = {'Ito', 'Str', 'Hng', 'rnd'};
+lambda_ind_for_KS_plot = 3;
 
 
 % Define colors
