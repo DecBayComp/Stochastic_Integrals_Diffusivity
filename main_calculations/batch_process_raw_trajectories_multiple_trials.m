@@ -433,11 +433,13 @@ for lambda_type = 1:lambda_types_count
 	% Kolmogorov-Smirnov distance for b
 	b_KS_distance_mean(lambda_type, :) = mean(trials_b_KS_distance(trial_simulation_type == lambda_type, :), 1, 'omitnan');
 end;
+
 % Save
 data_struct.MAP_D_mean = MAP_D_mean;
 data_struct.MAP_b_mean = MAP_b_mean;
 data_struct.MAP_a_mean = MAP_a_mean;
 data_struct.b_KS_distance_mean = b_KS_distance_mean;
+data_struct.b_KS_distance_bin_mean = mean(b_KS_distance_mean, 2);
 data_struct.MAP_bb_prime_regular_interp_mean = MAP_bb_prime_regular_interp_mean;
 data_struct.UR_b = UR_b;
 data_struct.UR_a = UR_a;
@@ -450,6 +452,7 @@ data_struct.n_j_mean = n_j_mean;
 % Identify the best explored period
 x_left = (1/2 + 2*1)/w;
 x_right = (1/2 + 2*2)/w;
+
 % Filter indices from one best period
 indices = data_struct.x_bins_centers >= x_left & data_struct.x_bins_centers <= x_right;
 bin_widths = data_struct.x_bins_centers(indices);
@@ -465,6 +468,7 @@ for lambda_type = 1:lambda_types_count
 end;
 UR_b_bin_max = max(data_struct.UR_b(:, indices), [], 2);
 UR_a_bin_max = squeeze(max(data_struct.UR_a(:, indices, :), [], 2));
+
 % Save
 data_struct.UR_b_bin_mean = UR_b_bin_mean;
 data_struct.UR_b_bin_max = UR_b_bin_max;

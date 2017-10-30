@@ -88,6 +88,11 @@ for i=1:length(str_output_b_UR)
     fprintf(file, '\n\n');
 end;
 
+% Append b KS distance
+fprintf(file, '\n\n> Mean b KS distance across bins and trials <\n\n');
+fprintf(file, '%s', str_output_b_UR{1});
+fprintf(file, '\n%.2f\t%.2f\t%.2f\t%.2f', data_struct.b_KS_distance_bin_mean);
+
 
 % Close file
 fclose(file); 

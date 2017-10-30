@@ -138,9 +138,9 @@ plot(b_mesh, b_posterior_pdf, 'LineWidth', line_width, 'color', color_sequence(1
 
 
 %% Adjust
-xlabel('$b$, $\mu m / s^{1/2}$', 'interpreter', 'latex');
+xlabel('$b$, $\mu \mathrm{m} / s^{1/2}$', 'interpreter', 'latex');
 ylabel('PDF', 'interpreter', 'latex');
-tmp_str = sprintf('$\\lambda^* = 1.0$, $x \\approx %.2f~\\mu m$', selected_bins_centers);
+tmp_str = sprintf('$\\lambda^* = 1.0$, $x \\approx %.2f~\\mu \\mathrm{m}$', selected_bins_centers);
 title(tmp_str, 'interpreter', 'latex');
 grid on;
 box on;

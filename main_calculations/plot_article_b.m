@@ -46,13 +46,17 @@ bins_centers = data_struct.x_bins_centers';
 bins_borders = [1; 1] * data_struct.x_bins_centers' + [-1/2; 1/2] * data_struct.x_bins_widths';
 
 % Anti-derivative of D at the borders
-[~, ~, ~, D_true_antider] = D_func(selected_D_case, bins_borders, L);
+[D_true_borders, ~, ~, D_true_antider] = D_func(selected_D_case, bins_borders, L);
 
 % Calculate true average D
-D_true_avg = (D_true_antider(2, :) - D_true_antider(1, :)) ./ (bins_borders(2, :) - bins_borders(1, :));
+D_true_avg = (D_true_antider(2, :) - D_true_antider(1, :)) ./ data_struct.x_bins_widths';
 
 % Averate b is calculated as a sqaure root of average D
 b_true_avg = sqrt(2 * D_true_avg);
+
+% Calcualte the average bb' = D' in bin
+bb_prime_true_avg = (D_true_borders(2,:) - D_true_borders(1,:)) ./ data_struct.x_bins_widths';
+1;
 
 
 
@@ -270,6 +274,9 @@ plot(tmp_data_struct.x_bins_centers, tmp_data_struct.MAP_bb_prime_regular_interp
 
 % True value
 h_theor = plot(tmp_data_struct.x_fine_mesh, tmp_data_struct.bb_prime_theor_fine_data, 'k-', 'LineWidth', line_width_theor);
+
+% True average value
+h_theor_avg = plot(tmp_data_struct.x_bins_centers, bb_prime_true_avg, 'k--', 'LineWidth', line_width_theor);
 
 % Adjust subplot
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
