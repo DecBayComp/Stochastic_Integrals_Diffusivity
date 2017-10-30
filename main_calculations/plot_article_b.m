@@ -34,9 +34,9 @@ D0 =  1e-2;		% um^2/s
 w = 10.0;		% 1/um
 a0 = 10 / gamma_drag;	% um/s
 
-% Define plot colors
-load_color_scheme;
-color_sequence = [standard_colors(1).DeepBlue; my_colors(5).Green; my_colors(1).Orange; my_colors(1).WarmBrown];
+% % % % Define plot colors
+% % % load_color_scheme;
+% % % color_sequence = [standard_colors(1).DeepBlue; my_colors(5).Green; my_colors(1).Orange; my_colors(1).WarmBrown];
 
 
 %% == Calculations ==

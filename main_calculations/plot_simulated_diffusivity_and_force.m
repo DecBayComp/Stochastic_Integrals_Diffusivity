@@ -25,6 +25,8 @@ MB = 0.17;
 sublabel_x = 0.015;
 sublabel_y = 1.13;
 
+x_tick_increment = 0.25;
+
 
 
 %% Create mesh
@@ -72,6 +74,9 @@ grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('$a$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
 
+% Modify ticks
+set(gca,'xtick', x_min:x_tick_increment:x_max);
+
 % Subplot label
 text(sublabel_x, sublabel_y, 'A', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 
@@ -93,6 +98,9 @@ box on;
 grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('$D$, $\mu \mathrm{m^2/s}$', 'interpreter', 'latex');
+
+% Modify ticks
+set(gca,'xtick', x_min:x_tick_increment:x_max);
 
 % Subplot label
 text(sublabel_x, sublabel_y, 'B', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
@@ -116,7 +124,10 @@ ylim(y_lim_vec);
 box on;
 grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('$b$, $\mu \mathrm{m \cdot s^{-1/2}}$', 'interpreter', 'latex');
+ylabel('$b$, $\mu \mathrm{m / s^{1/2}}$', 'interpreter', 'latex');
+
+% Modify ticks
+set(gca,'xtick', x_min:x_tick_increment:x_max);
 
 % Subplot label
 text(sublabel_x, sublabel_y, 'C', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);

@@ -119,42 +119,44 @@ lambda_ind_for_KS_plot = 3;
 
 
 % Define colors
-color_sequence = [0    0.4470    0.7410;...
-                    0.9290    0.6940    0.1250;...
-                    0.8500    0.3250    0.0980;...
-                    139/255 87/255 66/255;...   %	Brown               
-                    107/255 142/255 35/255;...   %	Olive                    
-                    0.502 0.502 1;...   %	Light purple                    
-                    0 0.251 0;...   %	Dark green       
-                    0 0 1;...   %	Blue
-                    0.9412 0.4706 0;... %   Orange
-                    0.502 0.251 0;...   %	Brown                    
-                    0 0.502 0.502;...   %	Turquoise
-                    1 0 0;...   %	Bright red
-%                     1 1 1;...   %	White
-                    1 0.502 0.502;...   %	Peach
-                    0 1 1;...   %	Cyan
-%                     0.502 0.502 0.502;...   %	Gray
-                    0.502 0 0;...   %	Burgundy 
-                    1 0 1;...   %	Pink
-                    0.251 0 0.502;...   %	Purple
-                    1 1 0;...  %	Yellow                    
-                    0 0 0;...   %	Black
-                    0 0.251 0;...   %	Dark green       
-                    0 0 1;...   %	Blue
-                    0.9412 0.4706 0;... %   Orange
-                    0.502 0.251 0;...   %	Brown                    
-                    0 0.502 0.502;...   %	Turquoise
-                    1 0 0;...   %	Bright red
-%                     1 1 1;...   %	White
-                    1 0.502 0.502;...   %	Peach
-                    0 1 1;...   %	Cyan
-%                     0.502 0.502 0.502;...   %	Gray
-                    0 1 0;...   %	Bright green
-                    1 0 1;...   %	Pink
-                    0.251 0 0.502;...   %	Purple                    
-                    1 1 0;...  %	Yellow                    
-                    0 0 0];...   %	Black
+load_color_scheme;
+color_sequence = [standard_colors(1).DeepBlue; my_colors(5).Green; my_colors(1).Orange; my_colors(1).WarmBrown];
+% color_sequence = [0    0.4470    0.7410;...
+%                     0.9290    0.6940    0.1250;...
+%                     0.8500    0.3250    0.0980;...
+%                     139/255 87/255 66/255;...   %	Brown               
+%                     107/255 142/255 35/255;...   %	Olive                    
+%                     0.502 0.502 1;...   %	Light purple                    
+%                     0 0.251 0;...   %	Dark green       
+%                     0 0 1;...   %	Blue
+%                     0.9412 0.4706 0;... %   Orange
+%                     0.502 0.251 0;...   %	Brown                    
+%                     0 0.502 0.502;...   %	Turquoise
+%                     1 0 0;...   %	Bright red
+% %                     1 1 1;...   %	White
+%                     1 0.502 0.502;...   %	Peach
+%                     0 1 1;...   %	Cyan
+% %                     0.502 0.502 0.502;...   %	Gray
+%                     0.502 0 0;...   %	Burgundy 
+%                     1 0 1;...   %	Pink
+%                     0.251 0 0.502;...   %	Purple
+%                     1 1 0;...  %	Yellow                    
+%                     0 0 0;...   %	Black
+%                     0 0.251 0;...   %	Dark green       
+%                     0 0 1;...   %	Blue
+%                     0.9412 0.4706 0;... %   Orange
+%                     0.502 0.251 0;...   %	Brown                    
+%                     0 0.502 0.502;...   %	Turquoise
+%                     1 0 0;...   %	Bright red
+% %                     1 1 1;...   %	White
+%                     1 0.502 0.502;...   %	Peach
+%                     0 1 1;...   %	Cyan
+% %                     0.502 0.502 0.502;...   %	Gray
+%                     0 1 0;...   %	Bright green
+%                     1 0 1;...   %	Pink
+%                     0.251 0 0.502;...   %	Purple                    
+%                     1 1 0;...  %	Yellow                    
+%                     0 0 0];...   %	Black
                     
 my_constructs_color_sequence = [ 0.502 0 0;...   %	Burgundy 
                             1 0 1;...   %	Pink
