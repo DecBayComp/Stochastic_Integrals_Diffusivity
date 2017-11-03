@@ -21,7 +21,6 @@ D_MAX = 100;
 ABS_TOLERANCE = 1e-7;
 REL_TOLERANCE = 1e-7;
 % selected_x_over_L_coordinates = [-0.25, 0, 0.25];
-selected_x_over_L = 0.05;    % 0.4
 fD_marginalized_steps = 1 + 2^5;    % 1 + 2^5
 SIMULATION_TRIES_PER_CASE = 30;
 bl_use_adaptive_mesh = true;
@@ -120,7 +119,7 @@ lambda_ind_for_KS_plot = 3;
 
 % Define colors
 load_color_scheme;
-color_sequence = [standard_colors(1).DeepBlue; my_colors(5).Green; my_colors(1).Orange; my_colors(1).WarmBrown];
+color_sequence = [standard_colors(1).DeepBlue; my_colors(5).Green; my_colors(1).Orange; my_colors(1).WarmBrown; standard_colors(1).Purple];
 % color_sequence = [0    0.4470    0.7410;...
 %                     0.9290    0.6940    0.1250;...
 %                     0.8500    0.3250    0.0980;...

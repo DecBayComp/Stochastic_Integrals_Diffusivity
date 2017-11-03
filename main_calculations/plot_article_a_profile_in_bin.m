@@ -7,7 +7,8 @@ function plot_article_a_profile_in_bin(data_struct, trials_data, fig_count, bl_s
 
 %% Constants
 load_constants;
-a_steps = 1 + 2^7.5;
+selected_x_over_L = 0.4;
+a_steps = round(1 + 2^8);
 factor = 8;
 y_factor = 1e3;
 lambda_type = enum_lambda_rand;
@@ -17,7 +18,7 @@ output_filename = 'a_one_bin.pdf';
 %% Initialize
 cur_data_struct = trials_data{data_struct.trial_first_simulation_type_index(lambda_type)};
 lambda = cur_data_struct.lambda;
-[selected_bins_indices, selected_bins_centers] = get_selected_bins_indices(cur_data_struct);
+[selected_bins_indices, selected_bins_centers] = get_selected_bins_indices(cur_data_struct, selected_x_over_L);
 bin = selected_bins_indices;
 bb_prime = cur_data_struct.MAP_bb_prime_regular_interp(bin);
 
@@ -87,11 +88,11 @@ str_legend = {};
 % PDFs
 for convention = [enum_conv_Ito, enum_conv_Stratonovich, enum_conv_Hanggi, enum_conv_divine]
     plot(a_mesh, a_data(convention, :), strcat('-', markers_list{convention}), 'color', color_sequence(convention, :),...
-        'LineWidth', line_width/2, 'markers', marker_size);
+        'LineWidth', line_width, 'markers', marker_size);
     str_legend{length(str_legend) + 1} = conventions_names{convention};
 end
 plot(a_mesh, a_data(enum_conv_marginalized, :), '-', 'color', color_sequence(enum_conv_marginalized, :),...
-    'LineWidth', line_width*2, 'markers', marker_size);
+    'LineWidth', line_width+1, 'markers', marker_size);
 str_legend{length(str_legend) + 1} = conventions_names{enum_conv_marginalized};
 
 % Exact value

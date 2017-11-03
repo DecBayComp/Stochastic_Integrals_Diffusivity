@@ -31,7 +31,12 @@ plot_article_point_density(data_struct, fig_count, bl_save_figures);
 %% Plot diffusivity posterior in one bin, diffusivity profile and the fail rate
 fig_count = fig_count + 1; 
 plot_article_b(data_struct, trials_data, fig_count, bl_save_figures);
-% Plot D bias as a function of D gradient ???
+
+
+
+%% Compare MAP b distribution with the b posterior from one trial
+fig_count = fig_count + 1; 
+plot_article_b_MAP_vs_posterior(data_struct, trials_data, fig_count, bl_save_figures);
 
 
 %% === Plot drift profile in one bin for each inference type ===

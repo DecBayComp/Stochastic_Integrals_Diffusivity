@@ -1,6 +1,6 @@
 
 
-function [selected_bins_indices, selected_bins_centers] = get_selected_bins_indices(data_struct)
+function [selected_bins_indices, selected_bins_centers] = get_selected_bins_indices(data_struct, selected_x_over_L)
 
 %% Globals
 % global x_bins_centers_saved;
