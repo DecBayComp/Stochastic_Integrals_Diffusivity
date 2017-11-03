@@ -9,9 +9,9 @@ function plot_article_mean_a_profile_and_fail_rate(data_struct, fig_count, bl_sa
 load_constants;
 sublabel_x = 0.03;
 sublabel_y = 0.08;
-x_lim_vec = [0, x_max];
+x_lim_vec = [x_min, x_max];
 y_lim_vec_FR = [-2, 102];
-y_lim_vec_profile = [-0.19, 0.25];
+y_lim_vec_profile = [-1, 1] * 0.18;
 output_filename = 'a_fail_rate.pdf';
 % Subplot parameters
 SH = 0.05;
@@ -22,6 +22,8 @@ MT = 0.05;
 MB = 0.08;
 % Skip some bins
 plot_every = 2;
+
+x_tick_increment = 0.25;
 
 
 
@@ -64,6 +66,9 @@ for lambda_type = 1:lambda_types_count
         legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
         legend boxon;
     end;   
+	
+	% Modify ticks
+	set(gca,'xtick', x_min:x_tick_increment:x_max);
  
     
     %% == Profile plot ==
@@ -84,7 +89,7 @@ for lambda_type = 1:lambda_types_count
     
     xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
     if lambda_type == 1
-        ylabel('$\langle a \rangle$', 'interpreter', 'latex');
+        ylabel('$\langle \hat a \rangle$', 'interpreter', 'latex');
     end;
     str_title = {'$\lambda^* = 0$', '$\lambda^* = 0.5$', '$\lambda^* = 1$', 'Random $\lambda^*$'};
     title(str_title{lambda_type}, 'interpreter', 'latex');
@@ -93,6 +98,9 @@ for lambda_type = 1:lambda_types_count
     
     % Push theoretical curve back
     uistack(h_theor, 'bottom');
+	
+	% Modify ticks
+	set(gca,'xtick', x_min:x_tick_increment:x_max);
 end;
 
 
