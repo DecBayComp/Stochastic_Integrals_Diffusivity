@@ -367,7 +367,7 @@ data_struct.trials_MAP_bb_prime_regular_interp = trials_MAP_bb_prime_regular_int
 
 
 %% Calculate KS distances for a and b distributions
-[trials_a_KS_distance, trials_b_KS_distance] = batch_calculate_KS_distance(trials, trials_MAP_a, trials_MAP_b);
+[trials_a_KS_distance, trials_b_KS_distance] = batch_calculate_KS_distance(trials, x_bins_number, data_struct, trials_data, trials_MAP_a, trials_MAP_b);
 
 % Save
 data_struct.trials_b_KS_distance = trials_b_KS_distance;
