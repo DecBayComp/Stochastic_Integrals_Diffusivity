@@ -112,7 +112,7 @@ box on;
 
 xlabel('$a$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
 ylabel('PDF', 'interpreter', 'latex');
-title(sprintf('$x\\approx%.2f\\ \\mu \\mathrm{m}$, $\\lambda^* = %.2f$', selected_x_over_L, lambda), 'interpreter', 'latex');
+title(sprintf('$x\\approx%.2f\\ \\mu \\mathrm{m}$, $\\lambda^* = %.2f$', selected_bins_centers, lambda), 'interpreter', 'latex');
 % Legend
 legend(str_legend, 'location', 'northeast', 'interpreter', 'latex', 'fontsize', legend_font_size);
 % Reorder curves
@@ -131,7 +131,7 @@ if bl_save_figures
     print(h_fig, output_full_path, '-dpdf', '-r0');
 end;
 
-
+selected_bins_centers
 
 
 
