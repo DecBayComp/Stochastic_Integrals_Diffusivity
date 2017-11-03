@@ -31,7 +31,7 @@ pdf_norm = [];
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
 trials = sum(~[cur_dir.isdir]);
-trials = 6*16;
+trials = 6*4;
 
 
 
@@ -366,40 +366,8 @@ data_struct.trials_MAP_bb_prime_regular_interp = trials_MAP_bb_prime_regular_int
 
 
 
-%% Calculate Kolmogorov-Smirnov distance for each trial
-% MAP b distribution over trials and b posterior from one trial
-trials_b_KS_distance = zeros(trials, x_bins_number);
-parfor trial = 1:trials
-	fprintf('Calculating Kolmogorov-Smirnov distance for diffusivity. Trial: %i/%i\n', trial, trials);	
-	% Load trial data
-	cur_data_struct = trials_data{trial};
-	
-	for bin = 1:x_bins_number
-		
-% 		fprintf('Bin %i\n', bin);
-	
-		% Skip empty bins
-		if cur_data_struct.bl_empty_bin(bin)
-			trials_b_KS_distance(trial, bin) = NaN;
-			continue;
-		end;
-		
-		% Load MAP b distribution data
-		MAP_b_distr_bin = trials_MAP_b(:, bin, 1);
-		
-		% Drop NaN values of MAP b
-		MAP_b_distr_bin = MAP_b_distr_bin(~isnan(MAP_b_distr_bin));
-		
-		% Sort data
-		MAP_b_distr_bin = sort(MAP_b_distr_bin);
-
-		% Load the posterior for this bin and trial
-		b_posterior_func_wrap = @(b) bin_b_posterior_func (bin, b, t_step, cur_data_struct, 'forward');
-
-		% Calculate distance
-		trials_b_KS_distance(trial, bin) = calculate_KS_distance(MAP_b_distr_bin, b_posterior_func_wrap);
-	end;
-end;
+%% Calculate KS distances for a and b distributions
+[trials_a_KS_distance, trials_b_KS_distance] = batch_calculate_KS_distance(trials, trials_MAP_a, trials_MAP_b);
 
 % Save
 data_struct.trials_b_KS_distance = trials_b_KS_distance;

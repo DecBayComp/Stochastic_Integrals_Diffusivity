@@ -14,29 +14,104 @@ y_lim_vec_FR = [-2, 102];
 y_lim_vec_profile = [-1, 1] * 0.18;
 output_filename = 'a_fail_rate.pdf';
 % Subplot parameters
-SH = 0.05;
+SH = 0.07;
 SV = 0.1;
 ML = 0.07;
 MR = 0.005;
 MT = 0.05;
 MB = 0.08;
-% Skip some bins
-plot_every = 2;
+rows = 4;
+cols = 2;
 
-x_tick_increment = 0.25;
+% Skip some bins
+plot_every = 1;
+
+% Label params
+sublabel_x = 0.015;
+sublabel_y = 1.2;
+
+x_tick_increment = 0.2;
 
 
 
 %% Plot
 % Initalize plot
 h_fig = figure(fig_count);
-set_article_figure_size(h_fig, 2, 2, 1);
+set_article_figure_size(h_fig, rows, 2, 1);
 clf;
 % Initalize subplots
-subaxis(2, lambda_types_count, 1, 'SH', SH, 'SV', SV, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
-for lambda_type = 1:lambda_types_count
-    %% == Fail rate plot ==
-    subaxis(2, lambda_types_count, lambda_types_count + lambda_type);
+subaxis(rows, cols, 1, 'SH', SH, 'SV', SV, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
+% for lambda_type = 1:lambda_types_count
+lambda_type = 1;
+    %% == (1): Profile plot ==
+    subaxis(1);
+    hold on;
+    % Plot each convention
+    for convention = 1:conventions_count
+        plot(data_struct.x_bins_centers(1:plot_every:end),  data_struct.MAP_a_mean(lambda_type, 1:plot_every:end, convention, 1),...
+            strcat('-', markers_list{convention}), 'color', color_sequence(convention, :), 'LineWidth', line_width, 'markers', marker_size);
+    end;
+    % True profile (theory)
+    h_theor = plot(data_struct.x_fine_mesh, data_struct.a_theor_fine_data, '--k', 'LineWidth', line_width);
+
+    %% Adjust
+    xlim(x_lim_vec);
+    ylim(y_lim_vec_profile);
+    box on;
+    
+    xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
+    if lambda_type == 1
+        ylabel('$\langle \hat a \rangle$', 'interpreter', 'latex');
+    end;
+    str_title = {'$\lambda^* = 0$', '$\lambda^* = 0.5$', '$\lambda^* = 1$', 'Random $\lambda^*$'};
+%     title(str_title{lambda_type}, 'interpreter', 'latex');
+
+	% Subplot label
+	text(sublabel_x, sublabel_y, 'A', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+    
+    % Push theoretical curve back
+    uistack(h_theor, 'bottom');
+	
+	% Modify ticks
+	set(gca,'xtick', x_min:x_tick_increment:x_max);
+	
+	
+	
+% % % 	%% == (2): Mean bias plot ==
+% % %     subaxis(2);
+% % %     hold on;
+% % %     % Plot each convention
+% % %     for convention = 1:conventions_count
+% % %         plot(data_struct.x_bins_centers(1:plot_every:end),  data_struct.MAP_a_mean(lambda_type, 1:plot_every:end, convention, 1) - data_struct.a_theor_data',...
+% % %             strcat('-', markers_list{convention}), 'color', color_sequence(convention, :), 'LineWidth', line_width, 'markers', marker_size);
+% % %     end;
+% % % %     % True profile (theory)
+% % % %     h_theor = plot(data_struct.x_fine_mesh, data_struct.a_theor_fine_data, '--k', 'LineWidth', line_width);
+% % % 
+% % %     %% Adjust
+% % %     xlim(x_lim_vec);
+% % %     ylim(y_lim_vec_profile);
+% % %     box on;
+% % %     
+% % %     xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
+% % %     if lambda_type == 1
+% % %         ylabel('$\langle \hat a \rangle$', 'interpreter', 'latex');
+% % %     end;
+% % %     str_title = {'$\lambda^* = 0$', '$\lambda^* = 0.5$', '$\lambda^* = 1$', 'Random $\lambda^*$'};
+% % % %     title(str_title{lambda_type}, 'interpreter', 'latex');
+% % %     
+% % %     % Push theoretical curve back
+% % %     uistack(h_theor, 'bottom');
+% % % 	
+% % % 	% Modify ticks
+% % % 	set(gca,'xtick', x_min:x_tick_increment:x_max);
+% % % 	
+% % % 	% Subplot label
+% % % 	text(sublabel_x, sublabel_y, 'B', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+	
+	
+	%% == (2): KS distance plot ==
+    subaxis(2);
     hold on;
     str_legend = {};
     % Plot each inference conventions
@@ -58,8 +133,9 @@ for lambda_type = 1:lambda_types_count
     if lambda_type == 1
         ylabel('Fail rate, \%', 'interpreter', 'latex');
     end;
-    % Subplot label
-    text(sublabel_x, sublabel_y, strcat('(', char('e' + lambda_type - 1), ')'), 'Units', 'Normalized', 'VerticalAlignment', 'Top');
+    
+	% Subplot label
+	text(sublabel_x, sublabel_y, 'C', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
     
     % Legend
     if lambda_type == 2
@@ -71,37 +147,8 @@ for lambda_type = 1:lambda_types_count
 	set(gca,'xtick', x_min:x_tick_increment:x_max);
  
     
-    %% == Profile plot ==
-    subaxis(2, lambda_types_count, lambda_type);
-    hold on;
-    % Plot each convention
-    for convention = 1:conventions_count
-        plot(data_struct.x_bins_centers(1:plot_every:end),  data_struct.MAP_a_mean(lambda_type, 1:plot_every:end, convention, 1),...
-            strcat('-', markers_list{convention}), 'color', color_sequence(convention, :), 'LineWidth', line_width, 'markers', marker_size);
-    end;
-    % True profile (theory)
-    h_theor = plot(data_struct.x_fine_mesh, data_struct.a_theor_fine_data, '--k', 'LineWidth', line_width);
-
-    %% Adjust
-    xlim(x_lim_vec);
-    ylim(y_lim_vec_profile);
-    box on;
     
-    xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-    if lambda_type == 1
-        ylabel('$\langle \hat a \rangle$', 'interpreter', 'latex');
-    end;
-    str_title = {'$\lambda^* = 0$', '$\lambda^* = 0.5$', '$\lambda^* = 1$', 'Random $\lambda^*$'};
-    title(str_title{lambda_type}, 'interpreter', 'latex');
-    % Subplot label
-    text(sublabel_x, sublabel_y, strcat('(', char('a' + lambda_type - 1), ')'), 'Units', 'Normalized', 'VerticalAlignment', 'Top');
-    
-    % Push theoretical curve back
-    uistack(h_theor, 'bottom');
-	
-	% Modify ticks
-	set(gca,'xtick', x_min:x_tick_increment:x_max);
-end;
+% end;
 
 
 %% Save figure
