@@ -16,12 +16,12 @@ output_filename = 'a_fail_rate.pdf';
 % Subplot parameters
 SH = 0.07;
 SV = 0.1;
-ML = 0.07;
-MR = 0.005;
+ML = 0.15;
+MR = 0.05;
 MT = 0.05;
 MB = 0.08;
 rows = 4;
-cols = 2;
+cols = 1;
 
 % Skip some bins
 plot_every = 1;
@@ -37,7 +37,7 @@ x_tick_increment = 0.2;
 %% Plot
 % Initalize plot
 h_fig = figure(fig_count);
-set_article_figure_size(h_fig, rows, 2, 1);
+set_article_figure_size(h_fig, rows, 1, 1);
 clf;
 % Initalize subplots
 subaxis(rows, cols, 1, 'SH', SH, 'SV', SV, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
