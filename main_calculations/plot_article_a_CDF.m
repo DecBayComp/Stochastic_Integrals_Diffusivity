@@ -1,13 +1,13 @@
 
 
 
-function plot_article_a_profile_in_bin(data_struct, trials_data, lambda_type, sel_x_over_L)
+function plot_article_a_CDF(data_struct, trials_data, lambda_type, sel_x_over_L)
 %% === Plot fD profile in one bin for each inference type ===
 
 
 %% Constants
 load_constants;
-a_steps = round(1 + 2^8);
+A_steps = round(1 + 2^7);
 factor = 8;
 y_factor = 1e3;
 output_filename = 'a_one_bin.pdf';
@@ -49,32 +49,59 @@ a_max = max(a_values);
 a_interval = a_max - a_min;
 a_min = a_min - a_interval * (factor-1)/2;
 a_max = a_max + a_interval * (factor-1)/2;
+
+% In the interval take the max. abs value
+A_max = max(abs([a_min, a_max]));
+
 % Prepare mesh
-a_step = (a_max - a_min) / (a_steps - 1);
-a_mesh = a_min:a_step:a_max;
+A_step = A_max / (A_steps - 1);
+A_mesh = 0:A_step:A_max;
+
 % Add most likely values
-a_mesh = sort([a_mesh, a_values]);
-a_mesh_length = length(a_mesh);
+A_mesh = sort([A_mesh, abs(a_values)]);
+A_mesh_length = length(A_mesh);
 
 
 
-%% Calculate PDF values on mesh
-a_data = zeros(conventions_count, a_mesh_length);
+%% Calculate CDF values on mesh
+A_data = zeros(conventions_count, A_mesh_length);
+
 % Oracle
-a_data(enum_conv_divine, :) = bin_a_divine_inference_posterior_func(cur_data_struct, ...
-    lambda, bin, a_mesh, bb_prime, 'forward');
-% Ito
-a_data(enum_conv_Ito, :) = bin_a_posterior_func (cur_data_struct, bin, a_mesh, 'forward');    
-% Stratonovich
-a_data(enum_conv_Stratonovich, :) = bin_a_simple_Stratonovich_posterior_func(cur_data_struct, ...
-            bin, a_mesh, bb_prime, 'forward');
-% Hanggi
-a_data(enum_conv_Hanggi, :) = bin_a_simple_Hanggi_posterior_func(cur_data_struct, ...
-    bin, a_mesh, bb_prime, 'forward');
-% Marginalized
-a_data(enum_conv_marginalized, :) = bin_a_lambda_marginalized_posterior_func(cur_data_struct, ...
-            bin, a_mesh, bb_prime, 'forward');
+pdf_wrap_func = @(a) bin_a_divine_inference_posterior_func(cur_data_struct, lambda, bin, a, bb_prime, 'forward');
+cdf_wrap_func = @(A) integral(pdf_wrap_func, -A, A, 'RelTol', REL_TOLERANCE,'AbsTol', ABS_TOLERANCE);
+for i = 1:A_mesh_length
+	A_data(enum_conv_divine, i) = 1 - cdf_wrap_func(A_mesh(i));
+end;
 
+% Ito
+pdf_wrap_func = @(a) bin_a_posterior_func (cur_data_struct, bin, a, 'forward');  
+cdf_wrap_func = @(A) integral(pdf_wrap_func, -A, A, 'RelTol', REL_TOLERANCE,'AbsTol', ABS_TOLERANCE);
+for i = 1:A_mesh_length
+	A_data(enum_conv_Ito, i) = 1 - cdf_wrap_func(A_mesh(i));
+end;
+
+% Stratonovich
+pdf_wrap_func = @(a) bin_a_simple_Stratonovich_posterior_func(cur_data_struct, bin, a, bb_prime, 'forward');
+cdf_wrap_func = @(A) integral(pdf_wrap_func, -A, A, 'RelTol', REL_TOLERANCE,'AbsTol', ABS_TOLERANCE);
+for i = 1:A_mesh_length
+	A_data(enum_conv_Stratonovich, i) = 1 - cdf_wrap_func(A_mesh(i));
+end;		
+
+% Hanggi
+pdf_wrap_func = @(a) bin_a_simple_Hanggi_posterior_func(cur_data_struct, bin, a, bb_prime, 'forward');
+cdf_wrap_func = @(A) integral(pdf_wrap_func, -A, A, 'RelTol', REL_TOLERANCE,'AbsTol', ABS_TOLERANCE);
+for i = 1:A_mesh_length
+	A_data(enum_conv_Hanggi, i) = 1 - cdf_wrap_func(A_mesh(i));
+end;
+
+% Marginalized
+pdf_wrap_func = @(a) bin_a_lambda_marginalized_posterior_func(cur_data_struct, bin, a, bb_prime, 'forward');
+cdf_wrap_func = @(A) integral(pdf_wrap_func, -A, A, 'RelTol', REL_TOLERANCE,'AbsTol', ABS_TOLERANCE);
+A_tmp = zeros(A_mesh_length, 1);
+parfor i = 1:A_mesh_length
+	A_tmp(i) = 1 - cdf_wrap_func(A_mesh(i));
+end;		
+A_data(enum_conv_marginalized, :) = A_tmp';
 		
         
 %% Plot
@@ -85,36 +112,36 @@ hold on;
 str_legend = {};
 % PDFs
 for convention = [enum_conv_Ito, enum_conv_Stratonovich, enum_conv_Hanggi, enum_conv_divine]
-    plot(a_mesh, a_data(convention, :), strcat('-', markers_list{convention}), 'color', color_sequence(convention, :),...
+    plot(A_mesh, A_data(convention, :), '-', 'color', color_sequence(convention, :),...
         'LineWidth', line_width, 'markers', marker_size);
     str_legend{length(str_legend) + 1} = conventions_names{convention};
 end
-plot(a_mesh, a_data(enum_conv_marginalized, :), '-', 'color', color_sequence(enum_conv_marginalized, :),...
-    'LineWidth', line_width+1, 'markers', marker_size);
+plot(A_mesh, A_data(enum_conv_marginalized, :), '-', 'color', color_sequence(enum_conv_marginalized, :),...
+     'LineWidth', line_width+1, 'markers', marker_size);
 str_legend{length(str_legend) + 1} = conventions_names{enum_conv_marginalized};
 
 % Exact value
-max_pdf = max(max(a_data));
-y_lim_vec = [0, max_pdf * 1.05];
+max_pdf = max(max(A_data));
+y_lim_vec = [0, 1];
 h_theor = plot(a_values(conventions_count + 1) .* [1, 1], y_lim_vec, '--k', 'LineWidth', line_width);
 
 %% Adjust
 % X limits
-indices = sum(a_data >= max_pdf / y_factor, 1);
-a_min = a_mesh(find(indices, 1, 'first'));
-a_max = a_mesh(find(indices, 1, 'last'));
+indices = sum(A_data >= max_pdf / y_factor, 1);
+a_min = A_mesh(find(indices, 1, 'first'));
+a_max = A_mesh(find(indices, 1, 'last'));
 x_lim_vec = [a_min, a_max];
 xlim(x_lim_vec);
 ylim(y_lim_vec);
 box on;
 
-xlabel('$a$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
-ylabel('PDF', 'interpreter', 'latex');
+xlabel('$A$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
+ylabel('$\mathrm{Pr}(|a|>A)$', 'interpreter', 'latex');
 title(sprintf('$x\\approx%.2f\\ \\mu \\mathrm{m}$, $\\lambda^* = %.2f$', selected_bins_centers, lambda), 'interpreter', 'latex');
 % Legend
 legend(str_legend, 'location', 'northeast', 'interpreter', 'latex', 'fontsize', legend_font_size);
 % Reorder curves
-uistack(h_theor, 'bottom');
+% uistack(h_theor, 'bottom');
 
 
 % % % %% Save figure

@@ -1,7 +1,7 @@
 
 
 
-function plot_article_mean_a_profile_and_fail_rate(data_struct, fig_count, bl_save_figures)
+function plot_article_mean_a_profile_and_fail_rate(data_struct, trials_data, fig_count, bl_save_figures)
 %% === Plot mean a profile for each inference type ===
 
 
@@ -77,6 +77,23 @@ lambda_type = 1;
 	
 	
 	
+	%% == (2): a profile in bin ==
+	selected_x_over_L = 0.4;
+	lambda_type = enum_lambda_rand;
+	
+	subaxis(2);
+	plot_article_a_profile_in_bin(data_struct, trials_data, lambda_type, selected_x_over_L);
+	
+	% Make pause to allow drawing
+	pause(0.1);
+	
+	
+	
+	%% == (3): CDF of force f >= F ==
+	subaxis(3);
+	plot_article_a_CDF(data_struct, trials_data, lambda_type, selected_x_over_L);
+	
+	
 % % % 	%% == (2): Mean bias plot ==
 % % %     subaxis(2);
 % % %     hold on;
@@ -110,41 +127,41 @@ lambda_type = 1;
 % % % 	text(sublabel_x, sublabel_y, 'B', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 	
 	
-	%% == (2): KS distance plot ==
-    subaxis(2);
-    hold on;
-    str_legend = {};
-    % Plot each inference conventions
-    for convention = 1:conventions_count
-        plot(data_struct.x_bins_centers(1:plot_every:end),  data_struct.UR_a(lambda_type, 1:plot_every:end, convention) * 100,...
-            strcat('-', markers_list{convention}), 'LineWidth', line_width, 'color', color_sequence(convention, :), 'markers', marker_size);
-        % Update legend
-        str_legend{end + 1} = conventions_names{convention};
-    end
-    % Confidence level (theory)
-    plot(x_lim_vec, x_lim_vec * 0 + (1 - CONF_LEVEL) * 100, 'k--', 'LineWidth', line_width);
-
-    %% Adjust
-    xlim(x_lim_vec);
-    ylim(y_lim_vec_FR);
-    box on;
-    
-    xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-    if lambda_type == 1
-        ylabel('Fail rate, \%', 'interpreter', 'latex');
-    end;
-    
-	% Subplot label
-	text(sublabel_x, sublabel_y, 'C', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
-    
-    % Legend
-    if lambda_type == 2
-        legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
-        legend boxon;
-    end;   
-	
-	% Modify ticks
-	set(gca,'xtick', x_min:x_tick_increment:x_max);
+% % % % % 	%% == (2): KS distance plot ==
+% % % % %     subaxis(2);
+% % % % %     hold on;
+% % % % %     str_legend = {};
+% % % % %     % Plot each inference conventions
+% % % % %     for convention = 1:conventions_count
+% % % % %         plot(data_struct.x_bins_centers(1:plot_every:end),  data_struct.UR_a(lambda_type, 1:plot_every:end, convention) * 100,...
+% % % % %             strcat('-', markers_list{convention}), 'LineWidth', line_width, 'color', color_sequence(convention, :), 'markers', marker_size);
+% % % % %         % Update legend
+% % % % %         str_legend{end + 1} = conventions_names{convention};
+% % % % %     end
+% % % % %     % Confidence level (theory)
+% % % % %     plot(x_lim_vec, x_lim_vec * 0 + (1 - CONF_LEVEL) * 100, 'k--', 'LineWidth', line_width);
+% % % % % 
+% % % % %     %% Adjust
+% % % % %     xlim(x_lim_vec);
+% % % % %     ylim(y_lim_vec_FR);
+% % % % %     box on;
+% % % % %     
+% % % % %     xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
+% % % % %     if lambda_type == 1
+% % % % %         ylabel('Fail rate, \%', 'interpreter', 'latex');
+% % % % %     end;
+% % % % %     
+% % % % % 	% Subplot label
+% % % % % 	text(sublabel_x, sublabel_y, 'C', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+% % % % %     
+% % % % %     % Legend
+% % % % %     if lambda_type == 2
+% % % % %         legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
+% % % % %         legend boxon;
+% % % % %     end;   
+% % % % % 	
+% % % % % 	% Modify ticks
+% % % % % 	set(gca,'xtick', x_min:x_tick_increment:x_max);
  
     
     
