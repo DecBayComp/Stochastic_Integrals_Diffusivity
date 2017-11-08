@@ -42,7 +42,7 @@ clf;
 % Initalize subplots
 subaxis(rows, cols, 1, 'SH', SH, 'SV', SV, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
 % for lambda_type = 1:lambda_types_count
-lambda_type = 1;
+lambda_type = enum_lambda_Hanggi;
     %% == (1): Profile plot ==
     subaxis(1);
     hold on;

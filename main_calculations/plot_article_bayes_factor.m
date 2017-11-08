@@ -10,11 +10,11 @@ load_constants;
 sublabel_x = 0.03;
 sublabel_y = 0.08;
 x_lim_vec = [x_min, x_max];
-y_lim_vec = [-10, 50];
+y_lim_vec = [-10, 45];
 y_lim_vec_profile = [-1, 1] * 0.18;
 output_filename = 'a_fail_rate.pdf';
 % Subplot parameters
-SH = 0.07;
+SH = 0.05;
 SV = 0.12;
 ML = 0.07;
 MR = 0.02;
@@ -32,6 +32,15 @@ sublabel_y = 1.12;
 
 x_tick_increment = 0.2;
 
+% Confidence zones
+CONF_LN_K_POSITIVE = [1; 3];
+CONF_LN_K_STRONG = [3; 5];
+CONF_LN_K_VERY_STRONG = [5; 100];
+
+% Set confidence zones colors
+i=3;
+conf_color_sequence = [my_colors(i).White; my_colors(i+1).White];
+% conf_color_sequence = [233, 243, 216; 234, 246, 255]/255;
 
 
 %% Load data
@@ -66,7 +75,7 @@ for lambda_type = 1:lambda_types_count
 	x_lim_vec = xlim();
 
 	% Theory
-	plot(x_lim_vec, [0,0], 'k--', 'linewidth', line_width_theor);
+	h_theor = plot(x_lim_vec, [0,0], 'k--', 'linewidth', line_width_theor);
 
 	% Adjust
 	ylim(y_lim_vec);
@@ -79,17 +88,64 @@ for lambda_type = 1:lambda_types_count
 
 	% Axes labels
 	xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-	ylabel('Bayes factor $\ln \langle K \rangle$', 'interpreter', 'latex');
+	if mod(lambda_type, 2)
+		ylabel('Bayes factor $\ln \langle K \rangle$', 'interpreter', 'latex');
+	end;
 
 	% Title
-	str_title = strcat(lambda_types_tex_names{lambda_type}, ' simulation');
+	str_title = sprintf('%s simulation', lambda_types_tex_names{lambda_type});
 	title(str_title, 'interpreter', 'latex');
+	
+	% Legend
+	if lambda_type == 2
+		legend(str_legend, 'location', 'north');
+	end;
+	
+	% Add confidence zones
+	x_lim_vec = xlim();
+	
+	%% Positive evidence
+	rect = [x_lim_vec(1), CONF_LN_K_POSITIVE(1), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_POSITIVE(2) - CONF_LN_K_POSITIVE(1)];
+	% Color the zone
+ 	h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', conf_color_sequence(1, :));
+	% Send the zone behind all
+	uistack(h_rec, 'bottom');
+	
+	rect = [x_lim_vec(1), -CONF_LN_K_POSITIVE(2), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_POSITIVE(2) - CONF_LN_K_POSITIVE(1)];
+	% Color the zone
+ 	h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', conf_color_sequence(1, :));
+	% Send the zone behind all
+	uistack(h_rec, 'bottom');
+	
+	%% Strong & very strong evidence
+	rect = [x_lim_vec(1), CONF_LN_K_STRONG(1), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_VERY_STRONG(2) - CONF_LN_K_STRONG(1)];
+	% Color the zone
+ 	h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', conf_color_sequence(2, :));
+	% Send the zone behind all
+	uistack(h_rec, 'bottom');
+	
+	rect = [x_lim_vec(1), -CONF_LN_K_VERY_STRONG(2), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_VERY_STRONG(2) - CONF_LN_K_STRONG(1)];
+	% Color the zone
+ 	h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', conf_color_sequence(2, :));
+	% Send the zone behind all
+	uistack(h_rec, 'bottom');
+	
+% % % 	%% Very strong evidence
+% % % 	rect = [x_lim_vec(1), CONF_LN_K_VERY_STRONG(1), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_VERY_STRONG(2) - CONF_LN_K_VERY_STRONG(1)];
+% % % 	% Color the zone
+% % %  	h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', conf_color_sequence(3, :));
+% % % 	% Send the zone behind all
+% % % 	uistack(h_rec, 'bottom');
+	
+	% Push theory back
+	uistack(h_theor, 'bottom');
+	
+	% Put axes on top
+	set(gca, 'Layer', 'top');
 
 end;
 
-% Add legend
-subaxis(1);
-legend(str_legend, 'location', 'northwest');
+
 
 
 % % %     %% == (1): Profile plot ==
