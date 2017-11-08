@@ -121,7 +121,8 @@ parfor trial = 1:trials  % 765
     %% Initialize
     % Initialize the data structure
     data_struct = initialize_data_structure(x_bins_number, fine_mesh_steps_count, conventions_count, lambda_types_count);
-    data_struct.x_bins_centers = x_bins_centers;
+    data_struct.x_bins_number = x_bins_number;
+	data_struct.x_bins_centers = x_bins_centers;
     data_struct.x_bins_widths = x_bins_widths;
 	data_struct.x_bins_borders = x_bins_borders;
     data_struct.lambda = trials_lambdas(trial);
