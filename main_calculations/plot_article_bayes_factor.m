@@ -10,17 +10,17 @@ load_constants;
 sublabel_x = 0.03;
 sublabel_y = 0.08;
 x_lim_vec = [x_min, x_max];
-y_lim_vec_FR = [-2, 102];
+y_lim_vec = [-10, 50];
 y_lim_vec_profile = [-1, 1] * 0.18;
 output_filename = 'a_fail_rate.pdf';
 % Subplot parameters
 SH = 0.07;
-SV = 0.1;
-ML = 0.15;
-MR = 0.05;
-MT = 0.1;
-MB = 0.15;
-rows = 1;
+SV = 0.12;
+ML = 0.07;
+MR = 0.02;
+MT = 0.07;
+MB = 0.1;
+rows = 2;
 cols = 2;
 
 % Skip some bins
@@ -28,9 +28,16 @@ plot_every = 1;
 
 % Label params
 sublabel_x = 0.015;
-sublabel_y = 1.2;
+sublabel_y = 1.12;
 
 x_tick_increment = 0.2;
+
+
+
+%% Load data
+log_K_mean = data_struct.log_K_mean;
+x_bins_centers = data_struct.x_bins_centers;
+x_bins_number = length(x_bins_centers);
 
 
 
@@ -39,14 +46,50 @@ x_tick_increment = 0.2;
 h_fig = figure(fig_count);
 set_article_figure_size(h_fig, rows, 2, 1);
 clf;
+
 % Initalize subplots
 subaxis(rows, cols, 1, 'SH', SH, 'SV', SV, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
 % for lambda_type = 1:lambda_types_count
 
 % Choose simulation type
-lambda_type = enum_lambda_Ito;
+for lambda_type = 1:lambda_types_count
 
+	% Plot
+	subaxis(lambda_type);
+	hold on;
+	str_legend = {};
+	for convention = 1:conventions_count
+		plot(x_bins_centers, log_K_mean(lambda_type, :, convention), strcat('-', markers_list{convention}), 'linewidth', line_width,...
+			'color', color_sequence(convention, :), 'markers', marker_size);
+		str_legend{length(str_legend) + 1} = conventions_names{convention};
+	end;
+	x_lim_vec = xlim();
 
+	% Theory
+	plot(x_lim_vec, [0,0], 'k--', 'linewidth', line_width_theor);
+
+	% Adjust
+	ylim(y_lim_vec);
+
+	% Subplot label
+	text(sublabel_x, sublabel_y, char('A' + lambda_type - 1), 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+
+	% Modify ticks
+	set(gca,'xtick', x_min:x_tick_increment:x_max);
+
+	% Axes labels
+	xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
+	ylabel('Bayes factor $\ln \langle K \rangle$', 'interpreter', 'latex');
+
+	% Title
+	str_title = strcat(lambda_types_tex_names{lambda_type}, ' simulation');
+	title(str_title, 'interpreter', 'latex');
+
+end;
+
+% Add legend
+subaxis(1);
+legend(str_legend, 'location', 'northwest');
 
 
 % % %     %% == (1): Profile plot ==

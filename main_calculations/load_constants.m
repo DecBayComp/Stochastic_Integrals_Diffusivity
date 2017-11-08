@@ -114,6 +114,7 @@ enum_lambda_Hanggi = 3;
 enum_lambda_rand = 4;
 lambda_types_count = 4;
 lambda_types_names = {'Ito', 'Str', 'Hng', 'rnd'};
+lambda_types_tex_names = {'It\^o', 'Stratonovich', 'H\"anggi', 'Random'};
 lambda_ind_for_KS_plot = 3;
 
 
