@@ -1,8 +1,8 @@
+%% Plot Bayes factor profile for each simulation and inference model combination
 
 
+function plot_article_bayes_factor(data_struct, trials_data, fig_count, bl_save_figures)
 
-function plot_article_mean_a_profile_and_fail_rate(data_struct, trials_data, fig_count, bl_save_figures)
-%% === Plot mean a profile for each inference type ===
 
 
 %% Constants
@@ -42,47 +42,53 @@ clf;
 % Initalize subplots
 subaxis(rows, cols, 1, 'SH', SH, 'SV', SV, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
 % for lambda_type = 1:lambda_types_count
-lambda_type = 1;
-    %% == (1): Profile plot ==
-    subaxis(1);
-    hold on;
-    % Plot each convention
-    for convention = 1:conventions_count
-        plot(data_struct.x_bins_centers(1:plot_every:end),  data_struct.MAP_a_mean(lambda_type, 1:plot_every:end, convention, 1),...
-            strcat('-', markers_list{convention}), 'color', color_sequence(convention, :), 'LineWidth', line_width, 'markers', marker_size);
-    end;
-    % True profile (theory)
-    h_theor = plot(data_struct.x_fine_mesh, data_struct.a_theor_fine_data, '--k', 'LineWidth', line_width);
 
-    %% Adjust
-    xlim(x_lim_vec);
-    ylim(y_lim_vec_profile);
-    box on;
-    
-    xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-    if lambda_type == 1
-        ylabel('$\langle \hat a \rangle$', 'interpreter', 'latex');
-    end;
-    str_title = {'$\lambda^* = 0$', '$\lambda^* = 0.5$', '$\lambda^* = 1$', 'Random $\lambda^*$'};
-%     title(str_title{lambda_type}, 'interpreter', 'latex');
+% Choose simulation type
+lambda_type = enum_lambda_Ito;
 
-	% Subplot label
-	text(sublabel_x, sublabel_y, 'A', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
-    
-    % Push theoretical curve back
-    uistack(h_theor, 'bottom');
+
+
+
+% % %     %% == (1): Profile plot ==
+% % %     subaxis(1);
+% % %     hold on;
+% % %     % Plot each convention
+% % %     for convention = 1:conventions_count
+% % %         plot(data_struct.x_bins_centers(1:plot_every:end),  data_struct.MAP_a_mean(lambda_type, 1:plot_every:end, convention, 1),...
+% % %             strcat('-', markers_list{convention}), 'color', color_sequence(convention, :), 'LineWidth', line_width, 'markers', marker_size);
+% % %     end;
+% % %     % True profile (theory)
+% % %     h_theor = plot(data_struct.x_fine_mesh, data_struct.a_theor_fine_data, '--k', 'LineWidth', line_width);
+% % % 
+% % %     %% Adjust
+% % %     xlim(x_lim_vec);
+% % %     ylim(y_lim_vec_profile);
+% % %     box on;
+% % %     
+% % %     xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
+% % %     if lambda_type == 1
+% % %         ylabel('$\langle \hat a \rangle$', 'interpreter', 'latex');
+% % %     end;
+% % %     str_title = {'$\lambda^* = 0$', '$\lambda^* = 0.5$', '$\lambda^* = 1$', 'Random $\lambda^*$'};
+% % % %     title(str_title{lambda_type}, 'interpreter', 'latex');
+% % % 
+% % % 	% Subplot label
+% % % 	text(sublabel_x, sublabel_y, 'A', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+% % %     
+% % %     % Push theoretical curve back
+% % %     uistack(h_theor, 'bottom');
+% % % 	
+% % % 	% Modify ticks
+% % % 	set(gca,'xtick', x_min:x_tick_increment:x_max);
 	
-	% Modify ticks
-	set(gca,'xtick', x_min:x_tick_increment:x_max);
 	
 	
-	
-	%% == (2): a profile in bin ==
-	selected_x_over_L = 0.4;
-	lambda_type = enum_lambda_rand;
-	
-	subaxis(2);
-	plot_article_a_profile_in_bin(data_struct, trials_data, lambda_type, selected_x_over_L);
+% % % 	%% == (2): a profile in bin ==
+% % % 	selected_x_over_L = 0.4;
+% % % 	lambda_type = enum_lambda_rand;
+% % % 	
+% % % 	subaxis(2);
+% % % 	plot_article_a_profile_in_bin(data_struct, trials_data, lambda_type, selected_x_over_L);
 	
 % 	% Make pause to allow drawing
 % 	pause(0.1);

@@ -347,7 +347,8 @@ trials_MAP_b = zeros(trials, x_bins_number, 4);
 trials_MAP_a = zeros(trials, x_bins_number, conventions_count, 4);
 trials_MAP_bb_prime_regular_interp = zeros(trials, x_bins_number);
 trials_n_j = zeros(trials, x_bins_number);
-for trial = 1:trials
+trials_log_K = zeros(trials, x_bins_number, conventions_count);
+parfor trial = 1:trials
     % D
     trials_MAP_D(trial, :, :) = trials_data{trial}.MAP_D(:, :);
 	% b
@@ -358,12 +359,16 @@ for trial = 1:trials
     trials_MAP_bb_prime_regular_interp(trial, :) = trials_data{trial}.MAP_bb_prime_regular_interp;
 	% n_j
 	trials_n_j(trial, :) = trials_data{trial}.n_j;
+	% Calculate the Bayes factors K
+	fprintf('Calculating the Bayes factor for trial %i/%i\n', trial, trials);
+	trials_log_K(trial, :, :) = calculate_bayes_factor(trials_data{trial})';
 end;
 % Save
 data_struct.trials_MAP_D = trials_MAP_D;
 data_struct.trials_MAP_b = trials_MAP_b;
 data_struct.trials_MAP_a = trials_MAP_a;
 data_struct.trials_MAP_bb_prime_regular_interp = trials_MAP_bb_prime_regular_interp;
+data_struct.trials_log_K = trials_log_K;
 
 
 
@@ -377,6 +382,7 @@ data_struct.trials_b_KS_distance = trials_b_KS_distance;
 
 %% Calculate mean for each simulation type separately
 %% Also calculate the fail rate for each simulation type
+% Initialize arrays
 MAP_D_mean = zeros(lambda_types_count, x_bins_number, 4);
 MAP_b_mean = zeros(lambda_types_count, x_bins_number, 4);
 MAP_a_mean = zeros(lambda_types_count, x_bins_number, conventions_count, 4);
@@ -386,21 +392,29 @@ UR_a = zeros(lambda_types_count, x_bins_number, conventions_count);
 outside_count_a = zeros(lambda_types_count, x_bins_number, conventions_count);
 n_j_mean = zeros(lambda_types_count, x_bins_number);
 b_KS_distance_mean = zeros(lambda_types_count, x_bins_number);
+log_K_mean = zeros(lambda_types_count, x_bins_number, conventions_count);
+
 for lambda_type = 1:lambda_types_count
     % Mean
     MAP_D_mean(lambda_type, :, :) = mean(trials_MAP_D(trial_simulation_type == lambda_type, :, :), 1, 'omitnan' );
 	MAP_b_mean(lambda_type, :, :) = mean(trials_MAP_b(trial_simulation_type == lambda_type, :, :), 1, 'omitnan' );
     MAP_a_mean(lambda_type, :, :, :) = mean(trials_MAP_a(trial_simulation_type == lambda_type, :, :, :), 1, 'omitnan' );
     MAP_bb_prime_regular_interp_mean(lambda_type, :) = mean(trials_MAP_bb_prime_regular_interp(trial_simulation_type == lambda_type, :), 1, 'omitnan' );
+	
 	% n_j
 	n_j_mean(lambda_type, :, :) = mean(trials_n_j(trial_simulation_type == lambda_type, :), 1, 'omitnan' );
-    % Fail rate
-    % b
+        
+	% Fail rate b
     UR_b(lambda_type, :) = mean(double(trials_MAP_b(trial_simulation_type == lambda_type, :, 4) > CONF_LEVEL), 1, 'omitnan' );
-    % a
+    
+	% Fail rate a
     UR_a(lambda_type, :, :) = mean(double(trials_MAP_a(trial_simulation_type == lambda_type, :, :, 4) > CONF_LEVEL), 1, 'omitnan' );
+	
 	% Kolmogorov-Smirnov distance for b
 	b_KS_distance_mean(lambda_type, :) = mean(trials_b_KS_distance(trial_simulation_type == lambda_type, :), 1, 'omitnan');
+	
+	% Bayes factor K
+	log_K_mean(lambda_type, :, :) = log(mean(exp(trials_log_K(trial_simulation_type == lambda_type, :, :)), 1, 'omitnan' ));
 end;
 
 % Save
@@ -413,6 +427,8 @@ data_struct.MAP_bb_prime_regular_interp_mean = MAP_bb_prime_regular_interp_mean;
 data_struct.UR_b = UR_b;
 data_struct.UR_a = UR_a;
 data_struct.n_j_mean = n_j_mean;
+data_struct.log_K_mean = log_K_mean;
+
 
 
 %% Calculate mean and average fail rate of each inference convention
