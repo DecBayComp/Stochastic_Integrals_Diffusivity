@@ -58,7 +58,7 @@ bin_color = my_colors(3).White;
 
 output_figures_folder = './figures_for_article/';
 output_data_folder = './processed_data/';
-input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_with_force/';  % Ubuntu
+input_data_folder = '/home/aserov/Documents/Calculated_data/two_forces/';  % Ubuntu
 % input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_no_force/';  % Ubuntu
 % input_data_folder = '/Users/alexander_serov/Calculations_data/ito-stratonovich/'; % Mac
 fail_rates_filename = 'Fail_rates.dat';
@@ -69,12 +69,12 @@ bl_save_data = true;
 
 
 max_D_case_number = 6;
-max_f_case_number = 7;
+max_f_case_number = 8;
 
 
 %% Plotting results for the article
 selected_D_case = 6;
-selected_f_case = 7;
+selected_f_case = 8;
 
 
 %% Choosing the boundary conditions

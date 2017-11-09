@@ -6,6 +6,7 @@ function [D_func_value, D_prime_func_value, D_scnd_der_func_value, D_antider_val
 %% Iniitialize
 D_scnd_der_func_value = zeros('like', x);
 D_antider_func = @(x) NaN .* x;
+D_0 = 1/25/pi;  % 1e-2;	% um^2/s
 
 
 %% Select function
@@ -46,7 +47,6 @@ switch D_case_number
         D_func_local = @(x) D_shift + D_slope * x/L;
         D_prime_func = @(x) D_slope * 1.0/L;
 	case 6 % Oscillating
-        D_0 = 1e-2;	% um^2/s
         w = 10.0;	% um^(-1)
         D_func_local = @(x) D_0/2.0 * (2 + sin(pi * w * x));
         D_prime_func = @(x) D_0/2.0 * pi * w * cos(pi * w * x);
