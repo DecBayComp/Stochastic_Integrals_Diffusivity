@@ -1,9 +1,16 @@
 ## The function defines local force in fN
 
+## Import
+import numpy as np
+	
 
 def f_func(f_case_number, x, L):
+
+
 	## Local constans (set force to zero for a check)
 	f_shift_7 = 10.0 * 0.0
+	f_weak = 40.0	# fN
+	f_strong = -120.0	# fN
 
 
 	## Select f function
@@ -31,6 +38,9 @@ def f_func(f_case_number, x, L):
 		elif f_case_number == 7: # Constant
 			f_shift = f_shift_7
 			return f_shift +  0.0 * x	
+		elif f_case_number == 8: # Two constants
+			x_over_L = np.array(x/L)
+			return f_weak * (x_over_L <= 0) + f_strong * (x_over_L > 0)
 
 	## Select U function: f(x) = - grad U(x)
 	def U_func(x):
@@ -56,7 +66,10 @@ def f_func(f_case_number, x, L):
 			return - f_shift * x - f_slope/L * x**2.0 / 2.0
 		elif f_case_number == 7: # Constant
 			f_shift = f_shift_7
-			return - f_shift * x		
+			return - f_shift * x	
+		elif f_case_number == 8: # Two constants
+			x_over_L = np.array(x/L)	
+			return - f_weak * x_over_L * (x_over_L <= 0) - f_strong * x_over_L * (x_over_L > 0)
 
 
 	## Calculate the result

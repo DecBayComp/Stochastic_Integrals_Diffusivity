@@ -2,7 +2,7 @@
 
 
 ## Constants
-version = 1.01
+version = 20171109
 lambda_array = [0.0, 0.5, 1.0]
 lambda_count = len(lambda_array)
 
@@ -49,7 +49,7 @@ CSV_DELIMITER = ';';
 
 
 max_D_case = 6;
-max_f_case = 7;
+max_f_case = 8;
 
 
 # %% Choosing the boundary conditions
