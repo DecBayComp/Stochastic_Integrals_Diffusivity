@@ -23,7 +23,7 @@ def D_func(D_case_number, x, L):
 		
 		# Linear
 		elif D_case_number == 2:
-			return D_0 + k * (x/L )
+			return D_0 * (1 + k * x/L)
 		
 		# Diffusivity jump
 		elif D_case_number == 3:
@@ -56,7 +56,7 @@ def D_func(D_case_number, x, L):
 		# Linear
 		elif D_case_number == 2:
 			return D_0 * k / L
-			
+
 		elif D_case_number == 3:
 			D_min = 1.0
 			D_max = 2.0

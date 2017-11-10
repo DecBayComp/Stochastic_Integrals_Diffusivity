@@ -73,7 +73,7 @@ max_f_case_number = 8;
 
 
 %% Plotting results for the article
-selected_D_case = 6;
+selected_D_case = 2;
 selected_f_case = 8;
 
 
