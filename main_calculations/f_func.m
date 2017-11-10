@@ -4,8 +4,8 @@ function [f_func_value, U_func_value] = f_func (f_case_number, x, L)
 
 %% Constants
 f_shift_7 = 10.0;
-f_weak = 40.0;	% fN
-f_strong = -120.0;	% fN
+f_weak = 3.0;	% fN
+f_strong = -10.0;	% fN
 
 
 %% Select function

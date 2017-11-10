@@ -10,17 +10,22 @@ def D_func(D_case_number, x, L):
 	## Local constants
 	D_0 = 1.0e-2	# in um^2/s
 	w = 1.0	# in um^-1
+	k = 1.0 # in um^-1
 
 	## Select f function
 	def D_func_local(x):
+		
+		# Parabolic
 		if D_case_number == 1:
 			D_min = 1.0
 			D_max = 2.0
 			return D_min + (D_max - D_min) * (2.0*x/L)**2
+		
+		# Linear
 		elif D_case_number == 2:
-			D_min = 1.0
-			D_max = 2.0
-			return D_min + (x/L + 0.5) * (D_max - D_min)
+			return D_0 + k * (x/L )
+		
+		# Diffusivity jump
 		elif D_case_number == 3:
 			D_min = 1.0
 			D_max = 2.0
@@ -47,10 +52,11 @@ def D_func(D_case_number, x, L):
 			D_min = 1.0
 			D_max = 2.0
 			return (D_max - D_min) * 8.0 * x / L**2
+		
+		# Linear
 		elif D_case_number == 2:
-			D_min = 1.0
-			D_max = 2.0
-			return (D_max - D_min)/L
+			return D_0 * k / L
+			
 		elif D_case_number == 3:
 			D_min = 1.0
 			D_max = 2.0
