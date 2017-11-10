@@ -8,7 +8,7 @@ D_scnd_der_func_value = zeros('like', x);
 D_antider_func = @(x) NaN .* x;
 D_0 = 1e-2;	% um^2/s
 w = 1.0;	% um^(-1)
-k = 1.0;	% um^(-1)
+k = 1.5;	% um^(-1)
 
 
 %% Select function
@@ -22,7 +22,7 @@ switch D_case_number
 %         D_func_local = @(x) D_min + 0.*x;
 %         D_prime_func = @(x) 0.*x;
         
-    case 2 % Linear D
+    case 2 % Linear D (with k)
         D_func_local = @(x) D_0 * (1 + k * x/L);
         D_prime_func = @(x) D_0 * k / L;  
     
