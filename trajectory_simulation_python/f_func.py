@@ -9,8 +9,8 @@ def f_func(f_case_number, x, L):
 
 	## Local constans (set force to zero for a check)
 	f_shift_7 = 10.0 * 0.0
-	f_weak = 40.0	# fN
-	f_strong = -120.0	# fN
+	f_weak = 3.0	# fN
+	f_strong = -10.0	# fN
 
 
 	## Select f function

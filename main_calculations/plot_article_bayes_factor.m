@@ -1,7 +1,7 @@
 %% Plot Bayes factor profile for each simulation and inference model combination
 
 
-function plot_article_bayes_factor(data_struct, trials_data, fig_count, bl_save_figures)
+function plot_article_bayes_factor(data_struct, fig_count, bl_save_figures)
 
 
 
@@ -10,7 +10,7 @@ load_constants;
 sublabel_x = 0.03;
 sublabel_y = 0.08;
 x_lim_vec = [x_min, x_max];
-y_lim_vec = [-10, 45];
+y_lim_vec = 'auto'; % [-10, 45];
 y_lim_vec_profile = [-1, 1] * 0.18;
 output_filename = 'a_fail_rate.pdf';
 % Subplot parameters

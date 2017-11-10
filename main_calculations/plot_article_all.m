@@ -49,6 +49,11 @@ fig_count = fig_count + 1;
 plot_article_mean_a_profile_and_fail_rate(data_struct, trials_data, fig_count, bl_save_figures);
 
 
+%% === Plot Bayes factor ===
+fig_count = fig_count + 1; 
+plot_article_bayes_factor(data_struct, fig_count, bl_save_figures)
+
+
 %% === Plot fD bias as a function fo the gradient ===
 fig_count = fig_count + 1; 
 plot_article_a_bias(data_struct, fig_count, bl_save_figures);

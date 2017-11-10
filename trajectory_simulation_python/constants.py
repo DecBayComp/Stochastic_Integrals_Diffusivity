@@ -8,7 +8,7 @@ lambda_count = len(lambda_array)
 
 
 # % m = 1;
-kBT = 1.0
+# kBT = 1.0
 L = 1.0	# in um
 x_min = -L/2.0	# in um
 x_max = L/2.0	# in um

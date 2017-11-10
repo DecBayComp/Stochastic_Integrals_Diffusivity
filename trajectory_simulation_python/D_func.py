@@ -8,7 +8,8 @@ import numpy as np
 def D_func(D_case_number, x, L):
 
 	## Local constants
-	D_0 = 1.0 / 25.0 / np.pi	# in um^2/s
+	D_0 = 1.0e-2	# in um^2/s
+	w = 1.0	# in um^-1
 
 	## Select f function
 	def D_func_local(x):
@@ -36,7 +37,6 @@ def D_func(D_case_number, x, L):
 			D_slope = 1.0
 			return D_shift + D_slope * x/float(L)
 		elif D_case_number == 6: # Oscillating
-			w = 10.0	# in um^-1
 			return D_0/2.0 * (2 + np.sin(np.pi * w * x))
 			
 
@@ -67,7 +67,6 @@ def D_func(D_case_number, x, L):
 			D_slope = 1.0
 			return D_slope * 1.0 / float(L)
 		elif D_case_number == 6: # Oscillating
-			w = 10.0	# in um^-1
 			return D_0/2.0 * np.pi * w * np.cos(np.pi * w * x)
 
 
