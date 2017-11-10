@@ -68,7 +68,7 @@ plot(x_mesh, a_data, '-o', 'LineWidth', 2,...
     'MarkerIndices', 1:marker_step:x_mesh_length);
 
 % Adjust
-ylim([min(a_data), max(a_data)]);
+ylim([0, max(a_data)]);
 box on;
 grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
