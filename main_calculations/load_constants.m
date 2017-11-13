@@ -58,7 +58,7 @@ bin_color = my_colors(3).White;
 
 output_figures_folder = './figures_for_article/';
 output_data_folder = './processed_data/';
-input_data_folder = '/home/aserov/Documents/Calculated_data/two_forces/';  % Ubuntu
+input_data_folder = '/home/aserov/Documents/Calculated_data/two_forces_2/';  % Ubuntu
 % input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_no_force/';  % Ubuntu
 % input_data_folder = '/Users/alexander_serov/Calculations_data/ito-stratonovich/'; % Mac
 fail_rates_filename = 'Fail_rates.dat';

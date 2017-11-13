@@ -24,7 +24,10 @@ switch D_case_number
         
     case 2 % Linear D (with k)
         D_func_local = @(x) D_0 * (1 + k * x/L);
-        D_prime_func = @(x) D_0 * k / L;  
+        D_prime_func = @(x) D_0 * k / L * ones(size(x));  
+		D_scnd_der_func = @(x) zeros(size(x));  
+        D_antider_func = @(x) D_0 * (x/L + k * (x/L).^2);
+		D_scnd_der_func_value = D_scnd_der_func(x);
     
     case 3 % Discontinuity in D
         D_min = 1;
