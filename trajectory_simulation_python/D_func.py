@@ -8,7 +8,7 @@ import numpy as np
 def D_func(D_case_number, x, L):
 
 	## Local constants
-	D_0 = 1.0e-2	# in um^2/s
+	D_0 = 0.01	# in um^2/s
 	w = 1.0	# in um^-1
 	k = 5.0 # in um^-1
 
@@ -23,7 +23,7 @@ def D_func(D_case_number, x, L):
 		
 		# Linear
 		elif D_case_number == 2:
-			return D_0 * (1 + k * x/L)
+			return D_0 * (1.0 + k * (x + L/2.0))
 		
 		# Diffusivity jump
 		elif D_case_number == 3:
@@ -42,7 +42,7 @@ def D_func(D_case_number, x, L):
 			D_slope = 1.0
 			return D_shift + D_slope * x/float(L)
 		elif D_case_number == 6: # Oscillating
-			return D_0/2.0 * (2 + np.sin(np.pi * w * x))
+			return D_0/2.0 * (2.0 + np.sin(np.pi * w * x))
 			
 
 
@@ -55,7 +55,7 @@ def D_func(D_case_number, x, L):
 		
 		# Linear
 		elif D_case_number == 2:
-			return D_0 * k / L
+			return D_0 * k
 
 		elif D_case_number == 3:
 			D_min = 1.0

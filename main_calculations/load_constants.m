@@ -5,12 +5,12 @@ kBT = 1;	% change to 4.14 * 10^(-21) J
 L = 1;	% in um
 x_min = -L/2;
 x_max = L/2;
-gamma_drag = 400;	% viscous drag, in fN * s / um
+gamma_drag = 40.0;	% viscous drag, in fN * s / um
 % % L = x_max - x_min;
 % bl_periodic = true;
 % T = 100000;
-t_step = 1e-2;   % L^2 / D_max / 100 = 10 / 1 / 100 = 0.1
-N = 1e4;        % Times the system was explored: (N*t_step) / (L^2 / D_max) = N*t_step*D_max/L^2 = 1e4*0.1*1/100 = 10   OK
+t_step = 0.1;   % L^2 / D_max / 100 = 10 / 1 / 100 = 0.1
+N = 1e5;        % Times the system was explored: (N*t_step) / (L^2 / D_max) = N*t_step*D_max/L^2 = 1e4*0.1*1/100 = 10   OK
 T = t_step * N;
 internal_steps_number = 100;    % Integer. How many intermediate smaller steps are made before the next point is saved
 update_progress_every = 100;
@@ -31,7 +31,7 @@ w = 10;
 
 
 %% Binning
-points_in_bin_avg = 100;
+points_in_bin_avg = 1000;
 min_bin_to_jump_ratio = 2;	% require a bin to be at least several times larger than the mean jump in it. This corresponds to a 61% probability to stay in bin after jump
 
 
