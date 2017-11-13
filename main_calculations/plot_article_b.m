@@ -109,7 +109,7 @@ clf;
 
 %% == (A): Plot diffusivity profile ==
 % Constants
-y_lim_vec_A = [0.095, 0.18];
+y_lim_vec_A = [0.095, 0.2];
 
 % Initialize subplot
 h_sub = subaxis(rows, cols, 1, 'SH', SH, 'SV', SV, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
@@ -136,7 +136,7 @@ h_mean_theor = plot(data_struct.x_bins_centers, b_true_avg, '--k', 'LineWidth', 
 
 % Adjust plot
 xlim(x_lim_vec);
-ylim(y_lim_vec_A);
+% ylim(y_lim_vec_A);
 box on;
 grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
