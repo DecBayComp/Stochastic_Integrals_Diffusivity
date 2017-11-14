@@ -32,6 +32,8 @@ sublabel_y = 1.2;
 
 x_tick_increment = 0.2;
 
+selected_x_over_L = -0.25;
+
 
 
 %% Plot
@@ -78,8 +80,7 @@ lambda_type = enum_lambda_Hanggi;
 	
 	
 	%% == (2): a profile in bin ==
-	selected_x_over_L = 0.4;
-	lambda_type = enum_lambda_rand;
+	lambda_type = enum_lambda_Ito;
 	
 	subaxis(2);
 	plot_article_a_profile_in_bin(data_struct, trials_data, lambda_type, selected_x_over_L);

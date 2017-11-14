@@ -3,7 +3,7 @@
 # Sbatch options
 #SBATCH --qos=fast
 #SBATCH --cpus-per-task=1 
-#SBATCH --mem-per-cpu=50MB
+#SBATCH --mem-per-cpu=100MB
 
 # Constants
 logs_folder="./logs/"

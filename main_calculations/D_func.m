@@ -7,8 +7,9 @@ function [D_func_value, D_prime_func_value, D_scnd_der_func_value, D_antider_val
 D_scnd_der_func_value = zeros('like', x);
 D_antider_func = @(x) NaN .* x;
 D_0 = 0.01;	% um^2/s
+k = 0.5;	% um^(-1)
+
 w = 1.0;	% um^(-1)
-k = 5.0;	% um^(-1)
 
 
 %% Select function

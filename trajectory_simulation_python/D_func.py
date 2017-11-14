@@ -9,8 +9,9 @@ def D_func(D_case_number, x, L):
 
 	## Local constants
 	D_0 = 0.01	# in um^2/s
+	k = 0.5 # in um^-1
+
 	w = 1.0	# in um^-1
-	k = 5.0 # in um^-1
 
 	## Select f function
 	def D_func_local(x):

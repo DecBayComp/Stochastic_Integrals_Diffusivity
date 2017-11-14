@@ -38,8 +38,8 @@ CONF_LN_K_STRONG = [3; 5];
 CONF_LN_K_VERY_STRONG = [5; 100];
 
 % Set confidence zones colors
-% i=3;
-conf_color_sequence = [my_colors(3).White];
+i=3;
+conf_color_sequence = [my_colors(i).White; my_colors(i+1).White; my_colors(i+2).White];
 % conf_color_sequence = [233, 243, 216; 234, 246, 255]/255;
 
 
@@ -75,7 +75,7 @@ for lambda_type = 1:lambda_types_count
 	x_lim_vec = xlim();
 
 	% Theory
-	h_theor = plot(x_lim_vec, [0,0], 'k--', 'linewidth', line_width_theor);
+% 	h_theor = plot(x_lim_vec, [0,0], 'k--', 'linewidth', line_width_theor);
 
 	% Adjust
 	ylim(y_lim_vec);
@@ -104,38 +104,66 @@ for lambda_type = 1:lambda_types_count
 	% Add confidence zones
 	x_lim_vec = xlim();
 	
-% % % 	%% Positive evidence
-% % % 	rect = [x_lim_vec(1), CONF_LN_K_POSITIVE(1), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_POSITIVE(2) - CONF_LN_K_POSITIVE(1)];
-% % % 	% Color the zone
-% % %  	h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', conf_color_sequence(1, :));
-% % % 	% Send the zone behind all
-% % % 	uistack(h_rec, 'bottom');
-% % % 	
-% % % 	rect = [x_lim_vec(1), -CONF_LN_K_POSITIVE(2), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_POSITIVE(2) - CONF_LN_K_POSITIVE(1)];
-% % % 	% Color the zone
-% % %  	h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', conf_color_sequence(1, :));
-% % % 	% Send the zone behind all
-% % % 	uistack(h_rec, 'bottom');
-	
-% % % 	%% Strong & very strong evidence
-% % % 	rect = [x_lim_vec(1), CONF_LN_K_STRONG(1), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_VERY_STRONG(2) - CONF_LN_K_STRONG(1)];
-% % % 	% Color the zone
-% % %  	h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', conf_color_sequence(1, :));
-% % % 	% Send the zone behind all
-% % % 	uistack(h_rec, 'bottom');
-% % % 	
-% % % 	rect = [x_lim_vec(1), -CONF_LN_K_VERY_STRONG(2), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_VERY_STRONG(2) - CONF_LN_K_STRONG(1)];
-% % % 	% Color the zone
-% % %  	h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', conf_color_sequence(1, :));
-% % % 	% Send the zone behind all
-% % % 	uistack(h_rec, 'bottom');
+	%% Positive evidence
+% 	h_zone_1 = plot (x_lim_vec, CONF_LN_K_POSITIVE(1) * ones(2,1), 'k--', 'LineWidth', line_width_theor);
+% 	h_zone_2 = plot (x_lim_vec, -CONF_LN_K_POSITIVE(1) * ones(2,1), 'k--', 'LineWidth', line_width_theor);
+% 	
+% 	% Send the zone behind all
+%  	uistack([h_zone_1, h_zone_2], 'bottom');
 
-		%% Note enough evidence < strong
-		rect = [x_lim_vec(1), -CONF_LN_K_STRONG(1), x_lim_vec(2) - x_lim_vec(1), 2 * CONF_LN_K_STRONG(1)];
-		% Color the zone
-		h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', conf_color_sequence(1, :));
-		% Send the zone behind all
-		uistack(h_rec, 'bottom');
+	cur_color = conf_color_sequence(1, :);
+	rect = [x_lim_vec(1), CONF_LN_K_POSITIVE(1), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_POSITIVE(2) - CONF_LN_K_POSITIVE(1)];
+	% Color the zone
+ 	h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', cur_color);
+	% Send the zone behind all
+	uistack(h_rec, 'bottom');
+	
+	rect = [x_lim_vec(1), -CONF_LN_K_POSITIVE(2), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_POSITIVE(2) - CONF_LN_K_POSITIVE(1)];
+	% Color the zone
+ 	h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', cur_color);
+	% Send the zone behind all
+	uistack(h_rec, 'bottom');
+	
+	%% Strong evidence
+% 	h_zone_1 = plot (x_lim_vec, CONF_LN_K_STRONG(1) * ones(2,1), 'k--', 'LineWidth', line_width_theor);
+% 	h_zone_2 = plot (x_lim_vec, -CONF_LN_K_STRONG(1) * ones(2,1), 'k--', 'LineWidth', line_width_theor);
+% 	
+% 	% Send the zone behind all
+%  	uistack([h_zone_1, h_zone_2], 'bottom');
+	
+	cur_color = conf_color_sequence(2, :);
+	rect = [x_lim_vec(1), CONF_LN_K_STRONG(1), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_STRONG(2) - CONF_LN_K_STRONG(1)];
+	% Color the zone
+ 	h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', cur_color);
+	% Send the zone behind all
+	uistack(h_rec, 'bottom');
+	
+	rect = [x_lim_vec(1), -CONF_LN_K_STRONG(2), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_STRONG(2) - CONF_LN_K_STRONG(1)];
+	% Color the zone
+ 	h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', cur_color);
+	% Send the zone behind all
+	uistack(h_rec, 'bottom');
+	
+	%% Very strong evidence
+	cur_color = conf_color_sequence(3, :);
+	rect = [x_lim_vec(1), CONF_LN_K_VERY_STRONG(1), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_VERY_STRONG(2) - CONF_LN_K_VERY_STRONG(1)];
+	% Color the zone
+ 	h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', cur_color);
+	% Send the zone behind all
+	uistack(h_rec, 'bottom');
+	
+	rect = [x_lim_vec(1), -CONF_LN_K_VERY_STRONG(2), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_VERY_STRONG(2) - CONF_LN_K_VERY_STRONG(1)];
+	% Color the zone
+ 	h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', cur_color);
+	% Send the zone behind all
+	uistack(h_rec, 'bottom');
+
+% % 		%% Evidence < strong
+% % 		rect = [x_lim_vec(1), -CONF_LN_K_STRONG(1), x_lim_vec(2) - x_lim_vec(1), 2 * CONF_LN_K_STRONG(1)];
+% % 		% Color the zone
+% % 		h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', conf_color_sequence(1, :));
+% % 		% Send the zone behind all
+% % 		uistack(h_rec, 'bottom');
 	
 % % % 	%% Very strong evidence
 % % % 	rect = [x_lim_vec(1), CONF_LN_K_VERY_STRONG(1), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_VERY_STRONG(2) - CONF_LN_K_VERY_STRONG(1)];
@@ -145,7 +173,7 @@ for lambda_type = 1:lambda_types_count
 % % % 	uistack(h_rec, 'bottom');
 	
 	% Push theory back
-	uistack(h_theor, 'bottom');
+% 	uistack(h_theor, 'bottom');
 	
 	% Put axes on top
 	set(gca, 'Layer', 'top');

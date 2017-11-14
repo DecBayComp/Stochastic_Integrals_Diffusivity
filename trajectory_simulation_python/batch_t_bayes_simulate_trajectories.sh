@@ -6,8 +6,8 @@ trials=1000
 sleep_time=0.2
 logs_folder="./logs/"
 args_file="./arguments.dat"
-D_case=6
-f_case=7
+D_case=2
+f_case=8
 
 echo "Creating arguments list..."
 

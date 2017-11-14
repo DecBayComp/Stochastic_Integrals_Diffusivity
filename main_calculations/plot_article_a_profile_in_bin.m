@@ -14,7 +14,7 @@ output_filename = 'a_one_bin.pdf';
 
 
 %% Initialize
-cur_data_struct = trials_data{data_struct.trial_first_simulation_type_index(lambda_type)};
+cur_data_struct = trials_data{data_struct.trial_first_simulation_type_index(lambda_type)+4};
 lambda = cur_data_struct.lambda;
 [selected_bins_indices, selected_bins_centers] = get_selected_bins_indices(cur_data_struct, sel_x_over_L);
 bin = selected_bins_indices;
