@@ -4,8 +4,8 @@
 #SBATCH -p dedicated
 #SBATCH --qos=dbc
 #SBATCH --cpus-per-task=1 
-#SBATCH --mem-per-cpu=100MB
-#SBATCH --time=30
+#SBATCH --mem-per-cpu=400MB
+#SBATCH --time=75
 
 
 # Constants

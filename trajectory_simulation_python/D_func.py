@@ -9,9 +9,9 @@ def D_func(D_case_number, x, L):
 
 	## Local constants
 	D_0 = 0.01	# in um^2/s
-	k = 0.5 # in um^-1
+	k = 1.0 # in um^-1
 
-	w = 1.0	# in um^-1
+	# omega = 10.0	# in um^-1
 
 	## Select f function
 	def D_func_local(x):
@@ -43,7 +43,7 @@ def D_func(D_case_number, x, L):
 			D_slope = 1.0
 			return D_shift + D_slope * x/float(L)
 		elif D_case_number == 6: # Oscillating
-			return D_0/2.0 * (2.0 + np.sin(np.pi * w * x))
+			return D_0/2.0 * (2.0 + np.sin(np.pi * omega * x))
 			
 
 
@@ -74,7 +74,7 @@ def D_func(D_case_number, x, L):
 			D_slope = 1.0
 			return D_slope * 1.0 / float(L)
 		elif D_case_number == 6: # Oscillating
-			return D_0/2.0 * np.pi * w * np.cos(np.pi * w * x)
+			return D_0/2.0 * np.pi * omega * np.cos(np.pi * omega * x)
 
 
 	## Calculate the result

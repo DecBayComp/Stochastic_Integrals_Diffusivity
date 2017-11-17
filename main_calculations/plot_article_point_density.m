@@ -43,7 +43,7 @@ for lambda_type = 1:lambda_types_count
 	norm_points_density(lambda_type, :) = data_struct.n_j_mean(lambda_type, :);
 	
 	% Normalize to total points number
-	norm_points_density(lambda_type, :) = norm_points_density(lambda_type, :) / sum(norm_points_density(lambda_type, :), 2) * 100;
+	norm_points_density(lambda_type, :) = norm_points_density(lambda_type, :); % / sum(norm_points_density(lambda_type, :), 2) * 100;
 	
 	% Plot
     plot(data_struct.x_bins_centers,  norm_points_density(lambda_type, :),...
@@ -55,7 +55,7 @@ end;
 xlim(x_lim_vec);
 box on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('Points in bin, \%', 'interpreter', 'latex');
+ylabel('Points in bin', 'interpreter', 'latex');
 title('Point density and bin locations', 'interpreter', 'latex');
 
 % Modify ticks

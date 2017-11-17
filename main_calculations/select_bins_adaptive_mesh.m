@@ -34,6 +34,8 @@ bins_number = floor(N/points_in_bin);
 [x_data_sorted, sorted_indices] = sort(reshape(x_data, 1, []), 'ascend');
 dx_data_sorted = reshape(dx_data(sorted_indices), 1, []);
 
+sum(x_data_sorted<0) / length(x_data_sorted)
+
 % Determine zone size
 x_min = x_data_sorted(1);
 x_max = x_data_sorted(end);
@@ -110,6 +112,7 @@ for bin = bins_number:-1:1
 		
 		% Calculate the next index to consider
 		ind = ind - est_points_increase;
+		1;
 		
 	end;
 	

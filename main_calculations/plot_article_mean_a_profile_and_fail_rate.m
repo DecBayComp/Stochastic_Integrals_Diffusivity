@@ -32,7 +32,7 @@ sublabel_y = 1.2;
 
 x_tick_increment = 0.2;
 
-selected_x_over_L = -0.25;
+selected_x_over_L = -0.12;
 
 
 
