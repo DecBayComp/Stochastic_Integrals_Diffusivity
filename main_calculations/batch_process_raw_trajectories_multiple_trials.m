@@ -164,12 +164,19 @@ parfor trial = 1:trials  % 765
         points_in_bins{bin} = sorted_data(:, counter_start : counter_end);
         counter_start = counter_end + 1;
 
-        %% Save calculated values to the data structure
+        %% If requested, keep only the minimum number of points per bin
+		if bl_keep_only_min_points_in_bin && elements_in_bins_count(bin) > 
+			cur_points = points_in_bins{bin};
+			cur_points_count = elements_in_bins_count(bin);
+			
+		end
+		
+		%% Save calculated values to the data structure
         data_struct.n_j(bin) = elements_in_bins_count(bin);
 		data_struct.dx_mean_in_bins(bin) = mean(points_in_bins{bin}(2, :));
         data_struct.V_j(bin) = var(points_in_bins{bin}(2, :));
 		data_struct.mean_jump_length_bins = sqrt(data_struct.V_j(bin));
-
+		
 		%% If for this trial, we have no points in the bin, set flag
 		if data_struct.n_j(bin) == 0
 			bl_empty_bin = true;

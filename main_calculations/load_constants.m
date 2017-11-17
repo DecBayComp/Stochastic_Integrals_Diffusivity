@@ -33,7 +33,7 @@ w = 10;
 %% Binning
 points_in_bin_avg = 1e4;
 min_bin_to_jump_ratio = 2;	% require a bin to be at least several times larger than the mean jump in it. This corresponds to a 61% probability to stay in bin after jump
-bl_keep_min_points_in_bin = true;	% When true, only the minimum number of points is kept per bin. Extra points are randomly omitted within a bin
+bl_keep_only_min_points_in_bin = true;	% When true, only the minimum number of points is kept per bin. Extra points are randomly omitted within a bin
 
 
 %% Regularization parameters
