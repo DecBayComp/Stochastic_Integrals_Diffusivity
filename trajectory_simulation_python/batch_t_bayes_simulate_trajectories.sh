@@ -2,12 +2,13 @@
 
 
 ## Constants
-trials=1000
+trials=10
 sleep_time=0.2
 logs_folder="./logs/"
+output_folder="./output/"
 args_file="./arguments.dat"
 D_case=2
-f_case=8
+f_case=2
 
 echo "Creating arguments list..."
 
@@ -15,8 +16,22 @@ echo "Creating arguments list..."
 rm $args_file
 
 # Create the logs folder
-if [ ! -d "$logs_folder" ]; then
-  mkdir $logs_folder
+if [ ! -d "$logs_folder" ]
+then
+	mkdir $logs_folder
+# Else empty the folder
+else
+	rm -v ${logs_folder}*
+fi
+
+
+# Create the output folder
+if [ ! -d "$output_folder" ]
+then
+	mkdir $output_folder
+# Else empty the folder
+else
+	rm -v ${output_folder}*
 fi
 
 id=0

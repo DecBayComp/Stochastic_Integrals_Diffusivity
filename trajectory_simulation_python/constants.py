@@ -2,7 +2,7 @@
 
 
 ## Constants
-version = 20171109
+version = 20171120
 lambda_array = [0.0, 0.5, 1.0]
 lambda_count = len(lambda_array)
 
@@ -16,8 +16,8 @@ gamma_drag = 400.0	# viscous drag, in fN * s / um
 # % % L = x_max - x_min;
 # % bl_periodic = true;
 # % T = 100000;
-t_step = 0.08 # in seconds
-N = int(5.0e5) 
+t_step = 0.25 # in seconds
+N = int(1.0e3) 
 internal_steps_number = 100 # Integer. How many intermediate smaller steps are made before the next point is saved
 # SIGMA_MIN = 0;
 # SIMGA_MAX = 10;
@@ -55,8 +55,8 @@ max_f_case = 8;
 # %% Choosing the boundary conditions
 # ENUM_BC_INF_WALLS = 1;
 # ENUM_BC_PERIODIC = 2;
-str_mode = "inf_walls" #     bc_type = ENUM_BC_INF_WALLS;
-# str_mode = 'periodic'; #    bc_type = ENUM_BC_PERIODIC;
+# str_mode = "inf_walls" #     bc_type = ENUM_BC_INF_WALLS;
+str_mode = 'periodic'; #    bc_type = ENUM_BC_PERIODIC;
 
 
 

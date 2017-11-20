@@ -10,7 +10,8 @@ def f_func(f_case_number, x, L):
 	## Local constans (set force to zero for a check)
 	f_shift_7 = 10.0 * 0.0
 	f_weak = 0.0	# fN
-	f_strong = 3.0	# fN
+	
+	f_strong = 4.0	# fN
 
 
 	## Select f function
@@ -18,9 +19,10 @@ def f_func(f_case_number, x, L):
 		if f_case_number == 1:
 			f0 = 0.0
 			return 0.0 * x + f0
-		elif f_case_number == 2:
-			f0 = 10.0
-			return 0.0 * x + f0
+
+		elif f_case_number == 2:	# Constant non-zero force
+			return 0.0 * x + f_strong
+
 		elif f_case_number == 3:
 			f0 = -10.0
 			return 0.0 * x + f0
@@ -47,9 +49,10 @@ def f_func(f_case_number, x, L):
 		if f_case_number == 1:
 			f0 = 0.0
 			return -f0 * x
-		elif f_case_number == 2:
-			f0 = 10.0
-			return -f0 * x
+
+		elif f_case_number == 2:	# Constant non-zero force
+			return -f_strong * x
+
 		elif f_case_number == 3:
 			f0 = -10.0
 			return -f0 * x
