@@ -99,7 +99,7 @@ print("Performing a test save to ensure enough memory is available...\n")
 filename = "sim_data_%09i.csv" % (file_id)
 output_full_path = output_folder + filename
 # print x_array
-output_data = np.reshape(np.insert(x_array, 0, -1), (-1, 1))
+output_data = np.zeros((N + 1, 2), dtype = np.float32)
 # print output_data
 # output_data = np.transpose(output_data)
 # Open the output file for writing

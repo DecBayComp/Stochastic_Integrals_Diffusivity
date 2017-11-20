@@ -42,8 +42,8 @@ for lambda_type = 1:lambda_types_count
 	% Load data
 	norm_points_density(lambda_type, :) = data_struct.n_j_mean(lambda_type, :);
 	
-	% Normalize to total points number
-	norm_points_density(lambda_type, :) = norm_points_density(lambda_type, :); % / sum(norm_points_density(lambda_type, :), 2) * 100;
+	% Normalize to bin width
+	norm_points_density(lambda_type, :) = norm_points_density(lambda_type, :) ./ bin_widths';
 	
 	% Plot
     plot(data_struct.x_bins_centers,  norm_points_density(lambda_type, :),...

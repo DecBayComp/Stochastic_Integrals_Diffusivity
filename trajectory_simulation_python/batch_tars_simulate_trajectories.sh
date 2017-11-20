@@ -17,6 +17,7 @@ rm $args_file
 
 
 # Create the logs folder
+echo "Cleaning up the logs folder"
 if [ ! -d "$logs_folder" ]
 then
 	mkdir $logs_folder
@@ -27,6 +28,7 @@ fi
 
 
 # Create the output folder
+echo "Cleaning up the output folder"
 if [ ! -d "$output_folder" ]
 then
 	mkdir $output_folder

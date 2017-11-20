@@ -31,7 +31,7 @@ pdf_norm = [];
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
 trials = sum(~[cur_dir.isdir]);
-trials = 6*4;
+trials = 10*4;
 
 
 
@@ -50,9 +50,9 @@ if bl_reload_trajectories
 
         input_data = dlmread(output_full_path, CSV_DELIMITER);
 
-        trials_lambdas(trial) = input_data(1);
-        trials_x(:, trial) = input_data(2:N+1);
-        trials_dx(:, trial) = input_data(3:N+2) - input_data(2:N+1);
+        trials_lambdas(trial) = input_data(1,1);
+        trials_x(:, trial) = input_data(2:N+1, 1);
+        trials_dx(:, trial) = input_data(2:N+1,2);
     end;
     input_data = [];
 end;
@@ -164,12 +164,12 @@ parfor trial = 1:trials  % 765
         points_in_bins{bin} = sorted_data(:, counter_start : counter_end);
         counter_start = counter_end + 1;
 
-        %% If requested, keep only the minimum number of points per bin
-		if bl_keep_only_min_points_in_bin && elements_in_bins_count(bin) > 
-			cur_points = points_in_bins{bin};
-			cur_points_count = elements_in_bins_count(bin);
-			
-		end
+% % %         %% If requested, keep only the minimum number of points per bin
+% % % 		if bl_keep_only_min_points_in_bin && elements_in_bins_count(bin) > 
+% % % 			cur_points = points_in_bins{bin};
+% % % 			cur_points_count = elements_in_bins_count(bin);
+% % % 			
+% % % 		end
 		
 		%% Save calculated values to the data structure
         data_struct.n_j(bin) = elements_in_bins_count(bin);

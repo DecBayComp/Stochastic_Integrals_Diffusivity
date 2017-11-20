@@ -9,7 +9,7 @@ def D_func(D_case_number, x, L):
 
 	## Local constants
 	D_0 = 0.01	# in um^2/s
-	k = 1.0 # in um^-1
+	k = 2.0 # in um^-1
 
 	# omega = 10.0	# in um^-1
 

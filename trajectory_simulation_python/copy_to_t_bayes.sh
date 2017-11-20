@@ -8,3 +8,6 @@ do
 done
 
 echo "All files copied successfully"
+echo
+
+read -p "Press any key to continue... " -n1 -s

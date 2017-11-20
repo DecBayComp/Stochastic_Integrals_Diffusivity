@@ -9,8 +9,8 @@ gamma_drag = 400.0;	% viscous drag, in fN * s / um
 % % L = x_max - x_min;
 % bl_periodic = true;
 % T = 100000;
-t_step = 0.08;   % L^2 / D_max / 100 = 10 / 1 / 100 = 0.1
-N = 5.0e5;        % Times the system was explored: (N*t_step) / (L^2 / D_max) = N*t_step*D_max/L^2 = 1e4*0.1*1/100 = 10   OK
+t_step = 0.125;   % L^2 / D_max / 100 = 10 / 1 / 100 = 0.1
+N = 1e5;        % Times the system was explored: (N*t_step) / (L^2 / D_max) = N*t_step*D_max/L^2 = 1e4*0.1*1/100 = 10   OK
 T = t_step * N;
 internal_steps_number = 100;    % Integer. How many intermediate smaller steps are made before the next point is saved
 update_progress_every = 100;
@@ -31,7 +31,7 @@ w = 10;
 
 
 %% Binning
-points_in_bin_avg = 1e4;
+points_in_bin_avg = 10;
 min_bin_to_jump_ratio = 2;	% require a bin to be at least several times larger than the mean jump in it. This corresponds to a 61% probability to stay in bin after jump
 bl_keep_only_min_points_in_bin = true;	% When true, only the minimum number of points is kept per bin. Extra points are randomly omitted within a bin
 
@@ -59,7 +59,7 @@ bin_color = my_colors(3).White;
 
 output_figures_folder = './figures_for_article/';
 output_data_folder = './processed_data/';
-input_data_folder = '/home/aserov/Documents/Calculated_data/two_forces/';  % Ubuntu
+input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_with_force/';  % Ubuntu
 % input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_no_force/';  % Ubuntu
 % input_data_folder = '/Users/alexander_serov/Calculations_data/ito-stratonovich/'; % Mac
 fail_rates_filename = 'Fail_rates.dat';
@@ -75,7 +75,7 @@ max_f_case_number = 8;
 
 %% Plotting results for the article
 selected_D_case = 2;
-selected_f_case = 8;
+selected_f_case = 2;
 
 
 %% Choosing the boundary conditions
