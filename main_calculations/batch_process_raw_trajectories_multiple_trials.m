@@ -129,7 +129,7 @@ parfor trial = 1:trials  % 765
     % The following two parameters are the same for the forward and
     % backward calculations because they are just used in the prior
     data_struct.dx_mean_all_bins_all_trials = dx_mean_all_bins_all_trials;
-    data_struct.V = V;
+%     data_struct.V = V;
 	data_struct.mean_jump_bins_all_trials = mean_jump_bins_all_trials;
     data_struct.x_fine_mesh = x_fine_mesh;
     data_struct.b_theor_fine_data = b_theor_fine_data;
@@ -176,6 +176,9 @@ parfor trial = 1:trials  % 765
 		data_struct.dx_mean_in_bins(bin) = mean(points_in_bins{bin}(2, :));
         data_struct.V_j(bin) = var(points_in_bins{bin}(2, :));
 		data_struct.mean_jump_length_bins = sqrt(data_struct.V_j(bin));
+		data_struct.dx_mean_all_bins = mean(sorted_data(2, :));
+		data_struct.V = var(sorted_data(2, :));
+		
 		
 		%% If for this trial, we have no points in the bin, set flag
 		if data_struct.n_j(bin) == 0

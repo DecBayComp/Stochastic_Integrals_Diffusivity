@@ -16,6 +16,7 @@ data_struct = struct();
 % Lambda level
 % data_struct.elements_in_bins_count = cell(1, lambda_count);
 data_struct.dx_mean_all_bins_all_trials = 0;
+data_struct.dx_mean_all_bins = 0;
 data_struct.dx_mean_in_bins = zeros(1, bins_count);
 data_struct.mean_jump_length_bins = zeros(1, bins_count);
 data_struct.mean_jump_bins_all_trials = zeros(1, bins_count);
