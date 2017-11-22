@@ -11,7 +11,7 @@ sublabel_x = 0.03;
 sublabel_y = 0.08;
 x_lim_vec = [x_min, x_max];
 y_lim_vec_FR = [-2, 102];
-y_lim_vec_profile = [-1, 1] * 0.18;
+y_lim_vec_profile = [-1, 1] * 0.07;
 output_filename = 'a_fail_rate.pdf';
 % Subplot parameters
 SH = 0.07;
@@ -28,11 +28,11 @@ plot_every = 1;
 
 % Label params
 sublabel_x = 0.015;
-sublabel_y = 1.2;
+sublabel_y = 1.1;
 
 x_tick_increment = 0.2;
 
-selected_x_over_L = -0.12;
+selected_x_over_L = 0;
 
 
 
@@ -62,10 +62,11 @@ lambda_type = enum_lambda_Hanggi;
     box on;
     
     xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-    if lambda_type == 1
+%     if lambda_type == 1
         ylabel('$\langle \hat a \rangle$', 'interpreter', 'latex');
-    end;
-    str_title = {'$\lambda^* = 0$', '$\lambda^* = 0.5$', '$\lambda^* = 1$', 'Random $\lambda^*$'};
+%     end;
+	title('Mean local force profile', 'interpreter', 'latex');
+%     str_title = {'$\lambda^* = 0$', '$\lambda^* = 0.5$', '$\lambda^* = 1$', 'Random $\lambda^*$'};
 %     title(str_title{lambda_type}, 'interpreter', 'latex');
 
 	% Subplot label
@@ -76,6 +77,9 @@ lambda_type = enum_lambda_Hanggi;
 	
 	% Modify ticks
 	set(gca,'xtick', x_min:x_tick_increment:x_max);
+	
+	
+	
 	
 	
 	

@@ -42,8 +42,9 @@ for lambda_type = 1:lambda_types_count
 	% Load data
 	norm_points_density(lambda_type, :) = data_struct.n_j_mean(lambda_type, :);
 	
-	% Normalize to bin width
+	% Normalize to bin width and to 1
 	norm_points_density(lambda_type, :) = norm_points_density(lambda_type, :) ./ bin_widths';
+	norm_points_density(lambda_type, :) = norm_points_density(lambda_type, :) ./ sum(norm_points_density(lambda_type, :));
 	
 	% Plot
     plot(data_struct.x_bins_centers,  norm_points_density(lambda_type, :),...
@@ -55,22 +56,27 @@ end;
 xlim(x_lim_vec);
 box on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('Points in bin', 'interpreter', 'latex');
+ylabel('Relative point density', 'interpreter', 'latex');
 title('Point density and bin locations', 'interpreter', 'latex');
 
 % Modify ticks
 set(gca,'xtick', x_min:x_tick_increment:x_max);
 
 % Legend 
-legend(str_legend, 'Location', 'northwest');
+legend(str_legend, 'Location', 'southwest');
 
-% Normalize and plot simulated diffusivity profile
+% Adjust y limits
 y_lim_vec = ylim();
-b_profile = b_profile - min(b_profile);
-b_profile = b_profile / max(b_profile) * y_lim_vec(2);
-h_theor_center = plot(data_struct.x_fine_mesh, b_profile, '-k', 'LineWidth', line_width_theor);
-% Send curve back
-uistack(h_theor_center, 'bottom');
+y_lim_vec(1) = 0;
+ylim(y_lim_vec);
+
+
+% % Normalize and plot simulated diffusivity profile
+% b_profile = b_profile - min(b_profile);
+% b_profile = b_profile / max(b_profile) * y_lim_vec(2);
+% h_theor_center = plot(data_struct.x_fine_mesh, b_profile, '-k', 'LineWidth', line_width_theor);
+% % Send curve back
+% uistack(h_theor_center, 'bottom');
 
 % Color bin borders
 color_bins(bin_borders, y_lim_vec, bin_color);

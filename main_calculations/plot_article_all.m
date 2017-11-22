@@ -34,9 +34,9 @@ plot_article_b(data_struct, trials_data, fig_count, bl_save_figures);
 
 
 
-%% Compare MAP b distribution with the b posterior from one trial
-fig_count = fig_count + 1; 
-plot_article_b_MAP_vs_posterior(data_struct, trials_data, fig_count, bl_save_figures);
+% % % %% Compare MAP b distribution with the b posterior from one trial
+% % % fig_count = fig_count + 1; 
+% % % plot_article_b_MAP_vs_posterior(data_struct, trials_data, fig_count, bl_save_figures);
 
 
 % % % %% === Plot drift profile in one bin for each inference type ===

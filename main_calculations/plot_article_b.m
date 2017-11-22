@@ -11,8 +11,8 @@ lambdas_array = [0, 0.5, 1];
 
 % Subplot params
 rows = 1;
-cols = 3;
-SH = 0.06;
+cols = 2;
+SH = 0.08;
 SV = 0.125;
 ML = 0.07;
 MR = 0.0125;
@@ -159,149 +159,149 @@ color_bins(bins_borders, ylim(), bin_color);
 
 
 
-%% == (B): Average b bias ==
-% Constants
-scale = 1e-3;
-y_lim_vec = [-1, 1] * 6e-3 / scale;
-
-% Initialize subplot
-subaxis(rows, cols, 2);
-hold on;
-
-% Plot numerical data
-str_legend = {};
-for lambda_type = 1:lambda_types_count
-    plot(data_struct.x_bins_centers,...
-        (data_struct.MAP_b_mean(lambda_type, :, 1) - b_true_avg) / scale, strcat(markers_list{lambda_type}),...
-        'markers', marker_size, 'LineWidth', line_width, 'color', color_sequence(lambda_type, :));
-    str_legend{end + 1} = lambda_types_names{lambda_type};
-end;
-
-% Plot the analytical bias estimate
-for lambda_ind = 1:lambda_types_count-1
-	plot(data_struct.x_bins_centers, b_estimate_avg_bias(lambda_ind, :) / scale, 'LineWidth', line_width, 'color', color_sequence(lambda_ind, :)); 
-end;
-
-% Plot zero bias line
-h_theor_0 = plot(x_lim_vec, 0 * x_lim_vec, 'k--', 'LineWidth', line_width_theor);
-
-% Adjust
-xlim(x_lim_vec);
-ylim(y_lim_vec);
-xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('$\langle \delta b \rangle$, $10^{-3}\mu\mathrm{m / s^{1/2}}$', 'interpreter', 'latex');
-
-% Modify ticks
-set(gca,'xtick', x_ticks);
-
-% Subplot label
-text(sublabel_x, sublabel_y, 'B', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
-title('Average diffusivity bias', 'interpreter', 'latex');
-grid on;
-
-% % Legend
-% legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
-% legend boxon;
-
-% Reorder curves
-uistack(h_theor_0, 'bottom');
-
-
-
-%% == (C): Kolmogorov-Smirnov distance between MAP distribution of b and predicted posterior in each trial. Averaged over the number of trials ==
-% Constants
-y_lim_vec = [0, 1];
-
-% Initialize subplot
-subaxis(rows, cols, 3);
-hold on;
-
-% Plot numerical data
-str_legend = {};
-for lambda_type = 1:lambda_types_count
-    plot(data_struct.x_bins_centers,  data_struct.b_KS_distance_mean(lambda_type, :),...
-        strcat('-', markers_list{lambda_type}), 'color', color_sequence(lambda_type, :),  'LineWidth', line_width, 'markers', marker_size);
-    str_legend{end + 1} = lambda_types_names{lambda_type};
-end;
-
-% % Plot the optimal overlap level (confidence level)
-% h_conf = plot(x_lim_vec, [1, 1] * CONF_LEVEL * 100, 'k--', 'linewidth', line_width_theor);
-
-% Adjust plot
-xlim(x_lim_vec);
-ylim(y_lim_vec);
-box on;
-grid on;
-xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('KS distance', 'interpreter', 'latex');
-title('Average KS distance for $b$', 'interpreter', 'latex');
-
-% Modify ticks
-set(gca,'xtick', x_ticks);
-
-% Legend
-legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
-legend boxon;
-
-% Subplot label
-text(sublabel_x, sublabel_y, 'C', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
-
-% % Send confidence level back
-% uistack(h_conf, 'bottom');
-
-
-
-
-
-
-
-% % % % % %% == (D): bb' profile ==
+% % % % % %% == (B): Average b bias ==
 % % % % % % Constants
-% % % % % y_lim_vec = [-1, 1] * 0.18;
+% % % % % scale = 1e-3;
+% % % % % y_lim_vec = [-1, 1] * 6e-3 / scale;
 % % % % % 
 % % % % % % Initialize subplot
-% % % % % subaxis(rows, cols, 4);
+% % % % % subaxis(rows, cols, 2);
 % % % % % hold on;
 % % % % % 
+% % % % % % Plot numerical data
+% % % % % str_legend = {};
+% % % % % for lambda_type = 1:lambda_types_count
+% % % % %     plot(data_struct.x_bins_centers,...
+% % % % %         (data_struct.MAP_b_mean(lambda_type, :, 1) - b_true_avg) / scale, strcat(markers_list{lambda_type}),...
+% % % % %         'markers', marker_size, 'LineWidth', line_width, 'color', color_sequence(lambda_type, :));
+% % % % %     str_legend{end + 1} = lambda_types_names{lambda_type};
+% % % % % end;
 % % % % % 
+% % % % % % Plot the analytical bias estimate
+% % % % % for lambda_ind = 1:lambda_types_count-1
+% % % % % 	plot(data_struct.x_bins_centers, b_estimate_avg_bias(lambda_ind, :) / scale, 'LineWidth', line_width, 'color', color_sequence(lambda_ind, :)); 
+% % % % % end;
 % % % % % 
-% % % % % %% Plot
-% % % % % % Simple difference bb'
-% % % % % plot(x_grad_mesh, FD_bb_prime, markers_list{1}, 'color', color_sequence(1, :), 'LineWidth', line_width, 'markers', marker_size);
+% % % % % % Plot zero bias line
+% % % % % h_theor_0 = plot(x_lim_vec, 0 * x_lim_vec, 'k--', 'LineWidth', line_width_theor);
 % % % % % 
-% % % % % % Regularized gradient
-% % % % % plot(x_grad_mesh, tmp_data_struct.MAP_bb_prime_regular,  markers_list{2}, 'color', color_sequence(2, :), 'LineWidth', line_width, 'markers', marker_size);
-% % % % % 
-% % % % % % Regularized interpolated gradient
-% % % % % plot(tmp_data_struct.x_bins_centers, tmp_data_struct.MAP_bb_prime_regular_interp, 'color', color_sequence(3, :), 'LineWidth', line_width, 'markers', marker_size);
-% % % % % 
-% % % % % % True value
-% % % % % h_theor = plot(tmp_data_struct.x_fine_mesh, tmp_data_struct.bb_prime_theor_fine_data, 'k-', 'LineWidth', line_width_theor);
-% % % % % 
-% % % % % % True average value
-% % % % % h_theor_avg = plot(tmp_data_struct.x_bins_centers, bb_prime_true_avg, 'k--', 'LineWidth', line_width_theor);
-% % % % % 
-% % % % % % Adjust subplot
+% % % % % % Adjust
+% % % % % xlim(x_lim_vec);
+% % % % % ylim(y_lim_vec);
 % % % % % xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-% % % % % ylabel('$bb''$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
+% % % % % ylabel('$\langle \delta b \rangle$, $10^{-3}\mu\mathrm{m / s^{1/2}}$', 'interpreter', 'latex');
+% % % % % 
+% % % % % % Modify ticks
+% % % % % set(gca,'xtick', x_ticks);
+% % % % % 
+% % % % % % Subplot label
+% % % % % text(sublabel_x, sublabel_y, 'B', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+% % % % % title('Average diffusivity bias', 'interpreter', 'latex');
+% % % % % grid on;
+% % % % % 
+% % % % % % % Legend
+% % % % % % legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
+% % % % % % legend boxon;
+% % % % % 
+% % % % % % Reorder curves
+% % % % % uistack(h_theor_0, 'bottom');
+% % % % % 
+% % % % % 
+% % % % % 
+% % % % % %% == (C): Kolmogorov-Smirnov distance between MAP distribution of b and predicted posterior in each trial. Averaged over the number of trials ==
+% % % % % % Constants
+% % % % % y_lim_vec = [0, 1];
+% % % % % 
+% % % % % % Initialize subplot
+% % % % % subaxis(rows, cols, 3);
+% % % % % hold on;
+% % % % % 
+% % % % % % Plot numerical data
+% % % % % str_legend = {};
+% % % % % for lambda_type = 1:lambda_types_count
+% % % % %     plot(data_struct.x_bins_centers,  data_struct.b_KS_distance_mean(lambda_type, :),...
+% % % % %         strcat('-', markers_list{lambda_type}), 'color', color_sequence(lambda_type, :),  'LineWidth', line_width, 'markers', marker_size);
+% % % % %     str_legend{end + 1} = lambda_types_names{lambda_type};
+% % % % % end;
+% % % % % 
+% % % % % % % Plot the optimal overlap level (confidence level)
+% % % % % % h_conf = plot(x_lim_vec, [1, 1] * CONF_LEVEL * 100, 'k--', 'linewidth', line_width_theor);
+% % % % % 
+% % % % % % Adjust plot
 % % % % % xlim(x_lim_vec);
 % % % % % ylim(y_lim_vec);
 % % % % % box on;
 % % % % % grid on;
-% % % % % title(sprintf('Diffusivity gradient profile for $\\lambda^* = %.2f$', tmp_data_struct.lambda), 'interpreter', 'latex');
+% % % % % xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
+% % % % % ylabel('KS distance', 'interpreter', 'latex');
+% % % % % title('Average KS distance for $b$', 'interpreter', 'latex');
 % % % % % 
 % % % % % % Modify ticks
-% % % % % set(gca,'xtick', x_min:x_tick_increment:x_max);
-% % % % % 
-% % % % % % Subplot label
-% % % % % text(sublabel_x, sublabel_y, 'D', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+% % % % % set(gca,'xtick', x_ticks);
 % % % % % 
 % % % % % % Legend
-% % % % % str_legend_local = {'FD', 'R', 'RI'};
-% % % % % legend(str_legend_local, 'location', 'southwest', 'interpreter', 'latex', 'FontSize', legend_font_size);
+% % % % % legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
+% % % % % legend boxon;
 % % % % % 
-% % % % % % Send true profile back
-% % % % % uistack(h_theor, 'bottom');
+% % % % % % Subplot label
+% % % % % text(sublabel_x, sublabel_y, 'C', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+% % % % % 
+% % % % % % % Send confidence level back
+% % % % % % uistack(h_conf, 'bottom');
+
+
+
+
+
+
+
+%% == (D): bb' profile ==
+% Constants
+y_lim_vec = [-1, 1] * 0.05;
+
+% Initialize subplot
+subaxis(2);
+hold on;
+
+
+
+%% Plot
+% Simple difference bb'
+plot(x_grad_mesh, FD_bb_prime, markers_list{1}, 'color', color_sequence(1, :), 'LineWidth', line_width, 'markers', marker_size);
+
+% Regularized gradient
+plot(x_grad_mesh, tmp_data_struct.MAP_bb_prime_regular,  markers_list{2}, 'color', color_sequence(2, :), 'LineWidth', line_width, 'markers', marker_size);
+
+% Regularized interpolated gradient
+plot(tmp_data_struct.x_bins_centers, tmp_data_struct.MAP_bb_prime_regular_interp, 'color', color_sequence(3, :), 'LineWidth', line_width, 'markers', marker_size);
+
+% True value
+h_theor = plot(tmp_data_struct.x_fine_mesh, tmp_data_struct.bb_prime_theor_fine_data, 'k-', 'LineWidth', line_width_theor);
+
+% True average value
+h_theor_avg = plot(tmp_data_struct.x_bins_centers, bb_prime_true_avg, 'k--', 'LineWidth', line_width_theor);
+
+% Adjust subplot
+xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
+ylabel('$bb''$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
+xlim(x_lim_vec);
+ylim(y_lim_vec);
+box on;
+grid on;
+title(sprintf('Diffusivity gradient profile for $\\lambda^* = %.2f$', tmp_data_struct.lambda), 'interpreter', 'latex');
+
+% Modify ticks
+set(gca,'xtick', x_min:x_tick_increment:x_max);
+
+% Subplot label
+text(sublabel_x, sublabel_y, 'D', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+
+% Legend
+str_legend_local = {'FD', 'R', 'RI'};
+legend(str_legend_local, 'location', 'southwest', 'interpreter', 'latex', 'FontSize', legend_font_size);
+
+% Send true profile back
+uistack(h_theor, 'bottom');
 
 
 
