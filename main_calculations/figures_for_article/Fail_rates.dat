@@ -1,0 +1,42 @@
+> Average a FR <	Ito	Str	Hng	Orcl	Mar
+Ito	0.1	0.485	0.762	0.1	0.323
+Str	0.377	0.569	0.631	0.569	0.531
+Hng	0.9	0.785	0.593	0.593	0.708
+rnd	0.215	0.608	0.593	0.423	0.385
+					
+					
+> Max a FR <	Ito	Str	Hng	Orcl	Mar
+Ito	0.1	0.6	0.8	0.1	0.4
+Str	0.5	0.8	0.9	0.8	0.8
+Hng	0.9	0.9	0.9	0.9	0.9
+rnd	0.4	0.8	0.9	0.5	0.5
+
+
+Output a fail rate in TEX table format:
+
+
+Oracle	&	10(10)	&	57(80)	&	59(90)	&	42(50)
+\\
+Marginalized	&	32(40)	&	53(80)	&	71(90)	&	38(50)
+\\
+Stratonovich	&	48(60)	&	57(80)	&	78(90)	&	61(80)
+\\
+H\"anggi	&	76(80)	&	63(90)	&	59(90)	&	59(90)
+\\
+It\^o	&	10(10)	&	38(50)	&	90(90)	&	22(40)
+\\
+
+
+Output b fail rate:
+
+
+Ito	Str	Hng	rnd
+
+69(100)	62(100)	65(100)	65(100)
+
+
+
+> Mean b KS distance across bins and trials <
+
+Ito	Str	Hng	rnd
+0.40	0.40	0.42	0.39

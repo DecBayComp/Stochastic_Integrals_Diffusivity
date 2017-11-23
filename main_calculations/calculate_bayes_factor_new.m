@@ -1,8 +1,6 @@
 %% Calculate Bayes factors for the marginalized and fixed-lambda models with force relative to corresponding no-force models
-% Both force and no-force models include the spurious force.
 % The function uses the MAP value of the diffusivity gradient bb' in the bin.
-% The no-force model is downstairs in the ratio.
-% So in total K is > 1 if there is local force, i.e. K = Pr(force_model) / Pr(no_force_model)
+% K is > 1 if there is a local force, i.e. K = Pr(force_model) / Pr(no_force_model)
 %
 % Output: ??
 
@@ -17,63 +15,60 @@ REL_TOLERANCE = 1e-7;
 
 
 %% Initialize
-x_bins_centers = data_struct.x_bins_centers;
-x_bins_number = length(x_bins_centers);
 lambda_true = data_struct.lambda;
 log_K = zeros(conventions_count, 1);
 lambda_array = [0, 0.5, 1, lambda_true];
 
+% Load mean jump and variance across all bins
+dx_mean_tot = data_struct.dx_mean_all_bins;
+V_tot = data_struct.V;
+
+% Load individual bin parameters and reshape into vectors
+n = reshape(data_struct.n_j, [], 1);
+V = reshape(data_struct.V_j, [], 1);
+grad = reshape(data_struct.MAP_bb_prime_regular_interp, [], 1);
+
+% _pi parameters
+nu_pi = 1;
+sigma2_pi = V_tot;
+
+% _c parameters for the posteriors in each bin
+mu_c = reshape(data_struct.dx_mean_in_bins, [], 1);
+kappa_c = n;
+nu_c = n + nu_pi;
+sigma2_c = (n .* V + nu_pi * sigma2_pi) ./ (n + nu_pi);
+
+
 
 %% Calculate the Bayes factor for fixed-lambda conventions
-% Set inference convention
 for convention = 1:conventions_count-1
+	% Set inference lambda
 	lambda = lambda_array(convention);
 
-	% Global parameters
-	dx_mean_tot = data_struct.dx_mean_all_bins;
-	V_tot = data_struct.V;
-
-	% Load the bin parameters and form vectors
-	n = reshape(data_struct.n_j, [], 1);
-	V = reshape(data_struct.V_j, [], 1);
-	grad = reshape(data_struct.MAP_bb_prime_regular_interp, [], 1);
-
-	% pi parameters
-	nu_pi = 1;
-	sigma2_pi = V_tot;
-
-	mu_c = reshape(data_struct.dx_mean_in_bins, [], 1);
-	kappa_c = n;
-	nu_c = n + nu_pi;
-	sigma2_c = (n .* V + nu_pi * sigma2_pi) ./ (n + nu_pi);
-
-
-
-
-	%% Calculate
-
-	% Wrap likelihood function to return only a
+	% Wrap likelihood function to return only a including both bin likelihood and a prior
 	data_lklhd_cond_a_func_wrap = @(a) data_lklhd_cond_a_func_a_integrand(a, n, V, grad, mu_c, kappa_c, nu_c, sigma2_c, nu_pi, sigma2_pi,...
 		lambda, t_step, dx_mean_tot, V_tot);
 
-	% Define integration limits for a. Inlcude the most likely values in bins
+	% Separate integration region [-Inf, Inf] into separate zones by adding the most likely a values in each bin
 	a_ML = - lambda * grad;
 	a_limits = sort([a_ML; -Inf; Inf]);
 
-
-	% Integrate over a
+	% To calculate the probability of the force model, marginalize the unnormalized posterior over a 
 	a_integral = 0;
 	for i = 1:length(a_limits) - 1
 		a_integral = a_integral + integral(data_lklhd_cond_a_func_wrap, a_limits(i), a_limits(i+1), 'RelTol', REL_TOLERANCE, 'AbsTol', ABS_TOLERANCE);
 	end;
 
-	% Calculate force data likelihood
-	[a_part, a_prior, log_pre_factor, log_pre_factor_a_prior] = data_lklhd_cond_a_func(0, n, V, grad, mu_c, kappa_c, nu_c, sigma2_c, nu_pi, sigma2_pi,...
-		lambda, t_step, dx_mean_tot, V_tot)
+	% For probability of the null-model, take the likelihood part without the 'a' prior
+	[a0_part, ~, ~, log_pre_factor_a_prior] = data_lklhd_cond_a_func(0, n, V, grad, mu_c, kappa_c, nu_c, sigma2_c, nu_pi, sigma2_pi,...
+		lambda, t_step, dx_mean_tot, V_tot);
 
-	log_K_upstairs = log(a_integral) + log_pre_factor_a_prior;
-	log_K_downstairs = log(a_part);
-	log_K(convention) = log_K_upstairs - log_K_downstairs
+	% Combine into unnormalized probabilities of the force and no-force models
+	log_force_model_unnorm_probability = log(a_integral) + log_pre_factor_a_prior;
+	log_null_model_unnorm_probability = log(a0_part);
+	
+	% Calculate the Bayes factor as the ratio of the model probabilites. The force model is upstairs
+	log_K(convention) = log_force_model_unnorm_probability - log_null_model_unnorm_probability;
 end;
 
 
