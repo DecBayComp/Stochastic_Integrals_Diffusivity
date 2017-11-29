@@ -177,7 +177,7 @@ parfor trial = 1:trials  % 765
         data_struct.V_j(bin) = var(points_in_bins{bin}(2, :));
 		data_struct.mean_jump_length_bins = sqrt(data_struct.V_j(bin));
 		data_struct.dx_mean_all_bins = mean(sorted_data(2, :));
-		data_struct.V = var(sorted_data(2, :));
+		data_struct.V_all_bins = var(sorted_data(2, :));
 		
 		
 		%% If for this trial, we have no points in the bin, set flag
@@ -371,7 +371,7 @@ parfor trial = 1:trials
 	trials_n_j(trial, :) = trials_data{trial}.n_j;
 	% Calculate the Bayes factors K
 	fprintf('Calculating the Bayes factor for trial %i/%i\n', trial, trials);
-	trials_log_K(trial, :, :) = calculate_bayes_factor(trials_data{trial})';
+	trials_log_K(trial, :, :) = calculate_bayes_factor_new(trials_data{trial})';
 end;
 % Save
 data_struct.trials_MAP_D = trials_MAP_D;

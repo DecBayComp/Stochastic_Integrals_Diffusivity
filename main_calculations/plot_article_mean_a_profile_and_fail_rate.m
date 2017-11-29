@@ -84,7 +84,7 @@ lambda_type = enum_lambda_Hanggi;
 	
 	
 	%% == (2): a profile in bin ==
-	lambda_type = enum_lambda_Ito;
+	lambda_type = enum_lambda_Hanggi;
 	
 	subaxis(2);
 	plot_article_a_profile_in_bin(data_struct, trials_data, lambda_type, selected_x_over_L);
