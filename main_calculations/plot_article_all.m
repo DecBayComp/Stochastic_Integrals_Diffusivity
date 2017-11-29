@@ -64,6 +64,8 @@ print_fail_rates(data_struct);
 
 
 
+%% === Print Global Bayes factor ===
+disp(data_struct.log_K_G_mean);
 
 
 

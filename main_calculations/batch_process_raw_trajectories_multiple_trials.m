@@ -357,7 +357,8 @@ trials_MAP_b = zeros(trials, x_bins_number, 4);
 trials_MAP_a = zeros(trials, x_bins_number, conventions_count, 4);
 trials_MAP_bb_prime_regular_interp = zeros(trials, x_bins_number);
 trials_n_j = zeros(trials, x_bins_number);
-trials_log_K = zeros(trials, x_bins_number, conventions_count);
+trials_log_K_L = zeros(trials, x_bins_number, conventions_count);
+trials_log_K_G = zeros(trials, conventions_count);
 parfor trial = 1:trials
     % D
     trials_MAP_D(trial, :, :) = trials_data{trial}.MAP_D(:, :);
@@ -371,22 +372,25 @@ parfor trial = 1:trials
 	trials_n_j(trial, :) = trials_data{trial}.n_j;
 	% Calculate the Bayes factors K
 	fprintf('Calculating the Bayes factor for trial %i/%i\n', trial, trials);
-	trials_log_K(trial, :, :) = calculate_bayes_factor_new(trials_data{trial})';
+	[log_K_L, log_K_G] = calculate_bayes_factor(trials_data{trial});
+	trials_log_K_L(trial, :, :) = log_K_L';
+	trials_log_K_G(trial, :) = log_K_G;
 end;
 % Save
 data_struct.trials_MAP_D = trials_MAP_D;
 data_struct.trials_MAP_b = trials_MAP_b;
 data_struct.trials_MAP_a = trials_MAP_a;
 data_struct.trials_MAP_bb_prime_regular_interp = trials_MAP_bb_prime_regular_interp;
-data_struct.trials_log_K = trials_log_K;
+data_struct.trials_log_K = trials_log_K_L;
+data_struct.trials_log_G = trials_log_K_G;
 
 
 
-%% Calculate KS distances for a and b distributions
-[trials_a_KS_distance, trials_b_KS_distance] = batch_calculate_KS_distance(trials, x_bins_number, data_struct, trials_data, trials_MAP_a, trials_MAP_b);
-
-% Save
-data_struct.trials_b_KS_distance = trials_b_KS_distance;
+% % % %% Calculate KS distances for a and b distributions
+% % % [trials_a_KS_distance, trials_b_KS_distance] = batch_calculate_KS_distance(trials, x_bins_number, data_struct, trials_data, trials_MAP_a, trials_MAP_b);
+% % % 
+% % % % Save
+% % % data_struct.trials_b_KS_distance = trials_b_KS_distance;
 
 
 
@@ -402,7 +406,8 @@ UR_a = zeros(lambda_types_count, x_bins_number, conventions_count);
 outside_count_a = zeros(lambda_types_count, x_bins_number, conventions_count);
 n_j_mean = zeros(lambda_types_count, x_bins_number);
 b_KS_distance_mean = zeros(lambda_types_count, x_bins_number);
-log_K_mean = zeros(lambda_types_count, x_bins_number, conventions_count);
+log_K_L_mean = zeros(lambda_types_count, x_bins_number, conventions_count);
+log_K_G_mean = zeros(lambda_types_count, conventions_count);
 
 for lambda_type = 1:lambda_types_count
     % Mean
@@ -423,8 +428,9 @@ for lambda_type = 1:lambda_types_count
 	% Kolmogorov-Smirnov distance for b
 	b_KS_distance_mean(lambda_type, :) = mean(trials_b_KS_distance(trial_simulation_type == lambda_type, :), 1, 'omitnan');
 	
-	% Bayes factor K
-	log_K_mean(lambda_type, :, :) = log(mean(exp(trials_log_K(trial_simulation_type == lambda_type, :, :)), 1, 'omitnan' ));
+	% Bayes factors K
+	log_K_L_mean(lambda_type, :, :) = log(mean(exp(trials_log_K_L(trial_simulation_type == lambda_type, :, :)), 1, 'omitnan' ));
+	log_K_G_mean(lambda_type, :) = log(mean(exp(trials_log_K_G(trial_simulation_type == lambda_type, :)), 1, 'omitnan' ));
 end;
 
 % Save
@@ -437,7 +443,8 @@ data_struct.MAP_bb_prime_regular_interp_mean = MAP_bb_prime_regular_interp_mean;
 data_struct.UR_b = UR_b;
 data_struct.UR_a = UR_a;
 data_struct.n_j_mean = n_j_mean;
-data_struct.log_K_mean = log_K_mean;
+data_struct.log_K_L_mean = log_K_L_mean;
+data_struct.log_K_G_mean = log_K_G_mean;
 
 
 

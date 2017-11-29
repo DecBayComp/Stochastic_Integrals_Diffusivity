@@ -44,7 +44,7 @@ conf_color_sequence = [my_colors(i).White; my_colors(i+1).White; my_colors(i+2).
 
 
 %% Load data
-log_K_mean = data_struct.log_K_mean;
+log_K_L_mean = data_struct.log_K_L_mean;
 x_bins_centers = data_struct.x_bins_centers;
 x_bins_number = length(x_bins_centers);
 
@@ -68,7 +68,7 @@ for lambda_type = 1:lambda_types_count
 	hold on;
 	str_legend = {};
 	for convention = 1:conventions_count
-		plot(x_bins_centers, log_K_mean(lambda_type, :, convention), strcat('-', markers_list{convention}), 'linewidth', line_width,...
+		plot(x_bins_centers, log_K_L_mean(lambda_type, :, convention), strcat('-', markers_list{convention}), 'linewidth', line_width,...
 			'color', color_sequence(convention, :), 'markers', marker_size);
 		str_legend{length(str_legend) + 1} = conventions_names{convention};
 	end;
