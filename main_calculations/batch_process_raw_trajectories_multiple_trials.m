@@ -31,7 +31,7 @@ pdf_norm = [];
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
 trials = sum(~[cur_dir.isdir]);
-trials = 10*4;
+trials = 30*4;
 
 
 
@@ -381,8 +381,8 @@ data_struct.trials_MAP_D = trials_MAP_D;
 data_struct.trials_MAP_b = trials_MAP_b;
 data_struct.trials_MAP_a = trials_MAP_a;
 data_struct.trials_MAP_bb_prime_regular_interp = trials_MAP_bb_prime_regular_interp;
-data_struct.trials_log_K = trials_log_K_L;
-data_struct.trials_log_G = trials_log_K_G;
+data_struct.trials_log_K_L = trials_log_K_L;
+data_struct.trials_log_K_G = trials_log_K_G;
 
 
 
@@ -425,8 +425,8 @@ for lambda_type = 1:lambda_types_count
 	% Fail rate a
     UR_a(lambda_type, :, :) = mean(double(trials_MAP_a(trial_simulation_type == lambda_type, :, :, 4) > CONF_LEVEL), 1, 'omitnan' );
 	
-	% Kolmogorov-Smirnov distance for b
-	b_KS_distance_mean(lambda_type, :) = mean(trials_b_KS_distance(trial_simulation_type == lambda_type, :), 1, 'omitnan');
+% 	% Kolmogorov-Smirnov distance for b
+% 	b_KS_distance_mean(lambda_type, :) = mean(trials_b_KS_distance(trial_simulation_type == lambda_type, :), 1, 'omitnan');
 	
 	% Bayes factors K
 	log_K_L_mean(lambda_type, :, :) = log(mean(exp(trials_log_K_L(trial_simulation_type == lambda_type, :, :)), 1, 'omitnan' ));
@@ -437,8 +437,8 @@ end;
 data_struct.MAP_D_mean = MAP_D_mean;
 data_struct.MAP_b_mean = MAP_b_mean;
 data_struct.MAP_a_mean = MAP_a_mean;
-data_struct.b_KS_distance_mean = b_KS_distance_mean;
-data_struct.b_KS_distance_bin_mean = mean(b_KS_distance_mean, 2);
+% data_struct.b_KS_distance_mean = b_KS_distance_mean;
+% data_struct.b_KS_distance_bin_mean = mean(b_KS_distance_mean, 2);
 data_struct.MAP_bb_prime_regular_interp_mean = MAP_bb_prime_regular_interp_mean;
 data_struct.UR_b = UR_b;
 data_struct.UR_a = UR_a;

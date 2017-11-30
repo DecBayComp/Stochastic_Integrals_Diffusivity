@@ -10,7 +10,7 @@ load_constants;
 sublabel_x = 0.03;
 sublabel_y = 0.08;
 x_lim_vec = [x_min, x_max];
-y_lim_vec = [-1, 1] * 30;
+y_lim_vec = [-1, 1] * 50;
 y_lim_vec_profile = [-1, 1] * 0.18;
 output_filename = 'a_fail_rate.pdf';
 % Subplot parameters
@@ -100,7 +100,7 @@ for lambda_type = 1:lambda_types_count
 	
 	% Legend
 	if lambda_type == 3
-		legend(str_legend, 'location', 'southwest');
+		legend(str_legend, 'location', 'northeast');
 	end;
 	
 	% Add confidence zones

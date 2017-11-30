@@ -2,8 +2,9 @@
 
 # Sbatch options
 #SBATCH -J ito-guy
-#SBATCH -p dedicated
-#SBATCH --qos=dbc
+### #SBATCH -p dedicated
+### #SBATCH --qos=dbc
+#SBATCH --qos=fast
 #SBATCH --cpus-per-task=1 
 #SBATCH --mem-per-cpu=50MB
 ## SBATCH --time=8
