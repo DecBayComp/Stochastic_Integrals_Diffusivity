@@ -58,6 +58,14 @@ switch D_case_number
         D_antider_func = @(x) D_0 * (x - cos(pi * omega * x) / (2 * pi * omega));
 		D_scnd_der_func_value = D_scnd_der_func(x);
 		
+	case 7 % Saw-tooth linear D
+        D_func_local = @(x) D_0 * (1 + k * (L/2.0 - abs(x)));
+        D_prime_func = @(x) - D_0 * k * sign(x);  
+		D_scnd_der_func = @(x) zeros(size(x));  
+        D_antider_func = @(x) D_0 * (x + k * (x * L/2.0 - x.^2/2 .* sign(x)));
+		
+		D_scnd_der_func_value = D_scnd_der_func(x);
+		
 		
 % % %         % Overriding boundary conditions
 % % %         str_mode = 'left_wall_only'; 

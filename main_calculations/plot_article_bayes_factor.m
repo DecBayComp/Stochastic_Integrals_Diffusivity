@@ -91,7 +91,7 @@ for lambda_type = 1:lambda_types_count
 	% Axes labels
 	xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 	if mod(lambda_type, 2)
-		ylabel('Bayes factor $\ln \langle K \rangle$', 'interpreter', 'latex');
+		ylabel('Bayes factor $\ln \langle K_L \rangle$', 'interpreter', 'latex');
 	end;
 
 	% Title

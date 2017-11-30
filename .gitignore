@@ -4,3 +4,4 @@ theory/b bias analysis_old \(copy\)\.nb
 theory/b bias analysis_old\.nb
 *.pyc
 trajectory_simulation_python/output/
+trajectory_simulation_python/logs/

@@ -42,8 +42,13 @@ def D_func(D_case_number, x, L):
 			D_shift = 1.5
 			D_slope = 1.0
 			return D_shift + D_slope * x/float(L)
+
 		elif D_case_number == 6: # Oscillating
 			return D_0/2.0 * (2.0 + np.sin(np.pi * omega * x))
+
+		# Saw-tooth, two parts 
+		elif D_case_number == 7:
+			return D_0 * (1.0 + k * (L/2.0 - np.abs(x)))
 			
 
 
@@ -73,8 +78,13 @@ def D_func(D_case_number, x, L):
 			D_shift = 1.5
 			D_slope = 1.0
 			return D_slope * 1.0 / float(L)
+
 		elif D_case_number == 6: # Oscillating
 			return D_0/2.0 * np.pi * omega * np.cos(np.pi * omega * x)
+
+		# Saw-tooth, two parts 
+		elif D_case_number == 7:
+			return - D_0 * k * np.sign(x)
 
 
 	## Calculate the result

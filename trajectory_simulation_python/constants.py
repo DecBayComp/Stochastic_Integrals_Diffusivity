@@ -48,7 +48,7 @@ CSV_DELIMITER = ';';
 # % bl_save_data = false;
 
 
-max_D_case = 6;
+max_D_case = 7;
 max_f_case = 8;
 
 

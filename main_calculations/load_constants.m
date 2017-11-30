@@ -69,12 +69,12 @@ bl_save_data = true;
 % bl_save_data = false;
 
 
-max_D_case_number = 6;
+max_D_case_number = 7;
 max_f_case_number = 8;
 
 
 %% Plotting results for the article
-selected_D_case = 2;
+selected_D_case = 7;
 selected_f_case = 2;
 
 
