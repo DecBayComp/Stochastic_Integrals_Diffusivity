@@ -15,6 +15,8 @@ x_step = x_marker_step/marker_step;
 output_D_filename = 'Simulated_D_a_b.pdf';
 
 % Subplot parameters
+rows = 1;
+cols = 4;
 spacing = 0.08;
 ML = 0.07;
 MR = 0.0125;
@@ -37,11 +39,15 @@ x_mesh_length = length(x_mesh);
 % D
 D_data = D_func(selected_D_case, x_mesh, L);
 % Force f
-f_data = f_func(selected_f_case, x_mesh, L);
+f_data_force = f_func(enum_force_case, x_mesh, L);
+f_data_no_force = f_func(enum_no_force_case, x_mesh, L);
 % Local drag
-a_data = f_data / gamma_drag;	% in um/s
+a_data_force = f_data_force / gamma_drag;	% in um/s
+a_data_no_force = f_data_no_force / gamma_drag;	% in um/s
 % Diffusivity b(x)
 b_data = sqrt(2*D_data);
+
+a_y_lim_vec = max(abs([a_data_force, a_data_no_force])) * [-1, 1];
 
 
 
@@ -52,28 +58,29 @@ clf;
 set_article_figure_size(h_fig, 1, 2, 1);
 
 % Initialize subplots
-h_sub = subaxis(1, 3, 1, 'Spacing', spacing, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
+h_sub = subaxis(rows, cols, 1, 'Spacing', spacing, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
 
 
 
-%% 'a' figure
+%% 'a' figure for FORCE case
 % Initialize subplot
-h_sub = subaxis(1, 3, 1);
+h_sub = subaxis(1);
 
 % Plot
 % color = 
-plot(x_mesh, a_data, '-o', 'LineWidth', 2,...
+plot(x_mesh, a_data_force, '-o', 'LineWidth', 2,...
     'color', standard_colors(1).DeepBlue, ...
 	'MarkerSize', marker_size, 'MarkerFaceColor', standard_colors(1).DeepBlue,...
     'MarkerIndices', 1:marker_step:x_mesh_length);
 
 % Adjust
-max_a = max(a_data);
-if max_a ~= 0
-	ylim([0, max_a]);
-else
-	ylim('auto');
-end;
+% max_a = max(a_data_force);
+% if max_a ~= 0
+% 	ylim([0, max_a]);
+% else
+% 	ylim('auto');
+% end;
+ylim(a_y_lim_vec);
 box on;
 grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
@@ -87,9 +94,41 @@ text(sublabel_x, sublabel_y, 'A', 'Units', 'Normalized', 'VerticalAlignment', 'T
 
 
 
+%% 'a' figure for NO FORCE case
+% Initialize subplot
+h_sub = subaxis(2);
+
+% Plot
+% color = 
+plot(x_mesh, a_data_no_force, '-o', 'LineWidth', 2,...
+    'color', standard_colors(1).DeepBlue, ...
+	'MarkerSize', marker_size, 'MarkerFaceColor', standard_colors(1).DeepBlue,...
+    'MarkerIndices', 1:marker_step:x_mesh_length);
+
+% Adjust
+% max_a = max(a_data_force);
+% if max_a ~= 0
+% 	ylim([0, max_a]);
+% else
+% 	ylim('auto');
+% end;
+ylim(a_y_lim_vec);
+box on;
+grid on;
+xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
+ylabel('$a$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
+
+% Modify ticks
+set(gca,'xtick', x_min:x_tick_increment:x_max);
+
+% Subplot label
+text(sublabel_x, sublabel_y, 'B', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+
+
+
 %% Diffusivity figure
 % Initialize sbuplot
-h_sub = subaxis(1, 3, 2);
+h_sub = subaxis(3);
 
 % Plot
 % color = 
@@ -108,13 +147,13 @@ ylabel('$D$, $\mu \mathrm{m^2/s}$', 'interpreter', 'latex');
 set(gca,'xtick', x_min:x_tick_increment:x_max);
 
 % Subplot label
-text(sublabel_x, sublabel_y, 'B', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+text(sublabel_x, sublabel_y, 'C', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 
 
 
 %% b figure
 % Initialize sbuplot
-h_sub = subaxis(1, 3, 3);
+h_sub = subaxis(4);
 
 % Plot
 % color = 
@@ -135,7 +174,7 @@ ylabel('$b$, $\mu \mathrm{m / s^{1/2}}$', 'interpreter', 'latex');
 set(gca,'xtick', x_min:x_tick_increment:x_max);
 
 % Subplot label
-text(sublabel_x, sublabel_y, 'C', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+text(sublabel_x, sublabel_y, 'D', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 
 
 

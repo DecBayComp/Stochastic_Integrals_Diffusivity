@@ -31,6 +31,8 @@ w = 10;
 
 %% Choose simulation type
 bl_force = true;
+enum_force_case = 2;
+enum_no_force_case = 1;
 
 
 %% Binning
@@ -64,11 +66,11 @@ output_figures_folder = './figures_for_article/';
 output_data_folder = './processed_data/';
 if bl_force
 	input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_with_force/';
-	selected_f_case = 2;
+	selected_f_case = enum_force_case;
 	str_force = 'with_force';	
 else
 	input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_no_force/';
-	selected_f_case = 1;
+	selected_f_case = enum_no_force_case;
 	str_force = 'no_force';
 end
 % input_data_folder = '/Users/alexander_serov/Calculations_data/ito-stratonovich/'; % Mac
