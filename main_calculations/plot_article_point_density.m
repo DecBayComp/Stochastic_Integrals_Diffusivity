@@ -7,7 +7,7 @@ function plot_article_point_density(data_struct, fig_count, bl_save_figures)
 %% Constants
 load_constants;
 x_tick_increment = 0.1;
-output_filename = 'Point_density.pdf';
+output_filename_base = 'point_density';
 
 % Define plot colors
 load_color_scheme;
@@ -91,6 +91,7 @@ fig_pos = h_fig.Position;
 set(h_fig, 'PaperUnits','Inches','PaperSize', [fig_pos(3), fig_pos(4)]);
 
 % Set filename
+output_filename = strcat(output_filename_base, '_', str_force, '.pdf');
 output_full_path = strcat(output_figures_folder, output_filename);
 if bl_save_figures
     print(h_fig, output_full_path, '-dpdf', '-r0');

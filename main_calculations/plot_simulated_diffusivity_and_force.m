@@ -12,7 +12,7 @@ load_color_scheme;
 x_marker_step = 0.05 * L;
 marker_step = 10;
 x_step = x_marker_step/marker_step;
-output_D_filename = 'Simulated_D_a_b.pdf';
+output_D_filename = 'simulated_D_a_b.pdf';
 
 % Subplot parameters
 rows = 1;
