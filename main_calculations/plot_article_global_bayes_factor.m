@@ -8,14 +8,15 @@ function plot_article_global_bayes_factor(data_struct, fig_count, bl_save_figure
 
 %% Constants
 load_constants;
+output_filename_base = 'K_G';
 
 % Subplot parameters
 SH = 0.05;
 SV = 0.12;
-ML = 0.07;
-MR = 0.02;
+ML = 0.06;
+MR = 0.01;
 MT = 0.09;
-MB = 0.17;
+MB = 0.09;
 rows = 1;
 cols = 4;
 
@@ -133,7 +134,18 @@ end;
 
 
 
-1;
+%% Save figure
+% Prepare printer
+h_fig.PaperPositionMode = 'auto';
+h_fig.Units = 'Inches';
+fig_pos = h_fig.Position;
+set(h_fig, 'PaperUnits','Inches','PaperSize', [fig_pos(3), fig_pos(4)]);
+% Set filename
+output_filename = strcat(output_filename_base, '_', data_struct.str_force, '.pdf');
+output_full_path = strcat(output_figures_folder, output_filename);
+if bl_save_figures
+    print(h_fig, output_full_path, '-dpdf', '-r0');
+end;
 
 
 

@@ -5,3 +5,4 @@ theory/b bias analysis_old\.nb
 *.pyc
 trajectory_simulation_python/output/
 trajectory_simulation_python/logs/
+main_calculations/figures_for_article/results_with_force.dat

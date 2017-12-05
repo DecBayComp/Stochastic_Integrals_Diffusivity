@@ -27,6 +27,19 @@ fD_pdf_plot_data = [];
 pdf_norm = [];
 
 
+
+%% Identify if calculation with force or with no force is required
+if bl_force
+	input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_with_force/';
+	selected_f_case = enum_force_case;
+	str_force = 'with_force';	
+else
+	input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_no_force/';
+	selected_f_case = enum_no_force_case;
+	str_force = 'no_force';
+end
+
+
 %% Access trajectories folder and start loading trajectories
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
@@ -121,6 +134,8 @@ parfor trial = 1:trials  % 765
     %% Initialize
     % Initialize the data structure
     data_struct = initialize_data_structure(x_bins_number, fine_mesh_steps_count, conventions_count, lambda_types_count);
+	data_struct.bl_force = bl_force;
+	data_struct.str_force = str_force;
     data_struct.x_bins_number = x_bins_number;
 	data_struct.x_bins_centers = x_bins_centers;
     data_struct.x_bins_widths = x_bins_widths;
@@ -443,8 +458,8 @@ data_struct.MAP_bb_prime_regular_interp_mean = MAP_bb_prime_regular_interp_mean;
 data_struct.UR_b = UR_b;
 data_struct.UR_a = UR_a;
 data_struct.n_j_mean = n_j_mean;
-data_struct.log_K_L_mean = mean_log_K_L;
-data_struct.log_K_G_mean = mean_log_K_G;
+data_struct.mean_log_K_L = mean_log_K_L;
+data_struct.mean_log_K_G = mean_log_K_G;
 
 
 

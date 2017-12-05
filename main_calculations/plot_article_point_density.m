@@ -91,7 +91,7 @@ fig_pos = h_fig.Position;
 set(h_fig, 'PaperUnits','Inches','PaperSize', [fig_pos(3), fig_pos(4)]);
 
 % Set filename
-output_filename = strcat(output_filename_base, '_', str_force, '.pdf');
+output_filename = strcat(output_filename_base, '_', data_struct.str_force, '.pdf');
 output_full_path = strcat(output_figures_folder, output_filename);
 if bl_save_figures
     print(h_fig, output_full_path, '-dpdf', '-r0');

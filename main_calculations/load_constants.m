@@ -64,15 +64,6 @@ bin_color = my_colors(3).White;
 
 output_figures_folder = './figures_for_article/';
 output_data_folder = './processed_data/';
-if bl_force
-	input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_with_force/';
-	selected_f_case = enum_force_case;
-	str_force = 'with_force';	
-else
-	input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_no_force/';
-	selected_f_case = enum_no_force_case;
-	str_force = 'no_force';
-end
 % input_data_folder = '/Users/alexander_serov/Calculations_data/ito-stratonovich/'; % Mac
 fail_rates_filename = 'Fail_rates.dat';
 CSV_DELIMITER = ';';

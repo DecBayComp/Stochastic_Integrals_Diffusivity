@@ -12,7 +12,7 @@ sublabel_y = 0.08;
 x_lim_vec = [x_min, x_max];
 y_lim_vec = [-1, 1] * 1.3;
 y_lim_vec_profile = [-1, 1] * 0.18;
-output_filename_base = 'a_fail_rate';
+output_filename_base = 'K_L';
 % Subplot parameters
 SH = 0.03;
 SV = 0.12;
@@ -135,8 +135,11 @@ for lambda_type = 1:lambda_types_count
 	title(str_title, 'interpreter', 'latex');
 	
 	% Legend
-	if lambda_type == 2
+	if lambda_type == 2 && ~data_struct.bl_force
 		legend(str_legend, 'location', 'northeast', 'fontsize', legend_font_size);
+	
+	elseif lambda_type == 2 && data_struct.bl_force
+		legend(str_legend, 'location', 'southwest', 'fontsize', legend_font_size);
 	end;
 	
 	% Add confidence zones
@@ -145,208 +148,11 @@ for lambda_type = 1:lambda_types_count
 	% Color bin borders
 	color_bins(bin_borders, y_lim_vec, bin_color);
 	
-% % % 	%% Positive evidence
-% % % % 	h_zone_1 = plot (x_lim_vec, CONF_LN_K_POSITIVE(1) * ones(2,1), 'k--', 'LineWidth', line_width_theor);
-% % % % 	h_zone_2 = plot (x_lim_vec, -CONF_LN_K_POSITIVE(1) * ones(2,1), 'k--', 'LineWidth', line_width_theor);
-% % % % 	
-% % % % 	% Send the zone behind all
-% % % %  	uistack([h_zone_1, h_zone_2], 'bottom');
-% % % 
-% % % 	cur_color = conf_color_sequence(1, :);
-% % % 	rect = [x_lim_vec(1), CONF_LN_K_POSITIVE(1), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_POSITIVE(2) - CONF_LN_K_POSITIVE(1)];
-% % % 	% Color the zone
-% % %  	h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', cur_color);
-% % % 	% Send the zone behind all
-% % % 	uistack(h_rec, 'bottom');
-% % % 	
-% % % 	rect = [x_lim_vec(1), -CONF_LN_K_POSITIVE(2), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_POSITIVE(2) - CONF_LN_K_POSITIVE(1)];
-% % % 	% Color the zone
-% % %  	h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', cur_color);
-% % % 	% Send the zone behind all
-% % % 	uistack(h_rec, 'bottom');
-% % % 	
-% % % 	%% Strong evidence
-% % % % 	h_zone_1 = plot (x_lim_vec, CONF_LN_K_STRONG(1) * ones(2,1), 'k--', 'LineWidth', line_width_theor);
-% % % % 	h_zone_2 = plot (x_lim_vec, -CONF_LN_K_STRONG(1) * ones(2,1), 'k--', 'LineWidth', line_width_theor);
-% % % % 	
-% % % % 	% Send the zone behind all
-% % % %  	uistack([h_zone_1, h_zone_2], 'bottom');
-% % % 	
-% % % 	cur_color = conf_color_sequence(2, :);
-% % % 	rect = [x_lim_vec(1), CONF_LN_K_STRONG(1), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_STRONG(2) - CONF_LN_K_STRONG(1)];
-% % % 	% Color the zone
-% % %  	h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', cur_color);
-% % % 	% Send the zone behind all
-% % % 	uistack(h_rec, 'bottom');
-% % % 	
-% % % 	rect = [x_lim_vec(1), -CONF_LN_K_STRONG(2), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_STRONG(2) - CONF_LN_K_STRONG(1)];
-% % % 	% Color the zone
-% % %  	h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', cur_color);
-% % % 	% Send the zone behind all
-% % % 	uistack(h_rec, 'bottom');
-% % % 	
-% % % 	%% Very strong evidence
-% % % 	cur_color = conf_color_sequence(3, :);
-% % % 	rect = [x_lim_vec(1), CONF_LN_K_VERY_STRONG(1), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_VERY_STRONG(2) - CONF_LN_K_VERY_STRONG(1)];
-% % % 	% Color the zone
-% % %  	h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', cur_color);
-% % % 	% Send the zone behind all
-% % % 	uistack(h_rec, 'bottom');
-% % % 	
-% % % 	rect = [x_lim_vec(1), -CONF_LN_K_VERY_STRONG(2), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_VERY_STRONG(2) - CONF_LN_K_VERY_STRONG(1)];
-% % % 	% Color the zone
-% % %  	h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', cur_color);
-% % % 	% Send the zone behind all
-% % % 	uistack(h_rec, 'bottom');
-% % % 
-% % % % % 		%% Evidence < strong
-% % % % % 		rect = [x_lim_vec(1), -CONF_LN_K_STRONG(1), x_lim_vec(2) - x_lim_vec(1), 2 * CONF_LN_K_STRONG(1)];
-% % % % % 		% Color the zone
-% % % % % 		h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', conf_color_sequence(1, :));
-% % % % % 		% Send the zone behind all
-% % % % % 		uistack(h_rec, 'bottom');
-% % % 	
-% % % % % % 	%% Very strong evidence
-% % % % % % 	rect = [x_lim_vec(1), CONF_LN_K_VERY_STRONG(1), x_lim_vec(2) - x_lim_vec(1), CONF_LN_K_VERY_STRONG(2) - CONF_LN_K_VERY_STRONG(1)];
-% % % % % % 	% Color the zone
-% % % % % %  	h_rec = rectangle('Position', rect, 'LineStyle', 'none', 'FaceColor', conf_color_sequence(3, :));
-% % % % % % 	% Send the zone behind all
-% % % % % % 	uistack(h_rec, 'bottom');
-% % % 	
-% % % 	% Push theory back
-% % % % 	uistack(h_theor, 'bottom');
-	
 	% Put axes on top
 	set(gca, 'Layer', 'top');
 
 end;
 
-
-
-
-% % %     %% == (1): Profile plot ==
-% % %     subaxis(1);
-% % %     hold on;
-% % %     % Plot each convention
-% % %     for convention = 1:conventions_count
-% % %         plot(data_struct.x_bins_centers(1:plot_every:end),  data_struct.MAP_a_mean(lambda_type, 1:plot_every:end, convention, 1),...
-% % %             strcat('-', markers_list{convention}), 'color', color_sequence(convention, :), 'LineWidth', line_width, 'markers', marker_size);
-% % %     end;
-% % %     % True profile (theory)
-% % %     h_theor = plot(data_struct.x_fine_mesh, data_struct.a_theor_fine_data, '--k', 'LineWidth', line_width);
-% % % 
-% % %     %% Adjust
-% % %     xlim(x_lim_vec);
-% % %     ylim(y_lim_vec_profile);
-% % %     box on;
-% % %     
-% % %     xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-% % %     if lambda_type == 1
-% % %         ylabel('$\langle \hat a \rangle$', 'interpreter', 'latex');
-% % %     end;
-% % %     str_title = {'$\lambda^* = 0$', '$\lambda^* = 0.5$', '$\lambda^* = 1$', 'Random $\lambda^*$'};
-% % % %     title(str_title{lambda_type}, 'interpreter', 'latex');
-% % % 
-% % % 	% Subplot label
-% % % 	text(sublabel_x, sublabel_y, 'A', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
-% % %     
-% % %     % Push theoretical curve back
-% % %     uistack(h_theor, 'bottom');
-% % % 	
-% % % 	% Modify ticks
-% % % 	set(gca,'xtick', x_min:x_tick_increment:x_max);
-	
-	
-	
-% % % 	%% == (2): a profile in bin ==
-% % % 	selected_x_over_L = 0.4;
-% % % 	lambda_type = enum_lambda_rand;
-% % % 	
-% % % 	subaxis(2);
-% % % 	plot_article_a_profile_in_bin(data_struct, trials_data, lambda_type, selected_x_over_L);
-	
-% 	% Make pause to allow drawing
-% 	pause(0.1);
-	
-	
-	
-% % % 	%% == (3): CDF of force f >= F ==
-% % % 	subaxis(3);
-% % % 	plot_article_a_CDF(data_struct, trials_data, lambda_type, selected_x_over_L);
-	
-	
-% % % 	%% == (2): Mean bias plot ==
-% % %     subaxis(2);
-% % %     hold on;
-% % %     % Plot each convention
-% % %     for convention = 1:conventions_count
-% % %         plot(data_struct.x_bins_centers(1:plot_every:end),  data_struct.MAP_a_mean(lambda_type, 1:plot_every:end, convention, 1) - data_struct.a_theor_data',...
-% % %             strcat('-', markers_list{convention}), 'color', color_sequence(convention, :), 'LineWidth', line_width, 'markers', marker_size);
-% % %     end;
-% % % %     % True profile (theory)
-% % % %     h_theor = plot(data_struct.x_fine_mesh, data_struct.a_theor_fine_data, '--k', 'LineWidth', line_width);
-% % % 
-% % %     %% Adjust
-% % %     xlim(x_lim_vec);
-% % %     ylim(y_lim_vec_profile);
-% % %     box on;
-% % %     
-% % %     xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-% % %     if lambda_type == 1
-% % %         ylabel('$\langle \hat a \rangle$', 'interpreter', 'latex');
-% % %     end;
-% % %     str_title = {'$\lambda^* = 0$', '$\lambda^* = 0.5$', '$\lambda^* = 1$', 'Random $\lambda^*$'};
-% % % %     title(str_title{lambda_type}, 'interpreter', 'latex');
-% % %     
-% % %     % Push theoretical curve back
-% % %     uistack(h_theor, 'bottom');
-% % % 	
-% % % 	% Modify ticks
-% % % 	set(gca,'xtick', x_min:x_tick_increment:x_max);
-% % % 	
-% % % 	% Subplot label
-% % % 	text(sublabel_x, sublabel_y, 'B', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
-	
-	
-% % % % % 	%% == (2): KS distance plot ==
-% % % % %     subaxis(2);
-% % % % %     hold on;
-% % % % %     str_legend = {};
-% % % % %     % Plot each inference conventions
-% % % % %     for convention = 1:conventions_count
-% % % % %         plot(data_struct.x_bins_centers(1:plot_every:end),  data_struct.UR_a(lambda_type, 1:plot_every:end, convention) * 100,...
-% % % % %             strcat('-', markers_list{convention}), 'LineWidth', line_width, 'color', color_sequence(convention, :), 'markers', marker_size);
-% % % % %         % Update legend
-% % % % %         str_legend{end + 1} = conventions_names{convention};
-% % % % %     end
-% % % % %     % Confidence level (theory)
-% % % % %     plot(x_lim_vec, x_lim_vec * 0 + (1 - CONF_LEVEL) * 100, 'k--', 'LineWidth', line_width);
-% % % % % 
-% % % % %     %% Adjust
-% % % % %     xlim(x_lim_vec);
-% % % % %     ylim(y_lim_vec_FR);
-% % % % %     box on;
-% % % % %     
-% % % % %     xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-% % % % %     if lambda_type == 1
-% % % % %         ylabel('Fail rate, \%', 'interpreter', 'latex');
-% % % % %     end;
-% % % % %     
-% % % % % 	% Subplot label
-% % % % % 	text(sublabel_x, sublabel_y, 'C', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
-% % % % %     
-% % % % %     % Legend
-% % % % %     if lambda_type == 2
-% % % % %         legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
-% % % % %         legend boxon;
-% % % % %     end;   
-% % % % % 	
-% % % % % 	% Modify ticks
-% % % % % 	set(gca,'xtick', x_min:x_tick_increment:x_max);
- 
-    
-    
-% end;
 
 
 %% Save figure
@@ -356,7 +162,7 @@ h_fig.Units = 'Inches';
 fig_pos = h_fig.Position;
 set(h_fig, 'PaperUnits','Inches','PaperSize', [fig_pos(3), fig_pos(4)]);
 % Set filename
-output_filename = strcat(output_filename_base, '_', str_force, '.pdf');
+output_filename = strcat(output_filename_base, '_', data_struct.str_force, '.pdf');
 output_full_path = strcat(output_figures_folder, output_filename);
 if bl_save_figures
     print(h_fig, output_full_path, '-dpdf', '-r0');

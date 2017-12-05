@@ -168,7 +168,7 @@ ylim(y_lim_vec);
 box on;
 grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('$b$, $\mu \mathrm{m / s^{1/2}}$', 'interpreter', 'latex');
+ylabel('$b$, $\mu \mathrm{m \cdot s^{-1/2}}$', 'interpreter', 'latex');
 
 % Modify ticks
 set(gca,'xtick', x_min:x_tick_increment:x_max);

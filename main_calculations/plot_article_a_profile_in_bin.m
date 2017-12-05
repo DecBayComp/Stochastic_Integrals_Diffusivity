@@ -10,7 +10,7 @@ load_constants;
 a_steps = round(1 + 2^8);
 factor = 8;
 y_factor = 1e3;
-output_filename = 'a_one_bin.pdf';
+% output_filename = 'a_one_bin.pdf';
 
 
 %% Initialize
@@ -41,7 +41,7 @@ a_values(4) = mu_n / t_step - tmp_lambda * bb_prime;
 tmp_lambda = lambda;
 a_values(5) = mu_n / t_step - tmp_lambda * bb_prime;
 % Exact a
-a_values(conventions_count + 1) = f_func(selected_f_case, selected_bins_centers*L, L) / gamma_drag;
+a_values(conventions_count + 1) = data_struct.a_theor_data(bin);
 
 % Among the calculated values, detect the longest interval and centrally increase its length
 a_min = min(a_values);

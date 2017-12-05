@@ -22,7 +22,7 @@ MB = 0.15;
 % Label params
 sublabel_x = 0.015;
 sublabel_y = 1.11;
-output_filename = 'b.pdf';
+output_filename_base = 'b';
 
 % Other plot parameters
 bin_plot_step = 1;	% 3
@@ -140,7 +140,7 @@ xlim(x_lim_vec);
 box on;
 grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('$\langle \hat b \rangle$, $\mu\mathrm{m / s^{1/2}}$', 'interpreter', 'latex');
+ylabel('$\langle \hat b \rangle$, $\mu\mathrm{m \cdot s^{-1/2}}$', 'interpreter', 'latex');
 title('Average diffusivity profile', 'interpreter', 'latex');
 
 % Send theoretical curves back
@@ -156,102 +156,6 @@ text(sublabel_x, sublabel_y, 'A', 'Units', 'Normalized', 'VerticalAlignment', 'T
 
 % Color bin borders
 color_bins(bins_borders, ylim(), bin_color);
-
-
-
-% % % % % %% == (B): Average b bias ==
-% % % % % % Constants
-% % % % % scale = 1e-3;
-% % % % % y_lim_vec = [-1, 1] * 6e-3 / scale;
-% % % % % 
-% % % % % % Initialize subplot
-% % % % % subaxis(rows, cols, 2);
-% % % % % hold on;
-% % % % % 
-% % % % % % Plot numerical data
-% % % % % str_legend = {};
-% % % % % for lambda_type = 1:lambda_types_count
-% % % % %     plot(data_struct.x_bins_centers,...
-% % % % %         (data_struct.MAP_b_mean(lambda_type, :, 1) - b_true_avg) / scale, strcat(markers_list{lambda_type}),...
-% % % % %         'markers', marker_size, 'LineWidth', line_width, 'color', color_sequence(lambda_type, :));
-% % % % %     str_legend{end + 1} = lambda_types_names{lambda_type};
-% % % % % end;
-% % % % % 
-% % % % % % Plot the analytical bias estimate
-% % % % % for lambda_ind = 1:lambda_types_count-1
-% % % % % 	plot(data_struct.x_bins_centers, b_estimate_avg_bias(lambda_ind, :) / scale, 'LineWidth', line_width, 'color', color_sequence(lambda_ind, :)); 
-% % % % % end;
-% % % % % 
-% % % % % % Plot zero bias line
-% % % % % h_theor_0 = plot(x_lim_vec, 0 * x_lim_vec, 'k--', 'LineWidth', line_width_theor);
-% % % % % 
-% % % % % % Adjust
-% % % % % xlim(x_lim_vec);
-% % % % % ylim(y_lim_vec);
-% % % % % xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-% % % % % ylabel('$\langle \delta b \rangle$, $10^{-3}\mu\mathrm{m / s^{1/2}}$', 'interpreter', 'latex');
-% % % % % 
-% % % % % % Modify ticks
-% % % % % set(gca,'xtick', x_ticks);
-% % % % % 
-% % % % % % Subplot label
-% % % % % text(sublabel_x, sublabel_y, 'B', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
-% % % % % title('Average diffusivity bias', 'interpreter', 'latex');
-% % % % % grid on;
-% % % % % 
-% % % % % % % Legend
-% % % % % % legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
-% % % % % % legend boxon;
-% % % % % 
-% % % % % % Reorder curves
-% % % % % uistack(h_theor_0, 'bottom');
-% % % % % 
-% % % % % 
-% % % % % 
-% % % % % %% == (C): Kolmogorov-Smirnov distance between MAP distribution of b and predicted posterior in each trial. Averaged over the number of trials ==
-% % % % % % Constants
-% % % % % y_lim_vec = [0, 1];
-% % % % % 
-% % % % % % Initialize subplot
-% % % % % subaxis(rows, cols, 3);
-% % % % % hold on;
-% % % % % 
-% % % % % % Plot numerical data
-% % % % % str_legend = {};
-% % % % % for lambda_type = 1:lambda_types_count
-% % % % %     plot(data_struct.x_bins_centers,  data_struct.b_KS_distance_mean(lambda_type, :),...
-% % % % %         strcat('-', markers_list{lambda_type}), 'color', color_sequence(lambda_type, :),  'LineWidth', line_width, 'markers', marker_size);
-% % % % %     str_legend{end + 1} = lambda_types_names{lambda_type};
-% % % % % end;
-% % % % % 
-% % % % % % % Plot the optimal overlap level (confidence level)
-% % % % % % h_conf = plot(x_lim_vec, [1, 1] * CONF_LEVEL * 100, 'k--', 'linewidth', line_width_theor);
-% % % % % 
-% % % % % % Adjust plot
-% % % % % xlim(x_lim_vec);
-% % % % % ylim(y_lim_vec);
-% % % % % box on;
-% % % % % grid on;
-% % % % % xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-% % % % % ylabel('KS distance', 'interpreter', 'latex');
-% % % % % title('Average KS distance for $b$', 'interpreter', 'latex');
-% % % % % 
-% % % % % % Modify ticks
-% % % % % set(gca,'xtick', x_ticks);
-% % % % % 
-% % % % % % Legend
-% % % % % legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
-% % % % % legend boxon;
-% % % % % 
-% % % % % % Subplot label
-% % % % % text(sublabel_x, sublabel_y, 'C', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
-% % % % % 
-% % % % % % % Send confidence level back
-% % % % % % uistack(h_conf, 'bottom');
-
-
-
-
 
 
 
@@ -294,7 +198,7 @@ title(sprintf('Diffusivity gradient profile for $\\lambda^* = %.2f$', tmp_data_s
 set(gca,'xtick', x_min:x_tick_increment:x_max);
 
 % Subplot label
-text(sublabel_x, sublabel_y, 'D', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+text(sublabel_x, sublabel_y, 'B', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 
 % Legend
 str_legend_local = {'FD', 'R', 'RI'};
@@ -313,6 +217,7 @@ fig_pos = h_fig.Position;
 set(h_fig, 'PaperUnits','Inches','PaperSize', [fig_pos(3), fig_pos(4)]);
 
 % Set filename
+output_filename = strcat(output_filename_base, '_', data_struct.str_force, '.pdf');
 output_full_path = strcat(output_figures_folder, output_filename);
 if bl_save_figures
     print(h_fig, output_full_path, '-dpdf', '-r0');
