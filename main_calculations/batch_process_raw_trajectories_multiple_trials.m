@@ -484,7 +484,7 @@ data_struct.UR_a_bin_max = UR_a_bin_max;
 trials_x = [];
 trials_dx = [];
 points_binned = [];
-save('backup_workspace.mat');
+save(strcat('backup_workspace_', str_force, '.mat'));
 save(strcat(output_data_folder, 'trials_data.mat'), 'data_struct', 'trials_data');
 
 % Print execution time

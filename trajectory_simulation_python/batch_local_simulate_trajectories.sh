@@ -8,7 +8,7 @@ logs_folder="./logs/"
 output_folder="./output/"
 args_file="./arguments.dat"
 D_case=7
-f_case=2
+f_case=1
 
 echo "Creating arguments list..."
 

@@ -10,18 +10,18 @@ load_constants;
 sublabel_x = 0.03;
 sublabel_y = 0.08;
 x_lim_vec = [x_min, x_max];
-y_lim_vec = [-1, 1] * 50;
+y_lim_vec = [-1, 5] * 10;
 y_lim_vec_profile = [-1, 1] * 0.18;
 output_filename = 'a_fail_rate.pdf';
 % Subplot parameters
 SH = 0.05;
 SV = 0.12;
-ML = 0.07;
+ML = 0.06;
 MR = 0.02;
-MT = 0.07;
-MB = 0.1;
-rows = 2;
-cols = 2;
+MT = 0.1;
+MB = 0.15;
+rows = 1;
+cols = 4;
 
 % Skip some bins
 plot_every = 1;
@@ -47,7 +47,7 @@ conf_color_sequence = [my_colors(i).White; my_colors(i+1).White; my_colors(i+2).
 log_K_L_mean = data_struct.log_K_L_mean;
 x_bins_centers = data_struct.x_bins_centers;
 x_bins_number = length(x_bins_centers);
-
+bin_borders = [1; 1] * data_struct.x_bins_centers' + [-1/2; 1/2] * data_struct.x_bins_widths';
 
 
 %% Plot
@@ -62,6 +62,13 @@ subaxis(rows, cols, 1, 'SH', SH, 'SV', SV, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', M
 
 % Choose simulation type
 for lambda_type = 1:lambda_types_count
+	
+	%% Calculate
+	% Extract current lambda type results
+	log_K_L = data_struct.trials_log_K_L(trial_simulation_type == lambda_type, :, :);	% [bin, convention]
+	
+	% Calculate std of the local Bayes factor
+	log_K_L_std(lambda_type, :) = std (log_K_L, [], 1);
 
 	% Plot
 	subaxis(lambda_type);
@@ -90,21 +97,24 @@ for lambda_type = 1:lambda_types_count
 
 	% Axes labels
 	xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-	if mod(lambda_type, 2)
+	if lambda_type == 1
 		ylabel('Bayes factor $\ln \langle K_L \rangle$', 'interpreter', 'latex');
 	end;
 
 	% Title
-	str_title = sprintf('%s simulation', lambda_types_tex_names{lambda_type});
+	str_title = sprintf('%s sim.', lambda_types_tex_names{lambda_type});
 	title(str_title, 'interpreter', 'latex');
 	
 	% Legend
-	if lambda_type == 3
-		legend(str_legend, 'location', 'northeast');
+	if lambda_type == 1
+		legend(str_legend, 'location', 'north');
 	end;
 	
 	% Add confidence zones
 	x_lim_vec = xlim();
+	
+	% Color bin borders
+	color_bins(bin_borders, y_lim_vec, bin_color);
 	
 % % % 	%% Positive evidence
 % % % % 	h_zone_1 = plot (x_lim_vec, CONF_LN_K_POSITIVE(1) * ones(2,1), 'k--', 'LineWidth', line_width_theor);

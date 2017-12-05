@@ -29,6 +29,9 @@ fine_mesh_steps_count = 1000 + 1;
 CONF_LEVEL = 0.95;
 w = 10;
 
+%% Choose simulation type
+bl_force = true;
+
 
 %% Binning
 points_in_bin_avg = 10;
@@ -59,8 +62,15 @@ bin_color = my_colors(3).White;
 
 output_figures_folder = './figures_for_article/';
 output_data_folder = './processed_data/';
-input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_with_force/';  % Ubuntu
-% input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_no_force/';  % Ubuntu
+if bl_force
+	input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_with_force/';
+	selected_f_case = 2;
+	str_force = 'with_force';	
+else
+	input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_no_force/';
+	selected_f_case = 1;
+	str_force = 'no_force';
+end
 % input_data_folder = '/Users/alexander_serov/Calculations_data/ito-stratonovich/'; % Mac
 fail_rates_filename = 'Fail_rates.dat';
 CSV_DELIMITER = ';';
@@ -75,7 +85,7 @@ max_f_case_number = 8;
 
 %% Plotting results for the article
 selected_D_case = 7;
-selected_f_case = 2;
+
 
 
 %% Choosing the boundary conditions

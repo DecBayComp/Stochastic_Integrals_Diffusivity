@@ -2,7 +2,7 @@
 
 
 
-function plot_article_global_Bayes_factor(data_struct, trials_data, fig_count, bl_save_figures)
+function plot_article_global_bayes_factor(data_struct, fig_count, bl_save_figures)
 
 
 
@@ -41,8 +41,8 @@ trial_simulation_type = data_struct.trial_simulation_type;
 log_K_G_all_trials = data_struct.trials_log_K_G;
 
 % Calculate std of the global Bayes factor for each simulation - inference couple
-log_K_G_mean = zeros(lambda_types_count, conventions_count);
-log_K_G_std = zeros(lambda_types_count, conventions_count);
+log_mean_K_G = zeros(lambda_types_count, conventions_count);
+log_std_K_G = zeros(lambda_types_count, conventions_count);
 y_lim_vec = [0,0];
 for lambda_type = 1:lambda_types_count
 	% Initialize plot
@@ -53,18 +53,19 @@ for lambda_type = 1:lambda_types_count
 	log_K_G = log_K_G_all_trials(trial_simulation_type == lambda_type, :);
 	
 	% Calculate mean
-	log_K_G_mean(lambda_type, :) = mean(log_K_G, 1);
+	log_mean_K_G(lambda_type, :) = log(mean(exp(log_K_G), 1));
 	
 	% Calculate stds of the global Bayes factor
 % 	for convention = 1:conventions_count
-	log_K_G_std(lambda_type, :) = std (log_K_G, [], 1);
+	K_G_std(lambda_type, :) = std(exp(log_K_G), [], 1);
+	log_std_K_G(lambda_type, :) = log(std(exp(log_K_G), [], 1));
 % 	end
 	
 	% Plot with error bars
 	str_legend = {};
 	for convention = 1:conventions_count
-		errorbar(convention, log_K_G_mean(lambda_type, convention), log_K_G_std(lambda_type, convention) * sqrt(2) * erfinv(0.95), markers_list{convention},...
-			'color', color_sequence(convention, :), 'markers', marker_size);
+		errorbar(convention, log_mean_K_G(lambda_type, convention), log_std_K_G(lambda_type, convention) * sqrt(2) * erfinv(0.95), markers_list{convention},...
+			'color', color_sequence(convention, :), 'markers', marker_size, 'linewidth', line_width);
 		str_legend{length(str_legend) + 1} = conventions_names{convention};
 	end;
 	
@@ -85,6 +86,7 @@ for lambda_type = 1:lambda_types_count
 	
 	% Theory
 	h_theor = plot(xlim(), [0,0], 'k--', 'linewidth', line_width_theor);
+	uistack(h_theor, 'bottom');
 	
 % % % 	% Keep y limits if larger
 % % % 	cur_y_lim_vec = ylim();
@@ -103,8 +105,8 @@ end
 
 %% Reset y limits
 y_lim_vec = [0, 0];
-y_lim_vec(1) = min(min(log_K_G_mean - log_K_G_std * sqrt(2) * erfinv(0.95)));
-y_lim_vec(2) = max(max(log_K_G_mean + log_K_G_std * sqrt(2) * erfinv(0.95)));
+y_lim_vec(1) = min(min(log_mean_K_G - log_std_K_G * sqrt(2) * erfinv(0.95)));
+y_lim_vec(2) = max(max(log_mean_K_G + log_std_K_G * sqrt(2) * erfinv(0.95)));
 
 % Slightly increase the interval width
 y_lim_vec = y_lim_vec + [-1/2, 1/2]  * (y_lim_vec(2) - y_lim_vec(1)) * y_increase_frac;

@@ -16,7 +16,7 @@ def f_func(f_case_number, x, L):
 
 	## Select f function
 	def f_func_local(x):
-		if f_case_number == 1:
+		if f_case_number == 1:		# No force
 			f0 = 0.0
 			return 0.0 * x + f0
 
