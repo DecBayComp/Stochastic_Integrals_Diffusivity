@@ -49,11 +49,11 @@ for lambda_type = 1:lambda_types_count
 	subaxis(lambda_type);
 	hold on;
 	
-	% Extract current-lambda-type results
+	% Extract current-lambda-type results [trials x conventions]
 	log_K_G = log_K_G_all_trials(trial_simulation_type == lambda_type, :);
 	
 	% Calculate mean and std of the log(K)!
-	mean_log_K_G(lambda_type, :) = mean(log_K_G(lambda_type, :), 1);
+	mean_log_K_G(lambda_type, :) = mean(log_K_G, 1);
 	std_log_K_G(lambda_type, :) = std(log_K_G, [], 1);
 	eb_log_K_G(lambda_type, :) = std_log_K_G(lambda_type, :) * sqrt(2) * erfinv(0.95);
 	

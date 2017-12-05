@@ -406,8 +406,8 @@ UR_a = zeros(lambda_types_count, x_bins_number, conventions_count);
 outside_count_a = zeros(lambda_types_count, x_bins_number, conventions_count);
 n_j_mean = zeros(lambda_types_count, x_bins_number);
 b_KS_distance_mean = zeros(lambda_types_count, x_bins_number);
-log_K_L_mean = zeros(lambda_types_count, x_bins_number, conventions_count);
-log_K_G_mean = zeros(lambda_types_count, conventions_count);
+mean_log_K_L = zeros(lambda_types_count, x_bins_number, conventions_count);
+mean_log_K_G = zeros(lambda_types_count, conventions_count);
 
 for lambda_type = 1:lambda_types_count
     % Mean
@@ -429,8 +429,8 @@ for lambda_type = 1:lambda_types_count
 % 	b_KS_distance_mean(lambda_type, :) = mean(trials_b_KS_distance(trial_simulation_type == lambda_type, :), 1, 'omitnan');
 	
 	% Bayes factors K
-	log_K_L_mean(lambda_type, :, :) = log(mean(exp(trials_log_K_L(trial_simulation_type == lambda_type, :, :)), 1, 'omitnan' ));
-	log_K_G_mean(lambda_type, :) = log(mean(exp(trials_log_K_G(trial_simulation_type == lambda_type, :)), 1, 'omitnan' ));
+	mean_log_K_L(lambda_type, :, :) = mean(trials_log_K_L(trial_simulation_type == lambda_type, :, :), 1, 'omitnan');
+	mean_log_K_G(lambda_type, :) = mean(trials_log_K_G(trial_simulation_type == lambda_type, :), 1, 'omitnan' );
 end;
 
 % Save
@@ -443,8 +443,8 @@ data_struct.MAP_bb_prime_regular_interp_mean = MAP_bb_prime_regular_interp_mean;
 data_struct.UR_b = UR_b;
 data_struct.UR_a = UR_a;
 data_struct.n_j_mean = n_j_mean;
-data_struct.log_K_L_mean = log_K_L_mean;
-data_struct.log_K_G_mean = log_K_G_mean;
+data_struct.log_K_L_mean = mean_log_K_L;
+data_struct.log_K_G_mean = mean_log_K_G;
 
 
 
