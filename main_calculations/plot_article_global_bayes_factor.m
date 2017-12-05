@@ -40,33 +40,29 @@ subaxis(rows, cols, 1, 'SH', SH, 'SV', SV, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', M
 trial_simulation_type = data_struct.trial_simulation_type;
 log_K_G_all_trials = data_struct.trials_log_K_G;
 
-% Calculate std of the global Bayes factor for each simulation - inference couple
-log_mean_K_G = zeros(lambda_types_count, conventions_count);
-log_std_K_G = zeros(lambda_types_count, conventions_count);
-y_lim_vec = [0,0];
+% Initialize
+mean_log_K_G = zeros(lambda_types_count, conventions_count);
+std_log_K_G = zeros(lambda_types_count, conventions_count);
+eb_log_K_G = zeros(lambda_types_count, conventions_count);	% error bars
 for lambda_type = 1:lambda_types_count
 	% Initialize plot
 	subaxis(lambda_type);
 	hold on;
 	
-	% Extract current lambda type results
+	% Extract current-lambda-type results
 	log_K_G = log_K_G_all_trials(trial_simulation_type == lambda_type, :);
 	
-	% Calculate mean
-	log_mean_K_G(lambda_type, :) = log(mean(exp(log_K_G), 1));
-	
-	% Calculate stds of the global Bayes factor
-% 	for convention = 1:conventions_count
-	K_G_std(lambda_type, :) = std(exp(log_K_G), [], 1);
-	log_std_K_G(lambda_type, :) = log(std(exp(log_K_G), [], 1));
-% 	end
+	% Calculate mean and std of the log(K)!
+	mean_log_K_G(lambda_type, :) = mean(log_K_G(lambda_type, :), 1);
+	std_log_K_G(lambda_type, :) = std(log_K_G, [], 1);
+	eb_log_K_G(lambda_type, :) = std_log_K_G(lambda_type, :) * sqrt(2) * erfinv(0.95);
 	
 	% Plot with error bars
-	str_legend = {};
+% 	str_legend = cell(conventions_count, 1);
 	for convention = 1:conventions_count
-		errorbar(convention, log_mean_K_G(lambda_type, convention), log_std_K_G(lambda_type, convention) * sqrt(2) * erfinv(0.95), markers_list{convention},...
+		errorbar(convention, mean_log_K_G(lambda_type, convention), eb_log_K_G(lambda_type, convention), markers_list{convention},...
 			'color', color_sequence(convention, :), 'markers', marker_size, 'linewidth', line_width);
-		str_legend{length(str_legend) + 1} = conventions_names{convention};
+% 		str_legend{convention} = conventions_names{convention};
 	end;
 	
 	% Add x labels
@@ -77,7 +73,7 @@ for lambda_type = 1:lambda_types_count
 
 	% Axes labels
 	if lambda_type ==1
-		ylabel('Global Bayes factor $\ln \langle K_G \rangle$', 'interpreter', 'latex');
+		ylabel('Global Bayes factor $\langle \ln K_G \rangle$', 'interpreter', 'latex');
 	end;
 
 	% Title
@@ -105,8 +101,8 @@ end
 
 %% Reset y limits
 y_lim_vec = [0, 0];
-y_lim_vec(1) = min(min(log_mean_K_G - log_std_K_G * sqrt(2) * erfinv(0.95)));
-y_lim_vec(2) = max(max(log_mean_K_G + log_std_K_G * sqrt(2) * erfinv(0.95)));
+y_lim_vec(1) = min(min(mean_log_K_G - eb_log_K_G));
+y_lim_vec(2) = max(max(mean_log_K_G + eb_log_K_G));
 
 % Slightly increase the interval width
 y_lim_vec = y_lim_vec + [-1/2, 1/2]  * (y_lim_vec(2) - y_lim_vec(1)) * y_increase_frac;
