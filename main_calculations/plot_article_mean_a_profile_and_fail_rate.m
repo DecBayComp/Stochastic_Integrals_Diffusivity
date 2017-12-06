@@ -32,7 +32,9 @@ sublabel_y = 1.1;
 
 x_tick_increment = 0.2;
 
-selected_x_over_L = -0.25;
+lambda_type = enum_lambda_Stratonovich;
+selected_x_over_L = -0.05;
+lambda_array = [0, 0.5, 1, data_struct.lambda];
 
 
 
@@ -44,7 +46,7 @@ clf;
 % Initalize subplots
 subaxis(rows, cols, 1, 'SH', SH, 'SV', SV, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
 % for lambda_type = 1:lambda_types_count
-lambda_type = enum_lambda_Hanggi;
+% lambda_type = enum_lambda_Hanggi;
     
 
 
@@ -68,7 +70,8 @@ xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 %     if lambda_type == 1
 	ylabel('$\langle \hat a \rangle, \mu \mathrm{m/s}$', 'interpreter', 'latex');
 %     end;
-title('Mean local force profile', 'interpreter', 'latex');
+% title('Mean local force profile', 'interpreter', 'latex');
+title(sprintf('Mean local force profile, $\\lambda^* = %.2f$', lambda_array(lambda_type)), 'interpreter', 'latex');
 %     str_title = {'$\lambda^* = 0$', '$\lambda^* = 0.5$', '$\lambda^* = 1$', 'Random $\lambda^*$'};
 %     title(str_title{lambda_type}, 'interpreter', 'latex');
 
@@ -84,7 +87,6 @@ set(gca,'xtick', x_min:x_tick_increment:x_max);
 
 
 %% == (2): a profile in bin ==
-lambda_type = enum_lambda_Hanggi;
 
 subaxis(2);
 plot_article_a_profile_in_bin(data_struct, trials_data, lambda_type, selected_x_over_L);

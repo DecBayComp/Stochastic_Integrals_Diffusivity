@@ -75,7 +75,7 @@ print_numbers(data_struct);
 
 
 %% === Print Global Bayes factor ===
-disp(data_struct.log_K_G_mean);
+disp(data_struct.mean_log_K_G);
 
 
 
