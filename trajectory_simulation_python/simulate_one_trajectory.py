@@ -177,10 +177,11 @@ for i in range(N):
 print("Saving trajectory...\n")
 
 # Prepare the output array
-output_data = np.zeros((N + 1, 2), dtype = np.float32)
-output_data[0, :] = [Lambda, 0]
-output_data[1:, 0] = x_array[0:N]
-output_data[1:, 1] = dx_array[0:N]
+output_data = np.zeros((N + 2, 2), dtype = np.float32)
+output_data[0, :] = [D_case, f_case]
+output_data[1, :] = [Lambda, 0]
+output_data[2:, 0] = x_array[0:N]
+output_data[2:, 1] = dx_array[0:N]
 
 
 # Open the output file for writing

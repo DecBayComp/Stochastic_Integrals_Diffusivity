@@ -30,11 +30,11 @@ pdf_norm = [];
 
 %% Identify if calculation with force or with no force is required
 if bl_force
-	input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_with_force/';
+% 	input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_with_force/';
 	selected_f_case = enum_force_case;
 	str_force = 'with_force';	
 else
-	input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_no_force/';
+% 	input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma_no_force/';
 	selected_f_case = enum_no_force_case;
 	str_force = 'no_force';
 end
@@ -43,32 +43,46 @@ end
 %% Access trajectories folder and start loading trajectories
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
-trials = sum(~[cur_dir.isdir]);
-% trials = 30*4;
+input_files_count = sum(~[cur_dir.isdir]);
+% input_files_count = 40*4;
 
 
 
 % Load trajectories
 if bl_reload_trajectories
     % Initialize arrays
-    trials_data = cell(1, trials);
-    trials_x = zeros(N, trials);
-    trials_dx = zeros(N, trials);
-    trials_lambdas = zeros(1, trials);
+    trials_x = zeros(N, input_files_count);
+    trials_dx = zeros(N, input_files_count);
+    trials_lambdas = zeros(1, input_files_count);
+	trials_D_case = zeros(1, input_files_count);
+	trials_f_case = zeros(1, input_files_count);
     % Load
-    parfor trial = 1:trials
-        filename = sprintf('sim_data_%09i.csv', trial);
-        fprintf('Loading trajectory from  file %s. Progress: %i/%i\n', filename, trial, trials);
+    parfor file = 1:input_files_count
+        filename = sprintf('sim_data_%09i.csv', file);
+        fprintf('Loading trajectory from  file %s. Progress: %i/%i\n', filename, file, input_files_count);
         output_full_path = strcat(input_data_folder, filename);
 
         input_data = dlmread(output_full_path, CSV_DELIMITER);
-
-        trials_lambdas(trial) = input_data(1,1);
-        trials_x(:, trial) = input_data(2:N+1, 1);
-        trials_dx(:, trial) = input_data(2:N+1,2);
+		
+		trials_D_case(file) = input_data(1,1);
+		trials_f_case(file) = input_data(1,2);
+        trials_lambdas(file) = input_data(2,1);
+        trials_x(:, file) = input_data(3:N+2, 1);
+        trials_dx(:, file) = input_data(3:N+2,2);
     end;
     input_data = [];
 end;
+
+
+
+%% Only keep data that corresponds to the currently analyzed condition (force / no force)
+trials_x = trials_x(:, trials_f_case == selected_f_case);
+trials_dx = trials_dx(:, trials_f_case == selected_f_case);
+trials_lambdas = trials_lambdas(trials_f_case == selected_f_case);
+trials = sum(trials_f_case == selected_f_case);
+trials_data = cell(1, trials);
+	
+
 
 %% Identify and store lambda simulation type
 trial_simulation_type = ones(trials, 1) * enum_lambda_rand;
@@ -361,7 +375,7 @@ parfor trial = 1:trials  % 765
     trials_data{trial} = data_struct;
  
 end;
-data_struct = trials_data{end};
+data_struct = trials_data{trials};
 
 % Restore the time mesh
 t_mesh = (0:N) * t_step;

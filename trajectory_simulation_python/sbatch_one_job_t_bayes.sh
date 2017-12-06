@@ -1,6 +1,7 @@
 #! /bin/bash
 
 # Sbatch options
+#SBATCH -J ito-guy
 #SBATCH --qos=fast
 #SBATCH --cpus-per-task=1 
 #SBATCH --mem-per-cpu=100MB

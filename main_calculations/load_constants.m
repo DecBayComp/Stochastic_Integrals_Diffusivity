@@ -1,5 +1,6 @@
 
 %% Constants
+bl_force = false;
 % m = 1;
 kBT = 1;	% change to 4.14 * 10^(-21) J
 L = 1;	% in um
@@ -29,8 +30,7 @@ fine_mesh_steps_count = 1000 + 1;
 CONF_LEVEL = 0.95;
 w = 10;
 
-%% Choose simulation type
-bl_force = true;
+% Definition of force and no-force cases
 enum_force_case = 2;
 enum_no_force_case = 1;
 
@@ -64,6 +64,7 @@ bin_color = my_colors(3).White;
 
 output_figures_folder = './figures_for_article/';
 output_data_folder = './processed_data/';
+input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma/';
 % input_data_folder = '/Users/alexander_serov/Calculations_data/ito-stratonovich/'; % Mac
 fail_rates_filename = 'Fail_rates.dat';
 CSV_DELIMITER = ';';
