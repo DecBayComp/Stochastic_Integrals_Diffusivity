@@ -30,7 +30,7 @@ CONF_LEVEL = 0.95;
 w = 10;
 
 %% Choose simulation type
-bl_force = false;
+bl_force = true;
 enum_force_case = 2;
 enum_no_force_case = 1;
 

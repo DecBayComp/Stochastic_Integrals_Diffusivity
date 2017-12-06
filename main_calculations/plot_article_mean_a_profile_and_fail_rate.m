@@ -32,8 +32,8 @@ sublabel_y = 1.1;
 
 x_tick_increment = 0.2;
 
-lambda_type = enum_lambda_Stratonovich;
-selected_x_over_L = -0.05;
+lambda_type = enum_lambda_Hanggi;
+selected_x_over_L = -0.35;
 lambda_array = [0, 0.5, 1, data_struct.lambda];
 
 
