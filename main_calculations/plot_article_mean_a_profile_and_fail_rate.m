@@ -57,7 +57,7 @@ hold on;
 for convention = 1:conventions_count
 	plot(data_struct.x_bins_centers(1:plot_every:end),  data_struct.MAP_a_mean(lambda_type, 1:plot_every:end, convention, 1),...
 		strcat('-', markers_list{convention}), 'color', color_sequence(convention, :), 'LineWidth', line_width, 'markers', marker_size);
-end;
+end
 % True profile (theory)
 h_theor = plot(data_struct.x_fine_mesh, data_struct.a_theor_fine_data, '--k', 'LineWidth', line_width);
 
@@ -107,7 +107,7 @@ output_filename = strcat(output_filename_base, '_', data_struct.str_force, '.pdf
 output_full_path = strcat(output_figures_folder, output_filename);
 if bl_save_figures
     print(h_fig, output_full_path, '-dpdf', '-r0');
-end;
+end
 
 
 

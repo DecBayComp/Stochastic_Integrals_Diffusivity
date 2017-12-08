@@ -1,6 +1,5 @@
 
 %% Constants
-bl_force = false;
 % m = 1;
 kBT = 1;	% change to 4.14 * 10^(-21) J
 L = 1;	% in um
@@ -36,7 +35,7 @@ enum_no_force_case = 1;
 
 
 %% Binning
-points_in_bin_avg = 10;
+points_in_bin_avg = 1000;
 min_bin_to_jump_ratio = 2;	% require a bin to be at least several times larger than the mean jump in it. This corresponds to a 61% probability to stay in bin after jump
 bl_keep_only_min_points_in_bin = true;	% When true, only the minimum number of points is kept per bin. Extra points are randomly omitted within a bin
 
@@ -56,7 +55,7 @@ line_width_theor = line_width - 0.5;
 
 % Bin colors
 load_color_scheme;
-bin_color = my_colors(3).White;
+bin_color = [1, 1, 1] * 0.86;
 
 % markers_list = {'-o','-s','-d','-^','-v'};
 

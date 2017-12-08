@@ -7,7 +7,12 @@ function plot_article_point_density(data_struct, fig_count, bl_save_figures)
 %% Constants
 load_constants;
 x_tick_increment = 0.1;
+y_lim_vec = [0, 0.18];
 output_filename_base = 'point_density';
+
+% Label params
+sublabel_x = 0.015;
+sublabel_y = 1.1;
 
 % Define plot colors
 load_color_scheme;
@@ -50,14 +55,20 @@ for lambda_type = 1:lambda_types_count
     plot(data_struct.x_bins_centers,  norm_points_density(lambda_type, :),...
         strcat('-', markers_list{lambda_type}), 'color', color_sequence(lambda_type, :),  'LineWidth', line_width, 'markers', marker_size);
     str_legend{end + 1} = lambda_types_names{lambda_type};
-end;
+end
 
 % Adjust plot
 xlim(x_lim_vec);
 box on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('Relative point density', 'interpreter', 'latex');
-title('Point density and bin locations', 'interpreter', 'latex');
+%  
+if ~bl_force
+	ylabel('Relative point density', 'interpreter', 'latex');
+	title('No local force', 'interpreter', 'latex');
+else
+% 	set(gca,'YTickLabel',[]);
+	title('With local force', 'interpreter', 'latex');
+end
 
 % Modify ticks
 set(gca,'xtick', x_min:x_tick_increment:x_max);
@@ -65,10 +76,19 @@ set(gca,'xtick', x_min:x_tick_increment:x_max);
 % Legend 
 legend(str_legend, 'Location', 'southwest');
 
+% Subplot label
+if ~bl_force
+	chr_label = 'A';
+else
+	chr_label = 'B';
+end
+text(sublabel_x, sublabel_y, chr_label, 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+
 % Adjust y limits
-y_lim_vec = ylim();
-y_lim_vec(1) = 0;
+% y_lim_vec = ylim();
+% y_lim_vec(1) = 0;
 ylim(y_lim_vec);
+
 
 
 % % Normalize and plot simulated diffusivity profile
@@ -95,7 +115,7 @@ output_filename = strcat(output_filename_base, '_', data_struct.str_force, '.pdf
 output_full_path = strcat(output_figures_folder, output_filename);
 if bl_save_figures
     print(h_fig, output_full_path, '-dpdf', '-r0');
-end;
+end
 
 
 

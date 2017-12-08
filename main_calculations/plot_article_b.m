@@ -1,6 +1,6 @@
 
 
-function plot_article_b(data_struct, trials_data, fig_count, bl_save_figures)
+function plot_article_b(data_struct, trials_data, bl_force, fig_count, bl_save_figures)
 
 
 
@@ -12,16 +12,16 @@ lambdas_array = [0, 0.5, 1];
 % Subplot params
 rows = 1;
 cols = 2;
-SH = 0.08;
+SH = 0.16;
 SV = 0.125;
-ML = 0.07;
-MR = 0.0125;
-MT = 0.09;
-MB = 0.15;
+ML = 0.14;
+MR = 0.025;
+MT = 0.125;
+MB = 0.21;
 
 % Label params
 sublabel_x = 0.015;
-sublabel_y = 1.11;
+sublabel_y = 1.18;
 output_filename_base = 'b';
 
 % Other plot parameters
@@ -76,7 +76,7 @@ for lambda_ind = 1:lambda_types_count-1
 	lambda = lambdas_array(lambda_ind);
 	var_over_t(lambda_ind, :) = var_over_t_func(D0, w, a0, lambda, t_step, bins_centers);
 	var_overt_t_avg(lambda_ind, :) = var_over_t_avg_func(D0, w, a0, lambda, t_step, bins_borders(1, :), bins_borders(2, :));
-end;
+end
 
 % The expected b is the square root of variance over t
 b_estimate_avg = sqrt(var_overt_t_avg);
@@ -102,7 +102,7 @@ x_grad_mesh = tmp_data_struct.x_grad_mesh;
 
 %% Initialize figure
 h_fig = figure(fig_count);
-set_article_figure_size(h_fig, rows, 2, 1);
+set_article_figure_size(h_fig, rows, 1, 0.70);
 clf;
 
 
@@ -121,18 +121,24 @@ for lambda_type = 1:lambda_types_count
     plot(data_struct.x_bins_centers(1:bin_plot_step:end),  data_struct.MAP_b_mean(lambda_type, 1:bin_plot_step:end, 1),...
         strcat('-', markers_list{lambda_type}), 'color', color_sequence(lambda_type, :),  'LineWidth', line_width, 'markers', marker_size);
     str_legend{end + 1} = lambda_types_names{lambda_type};
-end;
+end
 
-% % Legend
-% h_leg = legend(str_legend, 'location', 'northwest', 'FontSize', legend_font_size);
-% legend boxon;
+% Subplot label
+if ~bl_force
+	chr_label = 'A';
+else
+	chr_label = 'C';
+end
+text(sublabel_x, sublabel_y, chr_label, 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+chr_label = char(chr_label + 1);
+
 
 % Plot theory
 % Simulated profile
 h_theor_center = plot(data_struct.x_fine_mesh, data_struct.b_theor_fine_data, '-k', 'LineWidth', line_width_theor);
 
-% Average values
-h_mean_theor = plot(data_struct.x_bins_centers, b_true_avg, '--k', 'LineWidth', line_width_theor);
+% % % % Average values
+% % % h_mean_theor = plot(data_struct.x_bins_centers, b_true_avg, '--k', 'LineWidth', line_width_theor);
 
 % Adjust plot
 xlim(x_lim_vec);
@@ -141,18 +147,24 @@ box on;
 grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('$\langle \hat b \rangle$, $\mu\mathrm{m \cdot s^{-1/2}}$', 'interpreter', 'latex');
-title('Average diffusivity profile', 'interpreter', 'latex');
+
+
+if ~bl_force
+	title('No force', 'interpreter', 'latex');
+	% 	title('Average diffusivity profile', 'interpreter', 'latex');
+else
+	title('With force', 'interpreter', 'latex');
+end
+
+% Legend
+h_leg = legend(str_legend, 'location', 'south', 'FontSize', legend_font_size);
+legend boxon;
 
 % Send theoretical curves back
-uistack([h_theor_center, h_mean_theor], 'bottom');
+uistack([h_theor_center], 'bottom');
 
 % Modify ticks
 set(gca,'xtick', x_ticks);
-
-% Subplot label
-text(sublabel_x, sublabel_y, 'A', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
-
-
 
 % Color bin borders
 color_bins(bins_borders, ylim(), bin_color);
@@ -161,7 +173,7 @@ color_bins(bins_borders, ylim(), bin_color);
 
 %% == (D): bb' profile ==
 % Constants
-y_lim_vec = [-1, 1] * 0.05;
+y_lim_vec = [-1, 1] * 0.03;
 
 % Initialize subplot
 subaxis(2);
@@ -192,13 +204,19 @@ xlim(x_lim_vec);
 ylim(y_lim_vec);
 box on;
 grid on;
-title(sprintf('Diffusivity gradient profile for $\\lambda^* = %.2f$', tmp_data_struct.lambda), 'interpreter', 'latex');
+
+if ~bl_force
+	title('No force', 'interpreter', 'latex');
+	% 	title(sprintf('Diffusivity gradient profile for $\\lambda^* = %.2f$', tmp_data_struct.lambda), 'interpreter', 'latex');
+else
+	title('With force', 'interpreter', 'latex');
+end
 
 % Modify ticks
 set(gca,'xtick', x_min:x_tick_increment:x_max);
 
 % Subplot label
-text(sublabel_x, sublabel_y, 'B', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+text(sublabel_x, sublabel_y, chr_label, 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 
 % Legend
 str_legend_local = {'FD', 'R', 'RI'};
@@ -206,6 +224,9 @@ legend(str_legend_local, 'location', 'southwest', 'interpreter', 'latex', 'FontS
 
 % Send true profile back
 uistack(h_theor, 'bottom');
+
+% Color bin borders
+color_bins(bins_borders, ylim(), bin_color);
 
 
 
@@ -221,7 +242,7 @@ output_filename = strcat(output_filename_base, '_', data_struct.str_force, '.pdf
 output_full_path = strcat(output_figures_folder, output_filename);
 if bl_save_figures
     print(h_fig, output_full_path, '-dpdf', '-r0');
-end;
+end
 
 
 

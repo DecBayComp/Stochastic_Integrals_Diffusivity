@@ -5,6 +5,7 @@ set (0, 'DefaultAxesFontSize', 12);
 % clear;
 
 %% Constants
+bl_force = false;
 load_constants;
 
 a_ABS_MAX = 10;
@@ -69,9 +70,9 @@ if bl_reload_trajectories
         trials_lambdas(file) = input_data(2,1);
         trials_x(:, file) = input_data(3:N+2, 1);
         trials_dx(:, file) = input_data(3:N+2,2);
-    end;
+    end
     input_data = [];
-end;
+end
 
 
 
@@ -93,7 +94,7 @@ trial_simulation_type (trials_lambdas == 1) = enum_lambda_Hanggi;
 trial_first_simulation_type_index = zeros(lambda_types_count, 1);
 for lambda_type = 1:lambda_types_count
     trial_first_simulation_type_index(lambda_type) = find(trial_simulation_type == lambda_type, 1);
-end;
+end
 
 
 % %% Initialize variables (???)
@@ -496,7 +497,7 @@ A = permute(data_struct.UR_a, [1, 3, 2]);
 for lambda_type = 1:lambda_types_count
     UR_b_bin_mean(lambda_type) = data_struct.UR_b(lambda_type, indices) * norm_bin_widths;
     UR_a_bin_mean(lambda_type, :) = squeeze(A(lambda_type, :, indices)) * norm_bin_widths;
-end;
+end
 UR_b_bin_max = max(data_struct.UR_b(:, indices), [], 2);
 UR_a_bin_max = squeeze(max(data_struct.UR_a(:, indices, :), [], 2));
 

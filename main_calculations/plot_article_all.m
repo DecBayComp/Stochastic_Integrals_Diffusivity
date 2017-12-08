@@ -30,7 +30,7 @@ plot_article_point_density(data_struct, fig_count, bl_save_figures);
 
 %% Plot diffusivity posterior in one bin, diffusivity profile and the fail rate
 fig_count = fig_count + 1; 
-plot_article_b(data_struct, trials_data, fig_count, bl_save_figures);
+plot_article_b(data_struct, trials_data, bl_force, fig_count, bl_save_figures);
 
 
 
