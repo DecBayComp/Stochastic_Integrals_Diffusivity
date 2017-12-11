@@ -2,7 +2,7 @@
 
 
 ## Constants
-trials=100
+trials=1000
 sleep_time=0.2
 logs_folder="./logs/"
 output_folder="./output/"

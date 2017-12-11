@@ -26,7 +26,7 @@ output_filename_base = 'b';
 
 % Other plot parameters
 bin_plot_step = 1;	% 3
-lambda_type_for_gradient_plot = enum_lambda_Stratonovich;
+lambda_type_for_gradient_plot = enum_lambda_Hanggi;
 x_tick_increment = 0.2;
 x_ticks = x_min:x_tick_increment:x_max; %[x_min:x_tick_increment:0, 0:x_tick_increment:x_max];
 
@@ -194,8 +194,8 @@ plot(tmp_data_struct.x_bins_centers, tmp_data_struct.MAP_bb_prime_regular_interp
 % True value
 h_theor = plot(tmp_data_struct.x_fine_mesh, tmp_data_struct.bb_prime_theor_fine_data, 'k-', 'LineWidth', line_width_theor);
 
-% True average value
-h_theor_avg = plot(tmp_data_struct.x_bins_centers, bb_prime_true_avg, 'k--', 'LineWidth', line_width_theor);
+% % True average value
+% h_theor_avg = plot(tmp_data_struct.x_bins_centers, bb_prime_true_avg, 'k--', 'LineWidth', line_width_theor);
 
 % Adjust subplot
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');

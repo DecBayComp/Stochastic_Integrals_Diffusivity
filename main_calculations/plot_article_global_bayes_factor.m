@@ -2,7 +2,7 @@
 
 
 
-function plot_article_global_bayes_factor(data_struct, fig_count, bl_save_figures)
+function plot_article_global_bayes_factor(data_struct, bl_force, fig_count, bl_save_figures)
 
 
 
@@ -22,7 +22,7 @@ cols = 4;
 
 % Label params
 sublabel_x = 0.015;
-sublabel_y = 1.12;
+sublabel_y = 1.11;
 
 y_increase_frac = 0.05;
 
@@ -36,6 +36,13 @@ clf;
 
 % Initalize subplots
 subaxis(rows, cols, 1, 'SH', SH, 'SV', SV, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
+
+% % Set initial sublabel
+% if ~bl_force
+% 	chr_sublabel_start = 'A';
+% else
+% 	chr_sublabel_start = '';
+% end
 
 % Load Bayes factor data. Format: [trial x convention]
 trial_simulation_type = data_struct.trial_simulation_type;
@@ -64,18 +71,18 @@ for lambda_type = 1:lambda_types_count
 		errorbar(convention, mean_log_K_G(lambda_type, convention), eb_log_K_G(lambda_type, convention), markers_list{convention},...
 			'color', color_sequence(convention, :), 'markers', marker_size, 'linewidth', line_width);
 % 		str_legend{convention} = conventions_names{convention};
-	end;
+	end
 	
 	% Add x labels
 	set(gca,'XTick',1:conventions_count, 'XTickLabel', conventions_names);
 	
 	% Subplot label
-	text(sublabel_x, sublabel_y, char('A' + lambda_type - 1), 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+	text(sublabel_x, sublabel_y, char('A' + lambda_type - 1 + 4 * bl_force), 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 
 	% Axes labels
 	if lambda_type ==1
 		ylabel('Global Bayes factor $\langle \ln K_G \rangle$', 'interpreter', 'latex');
-	end;
+	end
 
 	% Title
 	str_title = sprintf('%s sim.', lambda_types_tex_names{lambda_type});
@@ -112,7 +119,7 @@ y_lim_vec = y_lim_vec + [-1/2, 1/2]  * (y_lim_vec(2) - y_lim_vec(1)) * y_increas
 for lambda_type = 1:lambda_types_count
 	subaxis(lambda_type);
 	ylim(y_lim_vec);
-end;
+end
 
 % % % 
 % % % % Plot
@@ -145,7 +152,7 @@ output_filename = strcat(output_filename_base, '_', data_struct.str_force, '.pdf
 output_full_path = strcat(output_figures_folder, output_filename);
 if bl_save_figures
     print(h_fig, output_full_path, '-dpdf', '-r0');
-end;
+end
 
 
 
