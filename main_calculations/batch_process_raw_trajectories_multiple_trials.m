@@ -45,7 +45,7 @@ end
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
 input_files_count = sum(~[cur_dir.isdir]);
-% input_files_count = 40*4;
+input_files_count = 4*4;
 
 
 
@@ -233,12 +233,12 @@ parfor trial = 1:trials  % 765
 		else
 			D_inference = ones(1, 4) * NaN;
 			b_inference = ones(1, 4) * NaN;
-		end;
+		end
         % Save
         data_struct.MAP_D(bin, :) = D_inference;
 		data_struct.MAP_b(bin, :) = b_inference;
 		data_struct.bl_empty_bin(bin) = bl_empty_bin;
-    end;
+	end
 
     
     %% Regularize bb' gradient based on in non-empty bins
@@ -405,7 +405,7 @@ parfor trial = 1:trials
 	[log_K_L, log_K_G] = calculate_bayes_factor(trials_data{trial});
 	trials_log_K_L(trial, :, :) = log_K_L';
 	trials_log_K_G(trial, :) = log_K_G;
-end;
+end
 % Save
 data_struct.trials_MAP_D = trials_MAP_D;
 data_struct.trials_MAP_b = trials_MAP_b;
@@ -459,9 +459,11 @@ for lambda_type = 1:lambda_types_count
 % 	b_KS_distance_mean(lambda_type, :) = mean(trials_b_KS_distance(trial_simulation_type == lambda_type, :), 1, 'omitnan');
 	
 	% Bayes factors K
-	mean_log_K_L(lambda_type, :, :) = mean(trials_log_K_L(trial_simulation_type == lambda_type, :, :), 1, 'omitnan');
 	mean_log_K_G(lambda_type, :) = mean(trials_log_K_G(trial_simulation_type == lambda_type, :), 1, 'omitnan' );
-end;
+	std_log_K_G(lambda_type, :) = std(trials_log_K_G(trial_simulation_type == lambda_type, :), 1, 'omitnan' );
+	mean_log_K_L(lambda_type, :, :) = mean(trials_log_K_L(trial_simulation_type == lambda_type, :, :), 1, 'omitnan');
+	
+end
 
 % Save
 data_struct.MAP_D_mean = MAP_D_mean;
@@ -473,39 +475,42 @@ data_struct.MAP_bb_prime_regular_interp_mean = MAP_bb_prime_regular_interp_mean;
 data_struct.UR_b = UR_b;
 data_struct.UR_a = UR_a;
 data_struct.n_j_mean = n_j_mean;
-data_struct.mean_log_K_L = mean_log_K_L;
 data_struct.mean_log_K_G = mean_log_K_G;
+data_struct.std_log_K_G = std_log_K_G;
+data_struct.eb_log_K_G = std_log_K_G * sqrt(2) * erfinv(0.95);
+data_struct.mean_log_K_L = mean_log_K_L;
 
 
 
-%% Calculate mean and average fail rate of each inference convention
-% The mean is performed over bins and is weighted with bins size
 
-% Identify the best explored period
-x_left = (1/2 + 2*1)/w;
-x_right = (1/2 + 2*2)/w;
-
-% Filter indices from one best period
-indices = data_struct.x_bins_centers >= x_left & data_struct.x_bins_centers <= x_right;
-bin_widths = data_struct.x_bins_centers(indices);
-norm_bin_widths = bin_widths / sum(bin_widths);
-
-% UR_fD indices: (lambda_types_count, x_bins_number, conventions_count)
-UR_b_bin_mean = zeros(lambda_types_count, 1);
-UR_a_bin_mean = zeros(lambda_types_count, conventions_count);
-A = permute(data_struct.UR_a, [1, 3, 2]);
-for lambda_type = 1:lambda_types_count
-    UR_b_bin_mean(lambda_type) = data_struct.UR_b(lambda_type, indices) * norm_bin_widths;
-    UR_a_bin_mean(lambda_type, :) = squeeze(A(lambda_type, :, indices)) * norm_bin_widths;
-end
-UR_b_bin_max = max(data_struct.UR_b(:, indices), [], 2);
-UR_a_bin_max = squeeze(max(data_struct.UR_a(:, indices, :), [], 2));
-
-% Save
-data_struct.UR_b_bin_mean = UR_b_bin_mean;
-data_struct.UR_b_bin_max = UR_b_bin_max;
-data_struct.UR_a_bin_mean = UR_a_bin_mean;
-data_struct.UR_a_bin_max = UR_a_bin_max;
+% % % % % %% Calculate mean and average fail rate of each inference convention
+% % % % % % The mean is performed over bins and is weighted with bins size
+% % % % % 
+% % % % % % Identify the best explored period
+% % % % % x_left = (1/2 + 2*1)/w;
+% % % % % x_right = (1/2 + 2*2)/w;
+% % % % % 
+% % % % % % Filter indices from one best period
+% % % % % indices = data_struct.x_bins_centers >= x_left & data_struct.x_bins_centers <= x_right;
+% % % % % bin_widths = data_struct.x_bins_centers(indices);
+% % % % % norm_bin_widths = bin_widths / sum(bin_widths);
+% % % % % 
+% % % % % % UR_fD indices: (lambda_types_count, x_bins_number, conventions_count)
+% % % % % UR_b_bin_mean = zeros(lambda_types_count, 1);
+% % % % % UR_a_bin_mean = zeros(lambda_types_count, conventions_count);
+% % % % % A = permute(data_struct.UR_a, [1, 3, 2]);
+% % % % % for lambda_type = 1:lambda_types_count
+% % % % %     UR_b_bin_mean(lambda_type) = data_struct.UR_b(lambda_type, indices) * norm_bin_widths;
+% % % % %     UR_a_bin_mean(lambda_type, :) = squeeze(A(lambda_type, :, indices)) * norm_bin_widths;
+% % % % % end
+% % % % % UR_b_bin_max = max(data_struct.UR_b(:, indices), [], 2);
+% % % % % UR_a_bin_max = squeeze(max(data_struct.UR_a(:, indices, :), [], 2));
+% % % % % 
+% % % % % % Save
+% % % % % data_struct.UR_b_bin_mean = UR_b_bin_mean;
+% % % % % data_struct.UR_b_bin_max = UR_b_bin_max;
+% % % % % data_struct.UR_a_bin_mean = UR_a_bin_mean;
+% % % % % data_struct.UR_a_bin_max = UR_a_bin_max;
 
 
 

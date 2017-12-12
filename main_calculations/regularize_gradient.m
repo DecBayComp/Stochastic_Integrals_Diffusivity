@@ -9,6 +9,12 @@
 
 function [f_reg, f_prime_reg, f_prime_reg_interpolated, norm_cost, x_grad_mesh] = regularize_gradient(f_in, x_mesh, alpha)
 
+
+
+%% Constants
+interp_method = 'linear';
+
+
 %% Initialize
 % Make column (vector)
 f_in = reshape(f_in, [length(f_in), 1]);
@@ -73,7 +79,7 @@ D = zeros(n - 2, n - 1);
 for i = 1:(n-2)
     step = (x_steps(i + 1) + x_steps(i + 2)) / 2;
     D(i, i:i+1) = [-1, 1] / step;
-end;
+end
 
 
 
@@ -83,7 +89,7 @@ A = zeros(n, n-1);
 for i = 2:n
     A(i, :) = A(i-1, :);
     A(i, i-1) = x_steps(i);
-end;
+end
 
 
 
@@ -107,13 +113,13 @@ f_reg = A * f_prime_reg;
 
 %% Interpolate / extrapolate
 % Interpolate the gradient to the original bins centers
-f_prime_reg_interpolated = interp1(x_grad_mesh, f_prime_reg, x_mesh_full, 'spline', 'extrap');
+f_prime_reg_interpolated = interp1(x_grad_mesh, f_prime_reg, x_mesh_full, interp_method, 'extrap');
 
 % Interpolate the gradient to the full gradient mesh
-f_prime_reg_full = interp1(x_grad_mesh, f_prime_reg, x_grad_mesh_full, 'spline', 'extrap');
+f_prime_reg_full = interp1(x_grad_mesh, f_prime_reg, x_grad_mesh_full, interp_method, 'extrap');
 
 % Interpolate the regularized function to the original mesh
-f_reg_full = interp1(x_mesh, f_reg, x_mesh_full, 'spline', 'extrap');
+f_reg_full = interp1(x_mesh, f_reg, x_mesh_full, interp_method, 'extrap');
 
 
 %% Calculate cost

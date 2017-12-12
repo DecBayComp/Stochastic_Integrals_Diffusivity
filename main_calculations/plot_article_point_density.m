@@ -1,7 +1,7 @@
 %% Plot the distribution of point numbers in bins
 
 
-function plot_article_point_density(data_struct, fig_count, bl_save_figures)
+function plot_article_point_density(data_struct, bl_force, fig_count, bl_save_figures)
 
 
 %% Constants
