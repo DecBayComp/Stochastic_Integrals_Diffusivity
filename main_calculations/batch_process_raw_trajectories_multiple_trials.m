@@ -5,7 +5,7 @@ set (0, 'DefaultAxesFontSize', 12);
 % clear;
 
 %% Constants
-bl_force = false;
+bl_force = true;
 load_constants;
 
 a_ABS_MAX = 10;
@@ -45,7 +45,7 @@ end
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
 input_files_count = sum(~[cur_dir.isdir]);
-input_files_count = 4*4;
+% input_files_count = 4*4;
 
 
 
@@ -185,7 +185,7 @@ parfor trial = 1:trials  % 765
     elements_in_bins_count = zeros(1, x_bins_number);
     % Bin data in pre-defined bins
     counter_start = 1;
-    for bin = 1:x_bins_number
+	for bin = 1:x_bins_number
 		% Initialize
 		bl_empty_bin = false;
 		
