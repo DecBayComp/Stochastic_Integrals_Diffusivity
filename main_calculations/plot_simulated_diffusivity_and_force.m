@@ -24,8 +24,8 @@ MT = 0.09;
 MB = 0.17;
 
 % Label params
-sublabel_x = 0.015;
-sublabel_y = 1.13;
+sublabel_x = -0.03;
+sublabel_y = 1.12;
 
 x_tick_increment = 0.25;
 
@@ -86,6 +86,8 @@ grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('$a$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
 
+title('Local-force mod.', 'interpreter', 'latex');
+
 % Modify ticks
 set(gca,'xtick', x_min:x_tick_increment:x_max);
 
@@ -117,6 +119,8 @@ box on;
 grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('$a$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
+
+title('Spurious-force mod.', 'interpreter', 'latex');
 
 % Modify ticks
 set(gca,'xtick', x_min:x_tick_increment:x_max);

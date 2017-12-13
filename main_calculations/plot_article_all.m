@@ -60,7 +60,7 @@ plot_article_global_bayes_factor(data_struct, data_struct.bl_force, fig_count, b
 
 %% === Plot local Bayes factor ===
 fig_count = fig_count + 1; 
-plot_article_local_bayes_factor(data_struct, fig_count, bl_save_figures);
+plot_article_local_bayes_factor(data_struct, data_struct.bl_force, fig_count, bl_save_figures);
 
 
 

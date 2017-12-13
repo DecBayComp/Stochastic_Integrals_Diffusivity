@@ -1,7 +1,7 @@
 %% Plot Bayes factor profile for each simulation and inference model combination
 
 
-function plot_article_local_bayes_factor(data_struct, fig_count, bl_save_figures)
+function plot_article_local_bayes_factor(data_struct, bl_force, fig_count, bl_save_figures)
 
 
 
@@ -114,7 +114,7 @@ for lambda_type = 1:lambda_types_count
 % 	ylim('auto');
 
 	% Subplot label
-	text(sublabel_x, sublabel_y, char('A' + lambda_type - 1), 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+	text(sublabel_x, sublabel_y, char('A' + lambda_type - 1 + 4 * bl_force), 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 
 	% Modify ticks
 	set(gca,'xtick', x_min:x_tick_increment:x_max);

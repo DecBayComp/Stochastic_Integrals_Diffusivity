@@ -20,7 +20,7 @@ MT = 0.125;
 MB = 0.21;
 
 % Label params
-sublabel_x = 0.015;
+sublabel_x = -0.03;
 sublabel_y = 1.18;
 output_filename_base = 'b';
 
@@ -150,10 +150,10 @@ ylabel('$\langle \hat b \rangle$, $\mu\mathrm{m \cdot s^{-1/2}}$', 'interpreter'
 
 
 if ~bl_force
-	title('No force', 'interpreter', 'latex');
+	title('Spurious-force mod.', 'interpreter', 'latex');
 	% 	title('Average diffusivity profile', 'interpreter', 'latex');
 else
-	title('With force', 'interpreter', 'latex');
+	title('Local-force mod.', 'interpreter', 'latex');
 end
 
 % Legend
@@ -206,10 +206,10 @@ box on;
 grid on;
 
 if ~bl_force
-	title('No force', 'interpreter', 'latex');
-	% 	title(sprintf('Diffusivity gradient profile for $\\lambda^* = %.2f$', tmp_data_struct.lambda), 'interpreter', 'latex');
+	title('Spurious-force mod.', 'interpreter', 'latex');
+	% 	title('Average diffusivity profile', 'interpreter', 'latex');
 else
-	title('With force', 'interpreter', 'latex');
+	title('Local-force mod.', 'interpreter', 'latex');
 end
 
 % Modify ticks

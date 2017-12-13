@@ -64,10 +64,10 @@ xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 %  
 if ~bl_force
 	ylabel('Relative point density', 'interpreter', 'latex');
-	title('No local force', 'interpreter', 'latex');
+	title('Spurious-force model', 'interpreter', 'latex');
 else
 % 	set(gca,'YTickLabel',[]);
-	title('With local force', 'interpreter', 'latex');
+	title('Local-force model', 'interpreter', 'latex');
 end
 
 % Modify ticks
