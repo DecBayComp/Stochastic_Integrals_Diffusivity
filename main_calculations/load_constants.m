@@ -10,7 +10,7 @@ gamma_drag = 400.0;	% viscous drag, in fN * s / um
 % bl_periodic = true;
 % T = 100000;
 t_step = 0.125;   % L^2 / D_max / 100 = 10 / 1 / 100 = 0.1
-N = 1e5;        % Times the system was explored: (N*t_step) / (L^2 / D_max) = N*t_step*D_max/L^2 = 1e4*0.1*1/100 = 10   OK
+N = 1e6;        % Times the system was explored: (N*t_step) / (L^2 / D_max) = N*t_step*D_max/L^2 = 1e4*0.1*1/100 = 10   OK
 T = t_step * N;
 internal_steps_number = 100;    % Integer. How many intermediate smaller steps are made before the next point is saved
 update_progress_every = 100;
@@ -63,7 +63,8 @@ bin_color = [1, 1, 1] * 0.86;
 
 output_figures_folder = './figures_for_article/';
 output_data_folder = './processed_data/';
-input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma/';
+% input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma/';
+input_data_folder = '/media/aserov/DATA/Experimental_Data/Ito-Stratonovich. Two systems. Long/';
 % input_data_folder = '/Users/alexander_serov/Calculations_data/ito-stratonovich/'; % Mac
 fail_rates_filename = 'Fail_rates.dat';
 CSV_DELIMITER = ';';

@@ -6,8 +6,8 @@
 #SBATCH --qos=dbc
 ### #SBATCH --qos=fast
 #SBATCH --cpus-per-task=1 
-#SBATCH --mem-per-cpu=50MB
-#SBATCH --time=8
+#SBATCH --mem-per-cpu=1200MB
+#SBATCH --time=120
 
 
 # Constants

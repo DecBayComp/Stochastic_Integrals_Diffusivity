@@ -80,8 +80,11 @@ for lambda_type = 1:lambda_types_count
 	text(sublabel_x, sublabel_y, char('A' + lambda_type - 1 + 4 * bl_force), 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 
 	% Axes labels
-	if lambda_type ==1
-		ylabel('Global Bayes factor $\langle \ln K_G \rangle$', 'interpreter', 'latex');
+	if lambda_type == 1 && ~bl_force
+% 		ylabel('Bayes factor $\langle \ln K_L \rangle$', 'interpreter', 'latex');
+		ylabel('$\langle \ln K_G \rangle$ for spurious-force model', 'interpreter', 'latex');
+	elseif lambda_type == 1 && bl_force
+		ylabel('$\langle \ln K_G \rangle$ for local-force model', 'interpreter', 'latex');
 	end
 
 	% Title

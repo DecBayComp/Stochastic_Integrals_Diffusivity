@@ -126,9 +126,12 @@ for lambda_type = 1:lambda_types_count
 
 	% Axes labels
 	xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-	if lambda_type == 1
-		ylabel('Bayes factor $\langle \ln K_L \rangle$', 'interpreter', 'latex');
-	end;
+	if lambda_type == 1 && ~bl_force
+% 		ylabel('Bayes factor $\langle \ln K_L \rangle$', 'interpreter', 'latex');
+		ylabel('$\langle \ln K_L \rangle$ for spurious-force model', 'interpreter', 'latex');
+	elseif lambda_type == 1 && bl_force
+		ylabel('$\langle \ln K_L \rangle$ for local-force model', 'interpreter', 'latex');
+	end
 
 	% Title
 	str_title = sprintf('%s sim.', lambda_types_tex_names{lambda_type});

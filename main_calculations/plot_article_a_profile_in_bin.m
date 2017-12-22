@@ -7,7 +7,7 @@ function plot_article_a_profile_in_bin(data_struct, trials_data, lambda_type, se
 
 %% Constants
 load_constants;
-a_steps = round(1 + 2^8);
+a_steps = round(1 + 2^7);
 factor = 8;
 y_factor = 1e3;
 % output_filename = 'a_one_bin.pdf';
@@ -110,11 +110,17 @@ box on;
 
 xlabel('$a$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
 ylabel('PDF', 'interpreter', 'latex');
-title(sprintf('$x\\approx%.2f\\ \\mu \\mathrm{m}$, $\\lambda^* = %.2f$', selected_bins_centers, lambda), 'interpreter', 'latex');
-% Legend
-legend(str_legend, 'location', 'northeast', 'interpreter', 'latex', 'fontsize', legend_font_size);
+title(sprintf('$\\lambda^* = %.2f$, $x\\approx%.2f\\ \\mu \\mathrm{m}$', lambda, selected_bins_centers), 'interpreter', 'latex');
+
+% % Legend
+% legend(str_legend, 'location', 'northeast', 'interpreter', 'latex', 'fontsize', legend_font_size);
+
 % Reorder curves
 uistack(h_theor, 'bottom');
+
+% % Put axes on top
+% set(gca, 'Layer', 'top');
+% set(gca, 'BoxStyle', 'top');
 
 
 % % % %% Save figure
