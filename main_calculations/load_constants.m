@@ -46,8 +46,8 @@ alpha_reg = 0.1;
 
 %% Plot parameters
 marker_size = 6;
-font_size = 12;
-subplot_label_font_size = 16;
+font_size = 10;
+subplot_label_font_size = 12;
 legend_font_size = font_size - 3;
 markers_list = {'s', 'o', '^', '+', 'x', 'd','v'};
 line_width = 1.2;
@@ -61,10 +61,10 @@ bin_color = [1, 1, 1] * 0.86;
 
 
 
-output_figures_folder = './figures_for_article/';
+output_figures_folder = '.\figures_for_article\';
 output_data_folder = './processed_data/';
-% input_data_folder = '/home/aserov/Documents/Calculated_data/dilemma/';
-input_data_folder = '/media/aserov/DATA/Experimental_Data/Ito-Stratonovich. Two systems. Long/';
+input_data_folder = 'D:\calculated_data\dilemma';
+% input_data_folder = '/media/aserov/DATA/Experimental_Data/Ito-Stratonovich. Two systems. Long/';
 % input_data_folder = '/Users/alexander_serov/Calculations_data/ito-stratonovich/'; % Mac
 fail_rates_filename = 'Fail_rates.dat';
 CSV_DELIMITER = ';';
