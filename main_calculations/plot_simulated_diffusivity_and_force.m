@@ -9,19 +9,19 @@ function plot_simulated_diffusivity_and_force(fig_count, bl_save_figures)
 %% Constants
 load_constants;
 load_color_scheme;
-x_marker_step = 0.1 * L;
+x_marker_step = 0.05 * L;
 marker_step = 10;
 x_step = x_marker_step/marker_step;
 output_D_filename = 'simulated_D_a_b.pdf';
 
 % Subplot parameters
-rows = 2;
+rows = 1;
 cols = 2;
 spacing = 0.08;
 ML = 0.19;
 MR = 0.03;
-MT = 0.07;
-MB = 0.15;
+MT = 0.125;
+MB = 0.325;
 SH = 0.2;
 SV = 0.2;
 
@@ -29,7 +29,7 @@ SV = 0.2;
 sublabel_x = 0;
 sublabel_y = 1.275;
 
-x_tick_increment = 0.25;
+% x_tick_increment = 0.25;
 
 
 
@@ -57,14 +57,10 @@ a_y_lim_vec = max(abs([a_data_force, a_data_no_force])) * [-1, 1];
 % Common figure
 h_fig = figure(fig_count);
 clf;
-set_article_figure_size(h_fig, 2, 1, 0.8);
+set_article_figure_size(h_fig, 2, 1, 0.3);
 
 % Initialize subplots
 h_sub = subaxis(rows, cols, 1, 'SH', SH, 'SV', SV, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
-
-
-
-
 
 
 
@@ -74,14 +70,14 @@ h_sub = subaxis(1);
 
 % Plot
 % color = 
-plot(x_mesh, D_data, '-o', 'LineWidth', 2,...
-    'color', standard_colors(1).DeepBlue, ...
-	'MarkerSize', marker_size, 'MarkerFaceColor', standard_colors(1).DeepBlue,...
-    'MarkerIndices', 1:marker_step:x_mesh_length);
+plot(x_mesh, D_data, '-', 'LineWidth', 2,...
+    'color', standard_colors(1).DeepBlue); %, ...
+	%'MarkerSize', marker_size, 'MarkerFaceColor', standard_colors(1).DeepBlue,...
+    % 'MarkerIndices', 1:marker_step:x_mesh_length);
 
 % Label
 box on;
-grid on;
+% grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('$D$, $\mu \mathrm{m^2/s}$', 'interpreter', 'latex');
 
@@ -101,7 +97,7 @@ h_sub = subaxis(2);
 
 % Plot
 % color = 
-plot(x_mesh, b_data, '-o', 'LineWidth', 2,...
+plot(x_mesh, b_data, '-', 'LineWidth', 2,...
     'color', standard_colors(1).DeepBlue, ...
 	'MarkerSize', marker_size, 'MarkerFaceColor', standard_colors(1).DeepBlue,...
     'MarkerIndices', 1:marker_step:x_mesh_length);
@@ -110,7 +106,7 @@ plot(x_mesh, b_data, '-o', 'LineWidth', 2,...
 y_lim_vec = [min(b_data), max(b_data)];
 ylim(y_lim_vec);
 box on;
-grid on;
+% grid on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('$b$, $\mu \mathrm{m \cdot s^{-1/2}}$', 'interpreter', 'latex');
 
@@ -123,74 +119,73 @@ text(sublabel_x, sublabel_y, 'B', 'Units', 'Normalized', 'VerticalAlignment', 'T
 
 
 
-%% 'a' figure for FORCE case
-% Initialize subplot
-h_sub = subaxis(3);
-
-% Plot
-% color = 
-plot(x_mesh, a_data_force, '-o', 'LineWidth', 2,...
-    'color', standard_colors(1).DeepBlue, ...
-	'MarkerSize', marker_size, 'MarkerFaceColor', standard_colors(1).DeepBlue,...
-    'MarkerIndices', 1:marker_step:x_mesh_length);
-
-% Adjust
-% max_a = max(a_data_force);
-% if max_a ~= 0
-% 	ylim([0, max_a]);
-% else
-% 	ylim('auto');
-% end;
-ylim(a_y_lim_vec);
-box on;
-grid on;
-xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('$a$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
-
-% title('Local-force mod.', 'interpreter', 'latex');
-
-% Modify ticks
-set(gca, 'FontSize', font_size);
-% set(gca,'xtick', x_min:x_tick_increment:x_max);
-
-% Subplot label
-text(sublabel_x, sublabel_y, 'C', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
-
-
-
-
-%% 'a' figure for NO FORCE case
-% Initialize subplot
-h_sub = subaxis(4);
-
-% Plot
-% color = 
-plot(x_mesh, a_data_no_force, '-o', 'LineWidth', 2,...
-    'color', standard_colors(1).DeepBlue, ...
-	'MarkerSize', marker_size, 'MarkerFaceColor', standard_colors(1).DeepBlue,...
-    'MarkerIndices', 1:marker_step:x_mesh_length);
-
-% Adjust
-% max_a = max(a_data_force);
-% if max_a ~= 0
-% 	ylim([0, max_a]);
-% else
-% 	ylim('auto');
-% end;
-ylim(a_y_lim_vec);
-box on;
-grid on;
-xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('$a$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
-
-% title('Spurious-force mod.', 'interpreter', 'latex');
-
-% Modify ticks
-set(gca, 'FontSize', font_size);
-% set(gca,'xtick', x_min:x_tick_increment:x_max);
-
-% Subplot label
-text(sublabel_x, sublabel_y, 'D', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+% % % % % %% 'a' figure for NO FORCE case
+% % % % % % Initialize subplot
+% % % % % h_sub = subaxis(3);
+% % % % % 
+% % % % % % Plot
+% % % % % % color = 
+% % % % % plot(x_mesh, a_data_no_force, '-o', 'LineWidth', 2,...
+% % % % %     'color', standard_colors(1).DeepBlue, ...
+% % % % % 	'MarkerSize', marker_size, 'MarkerFaceColor', standard_colors(1).DeepBlue,...
+% % % % %     'MarkerIndices', 1:marker_step:x_mesh_length);
+% % % % % 
+% % % % % % Adjust
+% % % % % % max_a = max(a_data_force);
+% % % % % % if max_a ~= 0
+% % % % % % 	ylim([0, max_a]);
+% % % % % % else
+% % % % % % 	ylim('auto');
+% % % % % % end;
+% % % % % ylim(a_y_lim_vec);
+% % % % % box on;
+% % % % % grid on;
+% % % % % xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
+% % % % % ylabel('$a$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
+% % % % % 
+% % % % % % title('Spurious-force mod.', 'interpreter', 'latex');
+% % % % % 
+% % % % % % Modify ticks
+% % % % % set(gca, 'FontSize', font_size);
+% % % % % % set(gca,'xtick', x_min:x_tick_increment:x_max);
+% % % % % 
+% % % % % % Subplot label
+% % % % % text(sublabel_x, sublabel_y, 'C', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+% % % % % 
+% % % % % 
+% % % % % 
+% % % % % %% 'a' figure for FORCE case
+% % % % % % Initialize subplot
+% % % % % h_sub = subaxis(4);
+% % % % % 
+% % % % % % Plot
+% % % % % % color = 
+% % % % % plot(x_mesh, a_data_force, '-o', 'LineWidth', 2,...
+% % % % %     'color', standard_colors(1).DeepBlue, ...
+% % % % % 	'MarkerSize', marker_size, 'MarkerFaceColor', standard_colors(1).DeepBlue,...
+% % % % %     'MarkerIndices', 1:marker_step:x_mesh_length);
+% % % % % 
+% % % % % % Adjust
+% % % % % % max_a = max(a_data_force);
+% % % % % % if max_a ~= 0
+% % % % % % 	ylim([0, max_a]);
+% % % % % % else
+% % % % % % 	ylim('auto');
+% % % % % % end;
+% % % % % ylim(a_y_lim_vec);
+% % % % % box on;
+% % % % % grid on;
+% % % % % xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
+% % % % % ylabel('$a$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
+% % % % % 
+% % % % % % title('Local-force mod.', 'interpreter', 'latex');
+% % % % % 
+% % % % % % Modify ticks
+% % % % % set(gca, 'FontSize', font_size);
+% % % % % % set(gca,'xtick', x_min:x_tick_increment:x_max);
+% % % % % 
+% % % % % % Subplot label
+% % % % % text(sublabel_x, sublabel_y, 'D', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 
 
 

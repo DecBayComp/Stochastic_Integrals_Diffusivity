@@ -12,7 +12,7 @@ output_filename_base = 'point_density';
 
 % Label params
 sublabel_x = 0.015;
-sublabel_y = 1.1;
+sublabel_y = 1.2;
 
 % Define plot colors
 load_color_scheme;
@@ -23,7 +23,8 @@ color_sequence = [standard_colors(1).DeepBlue; my_colors(5).Green; my_colors(1).
 
 %% Initialize figure
 h_fig = figure(fig_count);
-set_article_figure_size(h_fig, 1, 1, 1);
+set_article_figure_size(h_fig, 1, 1, 0.75);
+% tightfig(h_fig);
 clf;
 hold on;
 
@@ -61,20 +62,21 @@ end
 xlim(x_lim_vec);
 box on;
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
+ylabel('Point density', 'interpreter', 'latex');
 %  
 if ~bl_force
-	ylabel('Relative point density', 'interpreter', 'latex');
-	title('Spurious-force model', 'interpreter', 'latex');
+	title('No force case', 'interpreter', 'latex');
 else
 % 	set(gca,'YTickLabel',[]);
-	title('Local-force model', 'interpreter', 'latex');
+	title('Force case', 'interpreter', 'latex');
 end
 
 % Modify ticks
+set(gca, 'FontSize', font_size);
 set(gca,'xtick', x_min:x_tick_increment:x_max);
 
 % Legend 
-legend(str_legend, 'Location', 'southwest');
+% legend(str_legend, 'Location', 'southwest', 'FontSize', legend_font_size);
 
 % Subplot label
 if ~bl_force
