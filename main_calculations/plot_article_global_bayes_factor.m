@@ -92,7 +92,7 @@ for lambda_type = 1:lambda_types_count
 	title(str_title, 'interpreter', 'latex');
 	
 	% Theory
-	h_theor = plot(xlim(), [0,0], 'k--', 'linewidth', line_width_theor);
+	h_theor = plot(xlim(), [0,0], '-', 'linewidth', line_width_theor, 'color', axes_color);
 	uistack(h_theor, 'bottom');
 	
 % % % 	% Keep y limits if larger
