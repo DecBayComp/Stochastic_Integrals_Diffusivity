@@ -135,77 +135,34 @@ force_data_array = {alpha_data_no_force, alpha_data_force};
 title_array = {'No force', 'Force'};
 % Initialize subplot
 for f_ind = 1:2
-h_sub = subaxis(2 + f_ind);
+    h_sub = subaxis(2 + f_ind);
+    hold on;
 
-hold on;
+    % Parse simulated fixed-lambda^*
+    for convention = 1:3
+        plot(x_mesh, force_data_array{f_ind}(convention, :), strcat('-', markers_list{convention}),...
+            'color', color_sequence(convention, :), 'MarkerIndices', 1:marker_step:x_mesh_length, ...
+            'markers', marker_size-2, 'linewidth', line_width);
+    end
 
-% Parse simulated fixed-lambda^*
-for convention = 1:3
-    plot(x_mesh, force_data_array{f_ind}(convention, :), strcat('-', markers_list{convention}),...
-        'color', color_sequence(convention, :), 'MarkerIndices', 1:marker_step:x_mesh_length, 'markers', marker_size-2, 'linewidth', line_width);
+    % Adjust
+    ylim(a_y_lim_vec);
+    box on;
+    xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
+    ylabel('$\alpha$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
+
+    title(title_array{f_ind}, 'interpreter', 'latex');
+
+    % Modify ticks
+    set(gca, 'FontSize', font_size);
+    
+    % Zero level
+    h_zero = plot(xlim(), [0,0], '-', 'linewidth', line_width_theor, 'color', axes_color);
+    uistack(h_zero, 'bottom');
+
+    % Subplot label
+    text(sublabel_x, sublabel_y, char('B' + f_ind), 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 end
-
-% Adjust
-ylim(a_y_lim_vec);
-box on;
-% grid on;
-axis manual;
-xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('$\alpha$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
-
-title(title_array{f_ind}, 'interpreter', 'latex');
-
-% Modify ticks
-set(gca, 'FontSize', font_size);
-% set(gca,'xtick', x_min:x_tick_increment:x_max);
-
-% Zero level
-h_zero = plot(xlim(), [0,0], '-', 'linewidth', line_width_theor, 'color', axes_color);
-uistack(h_zero, 'bottom');
-
-% Subplot label
-text(sublabel_x, sublabel_y, char('B' + f_ind), 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
-
-end
-
-
-
-% % % % % 
-% % % % % 
-% % % % % 
-% % % % % %% 'a' figure for FORCE case
-% % % % % % Initialize subplot
-% % % % % h_sub = subaxis(4);
-% % % % % 
-% % % % % % Plot
-% % % % % % color = 
-% % % % % plot(x_mesh, a_data_force, '-o', 'LineWidth', 2,...
-% % % % %     'color', standard_colors(1).DeepBlue, ...
-% % % % % 	'MarkerSize', marker_size, 'MarkerFaceColor', standard_colors(1).DeepBlue,...
-% % % % %     'MarkerIndices', 1:marker_step:x_mesh_length);
-% % % % % 
-% % % % % % Adjust
-% % % % % % max_a = max(a_data_force);
-% % % % % % if max_a ~= 0
-% % % % % % 	ylim([0, max_a]);
-% % % % % % else
-% % % % % % 	ylim('auto');
-% % % % % % end;
-% % % % % ylim(a_y_lim_vec);
-% % % % % box on;
-% % % % % grid on;
-% % % % % xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-% % % % % ylabel('$a$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
-% % % % % 
-% % % % % % title('Local-force mod.', 'interpreter', 'latex');
-% % % % % 
-% % % % % % Modify ticks
-% % % % % set(gca, 'FontSize', font_size);
-% % % % % % set(gca,'xtick', x_min:x_tick_increment:x_max);
-% % % % % 
-% % % % % % Subplot label
-% % % % % text(sublabel_x, sublabel_y, 'D', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
-
 
 
 
