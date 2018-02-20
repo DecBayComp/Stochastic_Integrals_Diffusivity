@@ -142,7 +142,7 @@ for f_ind = 1:2
     for convention = 1:3
         plot(x_mesh, force_data_array{f_ind}(convention, :), strcat('-', markers_list{convention}),...
             'color', color_sequence(convention, :), 'MarkerIndices', 1:marker_step:x_mesh_length, ...
-            'markers', marker_size-2, 'linewidth', line_width);
+            'markers', marker_size, 'linewidth', line_width);
     end
 
     % Adjust

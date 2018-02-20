@@ -6,13 +6,14 @@ function plot_article_point_density(data_struct, bl_force, fig_count, bl_save_fi
 
 %% Constants
 load_constants;
-x_tick_increment = 0.1;
+x_tick_increment = 0.5;
 y_lim_vec = [0, 0.18];
 output_filename_base = 'point_density';
+page_width_frac = 0.25;
 
 % Label params
-sublabel_x = 0.015;
-sublabel_y = 1.2;
+sublabel_x = 0.0;
+sublabel_y = 1.23;
 
 % Define plot colors
 load_color_scheme;
@@ -23,7 +24,7 @@ color_sequence = [standard_colors(1).DeepBlue; my_colors(5).Green; my_colors(1).
 
 %% Initialize figure
 h_fig = figure(fig_count);
-set_article_figure_size(h_fig, 1, 1, 0.75);
+set_article_figure_size(h_fig, 1, page_width_frac, 0.75);
 % tightfig(h_fig);
 clf;
 hold on;
@@ -65,10 +66,10 @@ xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('Point density', 'interpreter', 'latex');
 %  
 if ~bl_force
-	title('No force case', 'interpreter', 'latex');
+	title('No force', 'interpreter', 'latex');
 else
 % 	set(gca,'YTickLabel',[]);
-	title('Force case', 'interpreter', 'latex');
+	title('Force', 'interpreter', 'latex');
 end
 
 % Modify ticks

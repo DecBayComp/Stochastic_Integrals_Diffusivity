@@ -10,24 +10,25 @@ x_lim_vec = [x_min, x_max];
 lambdas_array = [0, 0.5, 1];
 
 % Subplot params
-rows = 1;
-cols = 2;
+page_width_frac = 0.25;
+rows = 2;
+cols = 1;
+ML = 0.35;
+MR = 0.07;
+MT = 0.07;
+MB = 0.14;
 SH = 0.16;
-SV = 0.125;
-ML = 0.14;
-MR = 0.025;
-MT = 0.125;
-MB = 0.21;
+SV = 0.17;
 
 % Label params
-sublabel_x = -0.03;
-sublabel_y = 1.18;
+sublabel_x = 0;
+sublabel_y = 1.25;
 output_filename_base = 'b';
 
 % Other plot parameters
 bin_plot_step = 1;	% 3
 lambda_type_for_gradient_plot = enum_lambda_Hanggi;
-x_tick_increment = 0.2;
+x_tick_increment = 0.5;
 x_ticks = x_min:x_tick_increment:x_max; %[x_min:x_tick_increment:0, 0:x_tick_increment:x_max];
 
 % Constants for bias integral calculations (taken from D_func.m)
@@ -102,7 +103,7 @@ x_grad_mesh = tmp_data_struct.x_grad_mesh;
 
 %% Initialize figure
 h_fig = figure(fig_count);
-set_article_figure_size(h_fig, rows, 1, 0.70);
+set_article_figure_size(h_fig, rows, page_width_frac, 0.70);
 clf;
 
 
@@ -127,10 +128,10 @@ end
 if ~bl_force
 	chr_label = 'A';
 else
-	chr_label = 'C';
+	chr_label = 'B';
 end
 text(sublabel_x, sublabel_y, chr_label, 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
-chr_label = char(chr_label + 1);
+chr_label = char(chr_label + 2);
 
 
 % Plot theory
@@ -144,27 +145,27 @@ h_theor_center = plot(data_struct.x_fine_mesh, data_struct.b_theor_fine_data, '-
 xlim(x_lim_vec);
 % ylim(y_lim_vec_A);
 box on;
-grid on;
-xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('$\langle \hat b \rangle$, $\mu\mathrm{m \cdot s^{-1/2}}$', 'interpreter', 'latex');
+% grid on;
+% xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 
 
 if ~bl_force
-	title('Spurious-force mod.', 'interpreter', 'latex');
-	% 	title('Average diffusivity profile', 'interpreter', 'latex');
+	title('No force', 'interpreter', 'latex');
+    ylabel('$\langle \hat b \rangle$, $\mu\mathrm{m \cdot s^{-1/2}}$', 'interpreter', 'latex');
 else
-	title('Local-force mod.', 'interpreter', 'latex');
+	title('Force', 'interpreter', 'latex');
 end
 
-% Legend
-h_leg = legend(str_legend, 'location', 'south', 'FontSize', legend_font_size);
-legend boxon;
+% % % % Legend
+% % % h_leg = legend(str_legend, 'location', 'south', 'FontSize', legend_font_size);
+% % % legend boxon;
 
 % Send theoretical curves back
 uistack([h_theor_center], 'bottom');
 
 % Modify ticks
 set(gca,'xtick', x_ticks);
+set(gca, 'FontSize', font_size);
 
 % Color bin borders
 color_bins(bins_borders, ylim(), bin_color);
@@ -199,28 +200,28 @@ h_theor = plot(tmp_data_struct.x_fine_mesh, tmp_data_struct.bb_prime_theor_fine_
 
 % Adjust subplot
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('$bb''$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
 xlim(x_lim_vec);
 ylim(y_lim_vec);
 box on;
-grid on;
+% grid on;
 
 if ~bl_force
-	title('Spurious-force mod.', 'interpreter', 'latex');
-	% 	title('Average diffusivity profile', 'interpreter', 'latex');
+	title('No force', 'interpreter', 'latex');
+    ylabel('$bb''$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
 else
-	title('Local-force mod.', 'interpreter', 'latex');
+	title('Force', 'interpreter', 'latex');
 end
 
 % Modify ticks
 set(gca,'xtick', x_min:x_tick_increment:x_max);
+set(gca, 'FontSize', font_size);
 
 % Subplot label
 text(sublabel_x, sublabel_y, chr_label, 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 
-% Legend
-str_legend_local = {'FD', 'R', 'RI'};
-legend(str_legend_local, 'location', 'southwest', 'interpreter', 'latex', 'FontSize', legend_font_size);
+% % % % Legend
+% % % str_legend_local = {'FD', 'R', 'RI'};
+% % % legend(str_legend_local, 'location', 'southwest', 'interpreter', 'latex', 'FontSize', legend_font_size);
 
 % Send true profile back
 uistack(h_theor, 'bottom');
