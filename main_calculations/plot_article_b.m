@@ -9,20 +9,23 @@ load_constants;
 x_lim_vec = [x_min, x_max];
 lambdas_array = [0, 0.5, 1];
 
-% Subplot params
+% Figure size parameters
 page_width_frac = 0.25;
+height_factor = 0.5;
+
+% Subplot params
 rows = 2;
 cols = 1;
-ML = 0.35;
-MR = 0.07;
+ML = 0.27;
+MR = 0.06;
 MT = 0.07;
-MB = 0.14;
+MB = 0.15;
 SH = 0.16;
 SV = 0.17;
 
 % Label params
 sublabel_x = 0;
-sublabel_y = 1.25;
+sublabel_y = 1 + 0.525 * height_factor;
 output_filename_base = 'b';
 
 % Other plot parameters
@@ -103,14 +106,14 @@ x_grad_mesh = tmp_data_struct.x_grad_mesh;
 
 %% Initialize figure
 h_fig = figure(fig_count);
-set_article_figure_size(h_fig, rows, page_width_frac, 0.70);
+set_article_figure_size(h_fig, rows, page_width_frac, height_factor);
 clf;
 
 
 
 %% == (A): Plot diffusivity profile ==
 % Constants
-y_lim_vec_A = [0.095, 0.2];
+y_lim_vec_A = [0.14, 0.2];
 
 % Initialize subplot
 h_sub = subaxis(rows, cols, 1, 'SH', SH, 'SV', SV, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
@@ -143,7 +146,7 @@ h_theor_center = plot(data_struct.x_fine_mesh, data_struct.b_theor_fine_data, '-
 
 % Adjust plot
 xlim(x_lim_vec);
-% ylim(y_lim_vec_A);
+ylim(y_lim_vec_A);
 box on;
 % grid on;
 % xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
@@ -184,13 +187,13 @@ hold on;
 
 %% Plot
 % Simple difference bb'
-plot(x_grad_mesh, FD_bb_prime, markers_list{1}, 'color', color_sequence(1, :), 'LineWidth', line_width, 'markers', marker_size);
+plot(x_grad_mesh, FD_bb_prime, 'd', 'color', 'm', 'LineWidth', line_width, 'markers', marker_size);
 
 % Regularized gradient
-plot(x_grad_mesh, tmp_data_struct.MAP_bb_prime_regular,  markers_list{2}, 'color', color_sequence(2, :), 'LineWidth', line_width, 'markers', marker_size);
+plot(x_grad_mesh, tmp_data_struct.MAP_bb_prime_regular,  '>', 'color', 'b', 'LineWidth', line_width, 'markers', marker_size);
 
 % Regularized interpolated gradient
-plot(tmp_data_struct.x_bins_centers, tmp_data_struct.MAP_bb_prime_regular_interp, '-x', 'color', color_sequence(3, :), 'LineWidth', line_width, 'markers', marker_size);
+plot(tmp_data_struct.x_bins_centers, tmp_data_struct.MAP_bb_prime_regular_interp, '-x', 'color', 'r', 'LineWidth', line_width, 'markers', marker_size);
 
 % True value
 h_theor = plot(tmp_data_struct.x_fine_mesh, tmp_data_struct.bb_prime_theor_fine_data, 'k-', 'LineWidth', line_width_theor);
@@ -220,8 +223,8 @@ set(gca, 'FontSize', font_size);
 text(sublabel_x, sublabel_y, chr_label, 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 
 % % % % Legend
-% % % str_legend_local = {'FD', 'R', 'RI'};
-% % % legend(str_legend_local, 'location', 'southwest', 'interpreter', 'latex', 'FontSize', legend_font_size);
+str_legend_local = {'FD', 'R', 'RI'};
+% legend(str_legend_local, 'location', 'southwest', 'interpreter', 'latex', 'FontSize', legend_font_size);
 
 % Send true profile back
 uistack(h_theor, 'bottom');

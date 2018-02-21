@@ -10,19 +10,23 @@ function plot_article_global_bayes_factor(data_struct, bl_force, fig_count, bl_s
 load_constants;
 output_filename_base = 'K_G';
 
+% Figure size parameters
+page_width_frac = 1;
+height_factor = 0.7;
+
 % Subplot parameters
-SH = 0.05;
+SH = 0.04;
 SV = 0.12;
-ML = 0.06;
-MR = 0.01;
-MT = 0.09;
-MB = 0.09;
+ML = 0.058;
+MR = 0.005;
+MT = 0.1;
+MB = 0.12;
 rows = 1;
 cols = 4;
 
 % Label params
-sublabel_x = 0.015;
-sublabel_y = 1.11;
+sublabel_x = 0;
+sublabel_y = 0.8 / height_factor;
 
 y_increase_frac = 0.05;
 
@@ -31,7 +35,7 @@ y_increase_frac = 0.05;
 %% Initialize
 % Initalize plot
 h_fig = figure(fig_count);
-set_article_figure_size(h_fig, rows, 2, 1);
+set_article_figure_size(h_fig, rows, page_width_frac, height_factor);
 clf;
 
 % Initalize subplots
@@ -74,7 +78,8 @@ for lambda_type = 1:lambda_types_count
 	end
 	
 	% Add x labels
-	set(gca,'XTick',1:conventions_count, 'XTickLabel', conventions_names);
+	set(gca,'XTick',1:conventions_count, 'XTickLabel', conventions_names, 'FontSize', font_size);
+    xlim([0.5, conventions_count + 0.5]);
 	
 	% Subplot label
 	text(sublabel_x, sublabel_y, char('A' + lambda_type - 1 + 4 * bl_force), 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
@@ -82,9 +87,9 @@ for lambda_type = 1:lambda_types_count
 	% Axes labels
 	if lambda_type == 1 && ~bl_force
 % 		ylabel('Bayes factor $\langle \ln K_L \rangle$', 'interpreter', 'latex');
-		ylabel('$\langle \ln K_G \rangle$ for spurious-force model', 'interpreter', 'latex');
+		ylabel('$\langle \ln K_G \rangle$, No force model', 'interpreter', 'latex');
 	elseif lambda_type == 1 && bl_force
-		ylabel('$\langle \ln K_G \rangle$ for local-force model', 'interpreter', 'latex');
+		ylabel('$\langle \ln K_G \rangle$, Force model', 'interpreter', 'latex');
 	end
 
 	% Title

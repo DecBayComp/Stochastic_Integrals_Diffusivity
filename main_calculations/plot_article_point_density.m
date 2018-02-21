@@ -9,7 +9,10 @@ load_constants;
 x_tick_increment = 0.5;
 y_lim_vec = [0, 0.18];
 output_filename_base = 'point_density';
+
+% Figure size parameters
 page_width_frac = 0.25;
+height_factor = 0.6;
 
 % Label params
 sublabel_x = 0.0;
@@ -24,7 +27,7 @@ color_sequence = [standard_colors(1).DeepBlue; my_colors(5).Green; my_colors(1).
 
 %% Initialize figure
 h_fig = figure(fig_count);
-set_article_figure_size(h_fig, 1, page_width_frac, 0.75);
+set_article_figure_size(h_fig, 1, page_width_frac, height_factor);
 % tightfig(h_fig);
 clf;
 hold on;

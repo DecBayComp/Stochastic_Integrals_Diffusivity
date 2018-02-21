@@ -45,7 +45,7 @@ alpha_reg = 0.1;
 
 
 %% Plot parameters
-marker_size = 4;
+marker_size = 5;
 font_size = 10;
 subplot_label_font_size = 12;
 legend_font_size = font_size - 3;

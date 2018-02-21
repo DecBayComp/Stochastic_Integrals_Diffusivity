@@ -14,20 +14,23 @@ x_marker_step = L;
 marker_step = round(x_marker_step/x_step);
 output_D_filename = 'simulated_D_a_b.pdf';
 
+% Figure size parameters
+page_width_frac = 0.5;
+height_factor = 0.6;
+
 % Subplot parameters
 rows = 2;
 cols = 2;
-spacing = 0.08;
-ML = 0.19;
-MR = 0.03;
-MT = 0.08;
-MB = 0.16;
-SH = 0.2;
-SV = 0.19;
+ML = 0.14;
+MR = 0.025;
+MT = 0.06;
+MB = 0.12;
+SH = 0.16;
+SV = 0.16;
 
 % Label params
-sublabel_x = 0;
-sublabel_y = 1.3;
+sublabel_x = 0.02;
+sublabel_y = 1.2;
 
 % x_tick_increment = 0.25;
 
@@ -68,7 +71,7 @@ a_y_lim_vec = max(max(abs([alpha_data_force, alpha_data_no_force]))) * [-1, 1];
 % Common figure
 h_fig = figure(fig_count);
 clf;
-set_article_figure_size(h_fig, 2, 1, 0.6);
+set_article_figure_size(h_fig, 2, page_width_frac, height_factor);
 
 % Initialize subplots
 h_sub = subaxis(rows, cols, 1, 'SH', SH, 'SV', SV, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
