@@ -58,7 +58,7 @@ for lambda_type = 1:lambda_types_count
 	
 	% Plot
     plot(data_struct.x_bins_centers,  norm_points_density(lambda_type, :),...
-        strcat('-', markers_list{lambda_type}), 'color', color_sequence(lambda_type, :),  'LineWidth', line_width, 'markers', marker_size);
+        strcat('-', markers_list{lambda_type}), 'color', color_sequence(lambda_type, :),  'LineWidth', line_width - 0.8, 'markers', marker_size);
     str_legend{end + 1} = lambda_types_names{lambda_type};
 end
 

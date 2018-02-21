@@ -13,23 +13,31 @@ x_lim_vec = [x_min, x_max];
 y_lim_vec = [-1, 1] * 1.3;
 y_lim_vec_profile = [-1, 1] * 0.18;
 output_filename_base = 'K_L';
+
+% Overrides
+line_width = 1;
+
+% Figure size parameters
+page_width_frac = 1;
+height_factor = 1;
+
 % Subplot parameters
 SH = 0.03;
 SV = 0.12;
-ML = 0.06;
-MR = 0.02;
-MT = 0.1;
+ML = 0.045;
+MR = 0.015;
+MT = 0.08;
 MB = 0.15;
 rows = 1;
 cols = 4;
-jitter_scale = 1/6;
+jitter_scale = 0.19;
 
 % Skip some bins
 plot_every = 1;
 
 % Label params
 sublabel_x = 0.015;
-sublabel_y = 1.12;
+sublabel_y = 1.11;
 
 x_tick_increment = 0.2;
 
@@ -63,7 +71,7 @@ jitter = ones(bins_count, 1) * ((0:conventions_count-1) / (conventions_count - 1
 %% Plot
 % Initalize plot
 h_fig = figure(fig_count);
-set_article_figure_size(h_fig, rows, 2, 1);
+set_article_figure_size(h_fig, rows, page_width_frac, height_factor);
 clf;
 
 % Initalize subplots
@@ -97,17 +105,21 @@ for lambda_type = 1:lambda_types_count
 	%% Plot
 	subaxis(lambda_type);
 	hold on;
+    
+    % Theory
+	h_theor = plot(x_lim_vec, [0,0], '-', 'linewidth', line_width_theor, 'color', axes_color);
+    
 	str_legend = {};
-	for convention = 1:conventions_count
-		plot(x_bins_centers, squeeze(mean_evidence(lambda_type, :, convention)) + jitter(:, convention)', strcat('', markers_list{convention}),...
+    conv_plots = zeros(1, conventions_count);
+    for convention = 1:conventions_count
+		conv_plots(convention) = plot(x_bins_centers, squeeze(mean_evidence(lambda_type, :, convention)) + jitter(:, convention)', strcat('', markers_list{convention}),...
 			'color', color_sequence(convention, :), 'markers', marker_size, 'linewidth', line_width);
 		str_legend{length(str_legend) + 1} = conventions_names{convention};
-	end;
+    end
 % 	x_lim_vec = xlim();
 	xlim(x_lim_vec);
 
-	% Theory
-	h_theor = plot(x_lim_vec, [0,0], 'k--', 'linewidth', line_width_theor);
+	
 
 	% Adjust
 	ylim(y_lim_vec);
@@ -121,16 +133,16 @@ for lambda_type = 1:lambda_types_count
 	set(gca,'ytick', [])
 	if lambda_type == 1
 		set(gca,'ytick', [-1, 0, 1]);
-	end;
+    end
 
 
 	% Axes labels
 	xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 	if lambda_type == 1 && ~bl_force
 % 		ylabel('Bayes factor $\langle \ln K_L \rangle$', 'interpreter', 'latex');
-		ylabel('$\langle \ln K_L \rangle$ for spurious-force model', 'interpreter', 'latex');
+		ylabel('$\langle \ln K_L \rangle$, No force model', 'interpreter', 'latex');
 	elseif lambda_type == 1 && bl_force
-		ylabel('$\langle \ln K_L \rangle$ for local-force model', 'interpreter', 'latex');
+		ylabel('$\langle \ln K_L \rangle$, Force model', 'interpreter', 'latex');
 	end
 
 	% Title
@@ -139,11 +151,11 @@ for lambda_type = 1:lambda_types_count
 	
 	% Legend
 	if lambda_type == 2 && ~data_struct.bl_force
-		legend(str_legend, 'location', 'northeast', 'fontsize', legend_font_size);
+		legend(conv_plots, str_legend, 'location', 'northeast', 'fontsize', legend_font_size);
 	
 	elseif lambda_type == 2 && data_struct.bl_force
-		legend(str_legend, 'location', 'southwest', 'fontsize', legend_font_size);
-	end;
+		legend(conv_plots, str_legend, 'location', 'southwest', 'fontsize', legend_font_size);
+    end
 	
 	% Add confidence zones
 	x_lim_vec = xlim();
@@ -154,7 +166,7 @@ for lambda_type = 1:lambda_types_count
 	% Put axes on top
 	set(gca, 'Layer', 'top');
 
-end;
+end
 
 
 
@@ -169,7 +181,7 @@ output_filename = strcat(output_filename_base, '_', data_struct.str_force, '.pdf
 output_full_path = strcat(output_figures_folder, output_filename);
 if bl_save_figures
     print(h_fig, output_full_path, '-dpdf', '-r0');
-end;
+end
 
 
 

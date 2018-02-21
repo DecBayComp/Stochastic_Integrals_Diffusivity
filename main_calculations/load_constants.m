@@ -50,8 +50,8 @@ font_size = 10;
 subplot_label_font_size = 12;
 legend_font_size = font_size - 3;
 markers_list = {'s', 'o', '^', '+', 'x', 'd','v'};
-line_width = 1.2;
-line_width_theor = line_width - 0.5;
+line_width = 2;
+line_width_theor = line_width - 1;
 
 % Bin colors
 load_color_scheme;

@@ -123,7 +123,7 @@ hold on;
 str_legend = {};
 for lambda_type = 1:lambda_types_count
     plot(data_struct.x_bins_centers(1:bin_plot_step:end),  data_struct.MAP_b_mean(lambda_type, 1:bin_plot_step:end, 1),...
-        strcat('-', markers_list{lambda_type}), 'color', color_sequence(lambda_type, :),  'LineWidth', line_width, 'markers', marker_size);
+        strcat('-', markers_list{lambda_type}), 'color', color_sequence(lambda_type, :),  'LineWidth', line_width - 1, 'markers', marker_size);
     str_legend{end + 1} = lambda_types_names{lambda_type};
 end
 
@@ -187,13 +187,13 @@ hold on;
 
 %% Plot
 % Simple difference bb'
-plot(x_grad_mesh, FD_bb_prime, 'd', 'color', 'm', 'LineWidth', line_width, 'markers', marker_size);
+plot(x_grad_mesh, FD_bb_prime, 'd', 'color', 'm', 'LineWidth', line_width - 1, 'markers', marker_size);
 
 % Regularized gradient
-plot(x_grad_mesh, tmp_data_struct.MAP_bb_prime_regular,  '>', 'color', 'b', 'LineWidth', line_width, 'markers', marker_size);
+plot(x_grad_mesh, tmp_data_struct.MAP_bb_prime_regular,  '>', 'color', 'b', 'LineWidth', line_width - 1, 'markers', marker_size);
 
 % Regularized interpolated gradient
-plot(tmp_data_struct.x_bins_centers, tmp_data_struct.MAP_bb_prime_regular_interp, '-x', 'color', 'r', 'LineWidth', line_width, 'markers', marker_size);
+plot(tmp_data_struct.x_bins_centers, tmp_data_struct.MAP_bb_prime_regular_interp, '-x', 'color', 'r', 'LineWidth', line_width - 0.5, 'markers', marker_size);
 
 % True value
 h_theor = plot(tmp_data_struct.x_fine_mesh, tmp_data_struct.bb_prime_theor_fine_data, 'k-', 'LineWidth', line_width_theor);

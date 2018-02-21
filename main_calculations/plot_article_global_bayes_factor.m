@@ -10,6 +10,10 @@ function plot_article_global_bayes_factor(data_struct, bl_force, fig_count, bl_s
 load_constants;
 output_filename_base = 'K_G';
 
+% Overrides
+line_width = 1.25;
+marker_size = marker_size + 1;
+
 % Figure size parameters
 page_width_frac = 1;
 height_factor = 0.7;
@@ -70,11 +74,11 @@ for lambda_type = 1:lambda_types_count
 	eb_log_K_G(lambda_type, :) = std_log_K_G(lambda_type, :) * sqrt(2) * erfinv(0.95);
 	
 	% Plot with error bars
-% 	str_legend = cell(conventions_count, 1);
+	str_legend = cell(conventions_count, 1);
 	for convention = 1:conventions_count
 		errorbar(convention, mean_log_K_G(lambda_type, convention), eb_log_K_G(lambda_type, convention), markers_list{convention},...
 			'color', color_sequence(convention, :), 'markers', marker_size, 'linewidth', line_width);
-% 		str_legend{convention} = conventions_names{convention};
+		str_legend{convention} = conventions_names{convention};
 	end
 	
 	% Add x labels
@@ -90,7 +94,9 @@ for lambda_type = 1:lambda_types_count
 		ylabel('$\langle \ln K_G \rangle$, No force model', 'interpreter', 'latex');
 	elseif lambda_type == 1 && bl_force
 		ylabel('$\langle \ln K_G \rangle$, Force model', 'interpreter', 'latex');
-	end
+    end
+    
+    
 
 	% Title
 	str_title = sprintf('%s sim.', lambda_types_tex_names{lambda_type});
@@ -106,10 +112,10 @@ for lambda_type = 1:lambda_types_count
 % % % 	y_lim_vec(2) = max(y_lim_vec(2), cur_y_lim_vec(2));
 	
 	
-% % % 	% Legend
-% % % 	if lambda_type == 1
-% % % 		legend(str_legend, 'location', 'northeast');
-% % % 	end;
+% 	% Legend
+% 	if lambda_type == 1
+% 		legend(str_legend, 'location', 'northeast');
+%     end
 	
 end
 
@@ -122,6 +128,11 @@ y_lim_vec(2) = max(max(mean_log_K_G + eb_log_K_G));
 
 % Slightly increase the interval width
 y_lim_vec = y_lim_vec + [-1/2, 1/2]  * (y_lim_vec(2) - y_lim_vec(1)) * y_increase_frac;
+
+% Model-specific modifications
+if bl_force
+   y_lim_vec(1) = 0;
+end
 
 
 for lambda_type = 1:lambda_types_count
