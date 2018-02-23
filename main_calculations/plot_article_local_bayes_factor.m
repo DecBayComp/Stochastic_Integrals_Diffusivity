@@ -24,7 +24,7 @@ height_factor = 1;
 % Subplot parameters
 SH = 0.03;
 SV = 0.12;
-ML = 0.045;
+ML = 0.065;
 MR = 0.015;
 MT = 0.08;
 MB = 0.15;
@@ -139,10 +139,9 @@ for lambda_type = 1:lambda_types_count
 	% Axes labels
 	xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 	if lambda_type == 1 && ~bl_force
-% 		ylabel('Bayes factor $\langle \ln K_L \rangle$', 'interpreter', 'latex');
-		ylabel('$\langle \ln K_L \rangle$, No force model', 'interpreter', 'latex');
+		ylabel({'No force', '$\langle \ln K_L \rangle$'}, 'interpreter', 'latex');
 	elseif lambda_type == 1 && bl_force
-		ylabel('$\langle \ln K_L \rangle$, Force model', 'interpreter', 'latex');
+		ylabel({'Force', '$\langle \ln K_L \rangle$'}, 'interpreter', 'latex');
 	end
 
 	% Title
