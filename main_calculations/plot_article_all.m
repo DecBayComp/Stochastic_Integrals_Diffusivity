@@ -47,8 +47,8 @@ plot_article_b(data_struct, trials_data, data_struct.bl_force, fig_count, bl_sav
 
 
 %% === Plot mean fD profile and fail rate for each inference type ===
-fig_count = fig_count + 1; 
-plot_article_mean_a_profile_and_fail_rate(data_struct, trials_data, fig_count, bl_save_figures);
+fig_count = fig_count + 1;
+plot_article_mean_a_profile_and_fail_rate(data_struct, trials_data, data_struct.bl_force, fig_count, bl_save_figures);
 
 
 

@@ -44,8 +44,8 @@ end
 %% Access trajectories folder and start loading trajectories
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
-input_files_count = sum(~[cur_dir.isdir]);
-% input_files_count = 4*4;
+% input_files_count = sum(~[cur_dir.isdir]);
+input_files_count = 4*4;
 
 
 
@@ -150,6 +150,7 @@ parfor trial = 1:trials  % 765
     % Initialize the data structure
     data_struct = initialize_data_structure(x_bins_number, fine_mesh_steps_count, conventions_count, lambda_types_count);
 	data_struct.bl_force = bl_force;
+    data_struct.selected_f_case = selected_f_case;
 	data_struct.str_force = str_force;
     data_struct.x_bins_number = x_bins_number;
 	data_struct.x_bins_centers = x_bins_centers;
@@ -253,7 +254,7 @@ parfor trial = 1:trials  % 765
 % 		inferred_MAP_bb_prime_reg_interpolated = zeros(bins_number, 1) * NaN;
 % 		norm_cost = zeros(bins_number, 1) * NaN;
 % 		x_grad_mesh = zeros(bins_number, 1) * NaN;
-% 	end;
+% 	end
     % Save
     data_struct.MAP_b_regular = sqrt(inferred_MAP_b_squared_over_2_reg * 2);
     data_struct.MAP_bb_prime_regular = inferred_MAP_bb_prime_reg;
@@ -293,9 +294,9 @@ parfor trial = 1:trials  % 765
 			MAP_a(bin, enum_conv_Hanggi, :) = a_Hanggi_inference;
 			MAP_a(bin, enum_conv_marginalized, :) = a_MLE_marginalized;
 			
-			display('This bin is empty. Skipping');
+			disp('This bin is empty. Skipping');
 			continue;
-		end;
+		end
 		
 
 
@@ -367,7 +368,7 @@ parfor trial = 1:trials  % 765
         % Save
         MAP_a(bin, enum_conv_marginalized, :) = a_MLE_marginalized;
 
-    end;
+    end
     
     % Save all to the data structure 
     data_struct.MAP_a = MAP_a;
@@ -375,7 +376,7 @@ parfor trial = 1:trials  % 765
     %% Save results for this trial
     trials_data{trial} = data_struct;
  
-end;
+end
 data_struct = trials_data{trials};
 
 % Restore the time mesh
@@ -482,35 +483,18 @@ data_struct.mean_log_K_L = mean_log_K_L;
 
 
 
+%% Calculate mean K_L across x>0 and x<0 excluding the x=0 bin
+zero_bin_number = get_selected_bins_indices(data_struct, 0);
+neg_bins_indices = 1:(zero_bin_number - 1);
+pos_bins_indices = (zero_bin_number + 1):x_bins_number;
 
-% % % % % %% Calculate mean and average fail rate of each inference convention
-% % % % % % The mean is performed over bins and is weighted with bins size
-% % % % % 
-% % % % % % Identify the best explored period
-% % % % % x_left = (1/2 + 2*1)/w;
-% % % % % x_right = (1/2 + 2*2)/w;
-% % % % % 
-% % % % % % Filter indices from one best period
-% % % % % indices = data_struct.x_bins_centers >= x_left & data_struct.x_bins_centers <= x_right;
-% % % % % bin_widths = data_struct.x_bins_centers(indices);
-% % % % % norm_bin_widths = bin_widths / sum(bin_widths);
-% % % % % 
-% % % % % % UR_fD indices: (lambda_types_count, x_bins_number, conventions_count)
-% % % % % UR_b_bin_mean = zeros(lambda_types_count, 1);
-% % % % % UR_a_bin_mean = zeros(lambda_types_count, conventions_count);
-% % % % % A = permute(data_struct.UR_a, [1, 3, 2]);
-% % % % % for lambda_type = 1:lambda_types_count
-% % % % %     UR_b_bin_mean(lambda_type) = data_struct.UR_b(lambda_type, indices) * norm_bin_widths;
-% % % % %     UR_a_bin_mean(lambda_type, :) = squeeze(A(lambda_type, :, indices)) * norm_bin_widths;
-% % % % % end
-% % % % % UR_b_bin_max = max(data_struct.UR_b(:, indices), [], 2);
-% % % % % UR_a_bin_max = squeeze(max(data_struct.UR_a(:, indices, :), [], 2));
-% % % % % 
-% % % % % % Save
-% % % % % data_struct.UR_b_bin_mean = UR_b_bin_mean;
-% % % % % data_struct.UR_b_bin_max = UR_b_bin_max;
-% % % % % data_struct.UR_a_bin_mean = UR_a_bin_mean;
-% % % % % data_struct.UR_a_bin_max = UR_a_bin_max;
+% Average
+mean_log_K_L_avg_neg_x = squeeze(mean(mean_log_K_L(:, neg_bins_indices, :), 2));
+mean_log_K_L_avg_pos_x = squeeze(mean(mean_log_K_L(:, pos_bins_indices, :), 2));
+
+% Save
+data_struct.mean_log_K_L_avg_neg_x = mean_log_K_L_avg_neg_x;
+data_struct.mean_log_K_L_avg_pos_x = mean_log_K_L_avg_pos_x;
 
 
 

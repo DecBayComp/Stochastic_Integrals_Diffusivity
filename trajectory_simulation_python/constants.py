@@ -2,7 +2,7 @@
 
 
 ## Constants
-version = 20171120
+version = 20180226
 lambda_array = [0.0, 0.5, 1.0]
 lambda_count = len(lambda_array)
 
