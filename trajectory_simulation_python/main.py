@@ -18,7 +18,7 @@ from constants import *
 
 ## External functions (force and diffusivity)
 from D_func import D_func
-from f_func import f_func
+# from f_func import f_func
 
 
 # Random seed

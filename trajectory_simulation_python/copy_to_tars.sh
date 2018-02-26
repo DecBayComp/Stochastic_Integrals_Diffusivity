@@ -1,10 +1,10 @@
 #! /bin/bash
 
-FILE_LIST=("batch_tars_simulate_trajectories.sh constants.py D_func.py f_func.py sbatch_one_job.sh simulate_one_trajectory.py")
+FILE_LIST=("batch_start_tars.py constants.py D_func.py main.py sbatch_one_job.sh")
 
 for file in $FILE_LIST
 do
-	scp ./$file aserov@tars:~/ito-stratonovich/
+	scp ./$file aserov@tars.pasteur.fr:~/ito-stratonovich/
 done
 
 echo "All files copied successfully"
