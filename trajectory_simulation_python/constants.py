@@ -15,11 +15,19 @@ gamma_drag = 400.0	# viscous drag, in fN * s / um
 # % bl_periodic = true;
 # % T = 100000;
 t_step = 0.125 # in seconds
-N = int(1.0e3) # int(1.0e6) 
+N = int(1.0e3) # int(1.0e6)
 progress_update_interval = 100.0
 internal_steps_number = 100 # Integer. How many intermediate smaller steps are made before the next point is saved
-selected_x_over_L = 0.25
 
+
+## Batch parameters
+trials = 2
+sleep_time = 0.2
+logs_folder = "./logs/"
+output_folder = "./output/"
+args_file = "./arguments.dat"
+ksi_range = (-1, 2)
+ksi_step = 0.5
 
 
 output_folder = './output/';
