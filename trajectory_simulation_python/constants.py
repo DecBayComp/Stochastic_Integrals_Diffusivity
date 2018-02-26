@@ -15,7 +15,7 @@ gamma_drag = 400.0	# viscous drag, in fN * s / um
 # % bl_periodic = true;
 # % T = 100000;
 t_step = 0.125 # in seconds
-N = int(1.0e3) # int(1.0e6)
+N = int(1.0e5) # int(1.0e6)
 progress_update_interval = 100.0
 internal_steps_number = 100 # Integer. How many intermediate smaller steps are made before the next point is saved
 

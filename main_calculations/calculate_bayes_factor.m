@@ -15,8 +15,8 @@ REL_TOLERANCE = 1e-7;
 
 
 %% Initialize
-lambda_true = data_struct.lambda;
-lambda_array = [0, 0.5, 1, lambda_true];
+% lambda_true = data_struct.lambda;
+lambda_array = [0, 0.5, 1];
 
 % Load mean jump and variance across all bins, one trial
 dx_mean_all_bins = data_struct.dx_mean_all_bins;
@@ -68,10 +68,10 @@ log_marg_integral_prefactor = 1/2 * log((n .* V + n_pi * sigma2_pi) ./ n) - log(
 
 
 
-%% Calculate the local and global Bayes factors for fixed-lambda conventions
+%% Calculate the local and global Bayes factors for fixed-lambda conventions. Exclude oracle and marginalized
 log_K_L = zeros(conventions_count, x_bins_count);
 log_K_G = zeros(conventions_count, 1);
-for convention = 1:conventions_count-1
+for convention = 1:conventions_count-2
 	% Set inference lambda
 	lambda = lambda_array(convention);
 	
@@ -85,27 +85,27 @@ for convention = 1:conventions_count-1
 	
 	
 	%% Calculate local Bayes factor for the marginalized model in each bin
-	for bin = 1:x_bins_count
+    for bin = 1:x_bins_count
 		% Add 0 to integration points list if it lies between the limits
-		if y1(bin) * y2(bin) < 0
+        if y1(bin) * y2(bin) < 0
 			int_limits = [y1(bin), 0, y2(bin)];
-		else
+        else
 			int_limits = [y1(bin), y2(bin)];
-		end;
+        end
 
 		% Prepare the function to integrate over lambda in the current bin
 		lambda_integrand_func = @(y) (1 + y.^2) .^ (1 - n_0(bin)/2);
 
 		% Split integral at 0 to increase accuracy and calculate
 		hyperg = 0;
-		for i = 1:length(int_limits) - 1
+        for i = 1:length(int_limits) - 1
 			hyperg = hyperg + integral(lambda_integrand_func, int_limits(i), int_limits(i+1), 'RelTol', REL_TOLERANCE,'AbsTol', ABS_TOLERANCE);
-		end;
+        end
 		log_hyperg = log(hyperg * sgn_grad(bin));
 		
 		log_K_L(enum_conv_marginalized, bin) = log_K_L_marg_prefactor(bin) - log_marg_integral_prefactor (bin) - log_hyperg;
-	end;
-end;
+    end
+end
 
 %% Calculate the global Bayes factor for fixed-lambda models by summing the local Bayes factor over bins
 log_K_G(1:end-1) = sum(log_K_L(1:end-1, :), 2);
@@ -129,7 +129,7 @@ lambda_limits = sort([lambda_ML; 0; 1]);
 lambda_integral = 0;
 for i = 1:length(lambda_limits) - 1
 	lambda_integral = lambda_integral + integral(lambda_integrand_func, lambda_limits(i), lambda_limits(i+1), 'RelTol', REL_TOLERANCE, 'AbsTol', ABS_TOLERANCE);
-end;
+end
 
 
 

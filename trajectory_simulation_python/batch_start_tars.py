@@ -33,7 +33,7 @@ for folder in (logs_folder, output_folder):
 				if os.path.isfile(file_path):
 					os.remove(file_path)
 					file_num += 1
-					print ("File: %i/%i." % (file_num, file_count))
+					print ("File: %i/%i" % (file_num, file_count))
 			except Exception as e:
 				print(e)
 

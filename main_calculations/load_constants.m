@@ -49,7 +49,7 @@ marker_size = 5;
 font_size = 10;
 subplot_label_font_size = 12;
 legend_font_size = font_size - 3;
-markers_list = {'s', 'o', '^', '+', 'x', 'd','v'};
+markers_list = {'s', 'o', '^', 'x', '+', 'd','v'};
 line_width = 2;
 line_width_theor = line_width - 1;
 
@@ -63,9 +63,8 @@ bin_color = [1, 1, 1] * 0.86;
 
 output_figures_folder = '.\figures_for_article\';
 output_data_folder = './processed_data/';
-input_data_folder = 'D:\calculated_data\dilemma\';
-% input_data_folder = '/media/aserov/DATA/Experimental_Data/Ito-Stratonovich. Two systems. Long/';
-% input_data_folder = '/Users/alexander_serov/Calculations_data/ito-stratonovich/'; % Mac
+% input_data_folder = 'D:\calculated_data\dilemma\';
+input_data_folder = 'D:\calculated_data\local_bayes_factor\';
 fail_rates_filename = 'Fail_rates.dat';
 CSV_DELIMITER = ';';
 bl_save_figures = true;
@@ -78,7 +77,7 @@ max_f_case_number = 8;
 
 
 %% Plotting results for the article
-selected_D_case = 7;
+selected_D_case = 2;
 
 
 
@@ -105,11 +104,11 @@ lambda_names_array = {'Ito', 'Stratonovich', 'Isothermal'};
 enum_conv_Ito = 1;
 enum_conv_Stratonovich = 2;
 enum_conv_Hanggi = 3;
-enum_conv_divine = 4;
-enum_conv_marginalized = 5;
+enum_conv_marginalized = 4;
+enum_conv_divine = 5;
 conventions_count = 5;
-conventions_names = {'Ito', 'Str', 'Hng', 'Orcl', 'Mar'};
-conventions_tex_names = {'It\^o', 'Stratonovich', 'H\"anggi', 'Oracle', 'Marginalized'};
+conventions_names = {'Ito', 'Str', 'Hng', 'Mar', 'Orcl'};
+conventions_tex_names = {'It\^o', 'Stratonovich', 'H\"anggi', 'Marginalized', 'Oracle'};
 
 
 %% Enumerate lambda simulation types
@@ -125,7 +124,7 @@ lambda_ind_for_KS_plot = 3;
 
 % Define colors
 load_color_scheme;
-color_sequence = [standard_colors(1).DeepBlue; my_colors(5).Green; my_colors(1).Orange; my_colors(1).WarmBrown; standard_colors(1).Purple];
+color_sequence = [standard_colors(1).DeepBlue; my_colors(5).Green; my_colors(1).Orange;standard_colors(1).Purple;  my_colors(1).WarmBrown];
 axes_color = my_colors(5).White;
 % color_sequence = [0    0.4470    0.7410;...
 %                     0.9290    0.6940    0.1250;...
