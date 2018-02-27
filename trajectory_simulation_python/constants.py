@@ -21,13 +21,13 @@ internal_steps_number = 100 # Integer. How many intermediate smaller steps are m
 
 
 ## Batch parameters
-trials = 2
+trials = 20
 sleep_time = 0.2
 logs_folder = "./logs/"
 output_folder = "./output/"
 args_file = "./arguments.dat"
 ksi_range = (-1, 2)
-ksi_step = 0.5
+ksi_step = 0.1
 
 
 output_folder = './output/';

@@ -45,8 +45,8 @@ pdf_norm = [];
 %% Access trajectories folder and start loading trajectories
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
-% input_files_count = sum(~[cur_dir.isdir]);
-input_files_count = 14;
+input_files_count = sum(~[cur_dir.isdir]);
+% input_files_count = 14;
 
 
 
@@ -161,8 +161,14 @@ parfor trial = 1:trials  % 765
 %     data_struct.a_theor_data = a_bins;
 %     data_struct.trial_simulation_type = trial_simulation_type;
 %     data_struct.trial_first_simulation_type_index = trial_first_simulation_type_index;
+
+    % Ksi-related data
+    data_struct.trials_ksi = trials_ksi;
+    data_struct.ksi_array = ksi_array;
+    data_struct.trials_ksi_type = trials_ksi_type;
+    data_struct.trial_first_ksi_type_index = trial_first_ksi_type_index;
     
-    
+        
     %% Bin points for the current trial
     x = trials_x(:, trial)';
     dx = trials_dx(:, trial)';
@@ -416,73 +422,78 @@ data_struct.trials_log_K_G = trials_log_K_G;
 %% Calculate mean for each simulation type separately
 %% Also calculate the fail rate for each simulation type
 % Initialize arrays
-MAP_D_mean = zeros(lambda_types_count, x_bins_number, 4);
-MAP_b_mean = zeros(lambda_types_count, x_bins_number, 4);
-MAP_a_mean = zeros(lambda_types_count, x_bins_number, conventions_count, 4);
-MAP_bb_prime_regular_interp_mean = zeros(lambda_types_count, x_bins_number);
-UR_b = zeros(lambda_types_count, x_bins_number);
-UR_a = zeros(lambda_types_count, x_bins_number, conventions_count);
-outside_count_a = zeros(lambda_types_count, x_bins_number, conventions_count);
-n_j_mean = zeros(lambda_types_count, x_bins_number);
-b_KS_distance_mean = zeros(lambda_types_count, x_bins_number);
-mean_log_K_L = zeros(lambda_types_count, x_bins_number, conventions_count);
-mean_log_K_G = zeros(lambda_types_count, conventions_count);
+% MAP_D_mean = zeros(lambda_types_count, x_bins_number, 4);
+% MAP_b_mean = zeros(lambda_types_count, x_bins_number, 4);
+% MAP_a_mean = zeros(lambda_types_count, x_bins_number, conventions_count, 4);
+% MAP_bb_prime_regular_interp_mean = zeros(lambda_types_count, x_bins_number);
+% UR_b = zeros(lambda_types_count, x_bins_number);
+% UR_a = zeros(lambda_types_count, x_bins_number, conventions_count);
+% outside_count_a = zeros(lambda_types_count, x_bins_number, conventions_count);
+n_j_mean = zeros(ksi_count, x_bins_number);
+% b_KS_distance_mean = zeros(lambda_types_count, x_bins_number);
+mean_log_K_L = zeros(ksi_count, conventions_count);
+std_log_K_L = zeros(ksi_count, conventions_count);
+% mean_log_K_G = zeros(ksi_count, conventions_count);
 
-for lambda_type = 1:lambda_types_count
-    % Mean
-    MAP_D_mean(lambda_type, :, :) = mean(trials_MAP_D(trial_simulation_type == lambda_type, :, :), 1, 'omitnan' );
-	MAP_b_mean(lambda_type, :, :) = mean(trials_MAP_b(trial_simulation_type == lambda_type, :, :), 1, 'omitnan' );
-    MAP_a_mean(lambda_type, :, :, :) = mean(trials_MAP_a(trial_simulation_type == lambda_type, :, :, :), 1, 'omitnan' );
-    MAP_bb_prime_regular_interp_mean(lambda_type, :) = mean(trials_MAP_bb_prime_regular_interp(trial_simulation_type == lambda_type, :), 1, 'omitnan' );
+for ksi_ind = 1:ksi_count
+%     % Mean
+%     MAP_D_mean(lambda_type, :, :) = mean(trials_MAP_D(trial_simulation_type == lambda_type, :, :), 1, 'omitnan' );
+% 	MAP_b_mean(lambda_type, :, :) = mean(trials_MAP_b(trial_simulation_type == lambda_type, :, :), 1, 'omitnan' );
+%     MAP_a_mean(lambda_type, :, :, :) = mean(trials_MAP_a(trial_simulation_type == lambda_type, :, :, :), 1, 'omitnan' );
+%     MAP_bb_prime_regular_interp_mean(lambda_type, :) = mean(trials_MAP_bb_prime_regular_interp(trial_simulation_type == lambda_type, :), 1, 'omitnan' );
 	
 	% n_j
-	n_j_mean(lambda_type, :, :) = mean(trials_n_j(trial_simulation_type == lambda_type, :), 1, 'omitnan' );
+	n_j_mean(ksi_ind, :, :) = mean(trials_n_j(trials_ksi_type == ksi_ind, :), 1, 'omitnan' );
         
 	% Fail rate b
-    UR_b(lambda_type, :) = mean(double(trials_MAP_b(trial_simulation_type == lambda_type, :, 4) > CONF_LEVEL), 1, 'omitnan' );
+%     UR_b(lambda_type, :) = mean(double(trials_MAP_b(trial_simulation_type == lambda_type, :, 4) > CONF_LEVEL), 1, 'omitnan' );
     
 	% Fail rate a
-    UR_a(lambda_type, :, :) = mean(double(trials_MAP_a(trial_simulation_type == lambda_type, :, :, 4) > CONF_LEVEL), 1, 'omitnan' );
+%     UR_a(lambda_type, :, :) = mean(double(trials_MAP_a(trial_simulation_type == lambda_type, :, :, 4) > CONF_LEVEL), 1, 'omitnan' );
 	
 % 	% Kolmogorov-Smirnov distance for b
 % 	b_KS_distance_mean(lambda_type, :) = mean(trials_b_KS_distance(trial_simulation_type == lambda_type, :), 1, 'omitnan');
 	
 	% Bayes factors K
-	mean_log_K_G(lambda_type, :) = mean(trials_log_K_G(trial_simulation_type == lambda_type, :), 1, 'omitnan' );
-	std_log_K_G(lambda_type, :) = std(trials_log_K_G(trial_simulation_type == lambda_type, :), 1, 'omitnan' );
-	mean_log_K_L(lambda_type, :, :) = mean(trials_log_K_L(trial_simulation_type == lambda_type, :, :), 1, 'omitnan');
-	
+% 	mean_log_K_G(lambda_type, :) = mean(trials_log_K_G(trial_simulation_type == lambda_type, :), 1, 'omitnan' );
+% 	std_log_K_G(lambda_type, :) = std(trials_log_K_G(trial_simulation_type == lambda_type, :), 1, 'omitnan' );
+    for convention = 1:conventions_count
+        vals = reshape(trials_log_K_L(trials_ksi_type == ksi_ind, :, convention),[], 1);
+        mean_log_K_L(ksi_ind, convention) = mean(vals, 'omitnan');
+        std_log_K_L(ksi_ind, convention) = std(vals, 'omitnan');
+    end
 end
 
 % Save
-data_struct.MAP_D_mean = MAP_D_mean;
-data_struct.MAP_b_mean = MAP_b_mean;
-data_struct.MAP_a_mean = MAP_a_mean;
+% data_struct.MAP_D_mean = MAP_D_mean;
+% data_struct.MAP_b_mean = MAP_b_mean;
+% data_struct.MAP_a_mean = MAP_a_mean;
 % data_struct.b_KS_distance_mean = b_KS_distance_mean;
 % data_struct.b_KS_distance_bin_mean = mean(b_KS_distance_mean, 2);
-data_struct.MAP_bb_prime_regular_interp_mean = MAP_bb_prime_regular_interp_mean;
-data_struct.UR_b = UR_b;
-data_struct.UR_a = UR_a;
+% data_struct.MAP_bb_prime_regular_interp_mean = MAP_bb_prime_regular_interp_mean;
+% data_struct.UR_b = UR_b;
+% data_struct.UR_a = UR_a;
 data_struct.n_j_mean = n_j_mean;
-data_struct.mean_log_K_G = mean_log_K_G;
-data_struct.std_log_K_G = std_log_K_G;
-data_struct.eb_log_K_G = std_log_K_G * sqrt(2) * erfinv(0.95);
+% data_struct.mean_log_K_G = mean_log_K_G;
+% data_struct.std_log_K_G = std_log_K_G;
+% data_struct.eb_log_K_G = std_log_K_G * sqrt(2) * erfinv(0.95);
 data_struct.mean_log_K_L = mean_log_K_L;
+data_struct.std_log_K_L = std_log_K_L;
+data_struct.eb_log_K_L = std_log_K_L * sqrt(2) * erfinv(0.95);
 
 
-
-%% Calculate mean K_L across x>0 and x<0 excluding the x=0 bin
-zero_bin_number = get_selected_bins_indices(data_struct, 0);
-neg_bins_indices = 1:(zero_bin_number - 1);
-pos_bins_indices = (zero_bin_number + 1):x_bins_number;
-
-% Average
-mean_log_K_L_avg_neg_x = squeeze(mean(mean_log_K_L(:, neg_bins_indices, :), 2));
-mean_log_K_L_avg_pos_x = squeeze(mean(mean_log_K_L(:, pos_bins_indices, :), 2));
-
-% Save
-data_struct.mean_log_K_L_avg_neg_x = mean_log_K_L_avg_neg_x;
-data_struct.mean_log_K_L_avg_pos_x = mean_log_K_L_avg_pos_x;
+% %% Calculate mean K_L across x>0 and x<0 excluding the x=0 bin
+% zero_bin_number = get_selected_bins_indices(data_struct, 0);
+% neg_bins_indices = 1:(zero_bin_number - 1);
+% pos_bins_indices = (zero_bin_number + 1):x_bins_number;
+% 
+% % Average
+% mean_log_K_L_avg_neg_x = squeeze(mean(mean_log_K_L(:, neg_bins_indices, :), 2));
+% mean_log_K_L_avg_pos_x = squeeze(mean(mean_log_K_L(:, pos_bins_indices, :), 2));
+% 
+% % Save
+% data_struct.mean_log_K_L_avg_neg_x = mean_log_K_L_avg_neg_x;
+% data_struct.mean_log_K_L_avg_pos_x = mean_log_K_L_avg_pos_x;
 
 
 
@@ -491,7 +502,7 @@ data_struct.mean_log_K_L_avg_pos_x = mean_log_K_L_avg_pos_x;
 trials_x = [];
 trials_dx = [];
 points_binned = [];
-save(strcat('backup_workspace_', str_force, '.mat'));
+save(strcat('backup_workspace.mat'));
 save(strcat(output_data_folder, 'trials_data.mat'), 'data_struct', 'trials_data');
 
 % Print execution time
@@ -499,7 +510,9 @@ fprintf('All trajectories processed in %.2f min\n', toc/60);
 
 
 %% Plot
-plot_article_all(data_struct, trials_data);
+% plot_article_all(data_struct, trials_data);
+fig_count = 1; 
+plot_article_local_bayes_factor(data_struct, fig_count, 0);
 
 
 1;

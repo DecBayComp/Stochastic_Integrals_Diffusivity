@@ -1,7 +1,7 @@
 %% Plot Bayes factor profile for each simulation and inference model combination
 
 
-function plot_article_local_bayes_factor(data_struct, bl_force, fig_count, bl_save_figures)
+function plot_article_local_bayes_factor(data_struct, fig_count, bl_save_figures)
 
 
 
@@ -10,6 +10,8 @@ load_constants;
 
 % Overrides
 marker_size = marker_size + 1;
+
+% y_lim_vec = [-
 
 % % % sublabel_x = 0.03;
 % % % sublabel_y = 0.08;
@@ -74,36 +76,37 @@ marker_size = marker_size + 1;
 
 
 %% Load data
-mean_log_K_L_avg_neg_x = data_struct.mean_log_K_L_avg_neg_x;
-mean_log_K_L_avg_pos_x = data_struct.mean_log_K_L_avg_pos_x;
+% mean_log_K_L_avg_neg_x = data_struct.mean_log_K_L_avg_neg_x;
+% mean_log_K_L_avg_pos_x = data_struct.mean_log_K_L_avg_pos_x;
 
-% Calculate D' scale
-[~, D_prime_ends, ~] = D_func(selected_D_case, [x_min; x_max], L);
-D_prime_abs = abs(D_prime_ends(1));
+% Calculate D' at the first site
+% [~, D_prime, ~] = D_func(selected_D_case, x_min, L);
+% D_prime_abs = abs(D_prime_ends(1));
 
-% Calculate alpha for x>0 and x<0 for each convention
-a_ends = f_func(data_struct.selected_f_case, [x_min; x_max], L) / gamma_drag;
-sim_lambda_list = [0, 0.5, 1, 0.5];
-alpha_ends = a_ends * ones(1, length(sim_lambda_list)) + D_prime_ends * sim_lambda_list;
-alpha_ends_over_D = alpha_ends ./ (D_prime_ends * ones(1, 4));
+% % Calculate alpha for x>0 and x<0 for each convention
+% a_ends = f_func(data_struct.selected_f_case, [x_min; x_max], L) / gamma_drag;
+% sim_lambda_list = [0, 0.5, 1, 0.5];
+% alpha_ends = a_ends * ones(1, length(sim_lambda_list)) + D_prime_ends * sim_lambda_list;
+% alpha_ends_over_D = alpha_ends ./ (D_prime_ends * ones(1, 4));
+
+ksi_array = data_struct.ksi_array;
 
 
 
 %% Plot
 % Initalize plot
 h_fig = figure(fig_count);
-set_article_figure_size(h_fig, 1, 0.5, 1);
+% set_article_figure_size(h_fig, 1, 0.5, 1);
 clf;
 hold on;
 
-% Plot for x<0
-for convention = 1:conventions_count
-    plot(alpha_ends_over_D(1, 1:3), mean_log_K_L_avg_neg_x(1:3, convention), ...
+for convention = 1:4
+%     plot(ksi_array, data_struct.mean_log_K_L(:, convention), ...
+%         strcat('-', markers_list{convention}), 'color', color_sequence(convention, :),  'LineWidth', line_width, 'markers', marker_size);
+    
+    errorbar(ksi_array, data_struct.mean_log_K_L(:, convention), data_struct.eb_log_K_L(:, convention), ...
         strcat('-', markers_list{convention}), 'color', color_sequence(convention, :),  'LineWidth', line_width, 'markers', marker_size);
     
-    % x > 0
-    plot(alpha_ends_over_D(2, 1:3), mean_log_K_L_avg_pos_x(1:3, convention), ...
-        strcat('-', markers_list{convention}), 'color', color_sequence(convention, :),  'LineWidth', line_width, 'markers', marker_size)
 end
 
 % % Adjust
