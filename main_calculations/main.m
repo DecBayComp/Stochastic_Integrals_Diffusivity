@@ -45,8 +45,8 @@ pdf_norm = [];
 %% Access trajectories folder and start loading trajectories
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
-input_files_count = sum(~[cur_dir.isdir]);
-% input_files_count = 14;
+% input_files_count = sum(~[cur_dir.isdir]);
+input_files_count = 20;
 
 
 
@@ -427,10 +427,10 @@ data_struct.trials_log_K_G = trials_log_K_G;
 %% Calculate mean for each simulation type separately
 %% Also calculate the fail rate for each simulation type
 % Initialize arrays
-% MAP_D_mean = zeros(lambda_types_count, x_bins_number, 4);
-% MAP_b_mean = zeros(lambda_types_count, x_bins_number, 4);
+MAP_D_mean = zeros(ksi_count, x_bins_number, 4);
+MAP_b_mean = zeros(ksi_count, x_bins_number, 4);
 % MAP_a_mean = zeros(lambda_types_count, x_bins_number, conventions_count, 4);
-% MAP_bb_prime_regular_interp_mean = zeros(lambda_types_count, x_bins_number);
+MAP_bb_prime_regular_interp_mean = zeros(ksi_count, x_bins_number);
 % UR_b = zeros(lambda_types_count, x_bins_number);
 % UR_a = zeros(lambda_types_count, x_bins_number, conventions_count);
 % outside_count_a = zeros(lambda_types_count, x_bins_number, conventions_count);
@@ -441,11 +441,11 @@ std_log_K_L = zeros(ksi_count, conventions_count);
 % mean_log_K_G = zeros(ksi_count, conventions_count);
 
 for ksi_ind = 1:ksi_count
-%     % Mean
-%     MAP_D_mean(lambda_type, :, :) = mean(trials_MAP_D(trial_simulation_type == lambda_type, :, :), 1, 'omitnan' );
-% 	MAP_b_mean(lambda_type, :, :) = mean(trials_MAP_b(trial_simulation_type == lambda_type, :, :), 1, 'omitnan' );
+    % Mean
+    MAP_D_mean(ksi_ind, :, :) = mean(trials_MAP_D(trials_ksi_type == ksi_ind, :, :), 1, 'omitnan' );
+	MAP_b_mean(ksi_ind, :, :) = mean(trials_MAP_b(trials_ksi_type == ksi_ind, :, :), 1, 'omitnan' );
 %     MAP_a_mean(lambda_type, :, :, :) = mean(trials_MAP_a(trial_simulation_type == lambda_type, :, :, :), 1, 'omitnan' );
-%     MAP_bb_prime_regular_interp_mean(lambda_type, :) = mean(trials_MAP_bb_prime_regular_interp(trial_simulation_type == lambda_type, :), 1, 'omitnan' );
+    MAP_bb_prime_regular_interp_mean(ksi_ind, :) = mean(trials_MAP_bb_prime_regular_interp(trials_ksi_type == ksi_ind, :), 1, 'omitnan' );
 	
 	% n_j
 	n_j_mean(ksi_ind, :, :) = mean(trials_n_j(trials_ksi_type == ksi_ind, :), 1, 'omitnan' );
@@ -470,12 +470,12 @@ for ksi_ind = 1:ksi_count
 end
 
 % Save
-% data_struct.MAP_D_mean = MAP_D_mean;
-% data_struct.MAP_b_mean = MAP_b_mean;
+data_struct.MAP_D_mean = MAP_D_mean;
+data_struct.MAP_b_mean = MAP_b_mean;
 % data_struct.MAP_a_mean = MAP_a_mean;
 % data_struct.b_KS_distance_mean = b_KS_distance_mean;
 % data_struct.b_KS_distance_bin_mean = mean(b_KS_distance_mean, 2);
-% data_struct.MAP_bb_prime_regular_interp_mean = MAP_bb_prime_regular_interp_mean;
+data_struct.MAP_bb_prime_regular_interp_mean = MAP_bb_prime_regular_interp_mean;
 % data_struct.UR_b = UR_b;
 % data_struct.UR_a = UR_a;
 data_struct.n_j_mean = n_j_mean;

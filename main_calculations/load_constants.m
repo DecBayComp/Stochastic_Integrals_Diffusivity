@@ -28,6 +28,7 @@ alpha_smoooth = 1e-3;
 fine_mesh_steps_count = 1000 + 1;
 CONF_LEVEL = 0.95;
 w = 10;
+selected_ksi_array = [-1; 0; 1; 2];
 
 % Definition of force and no-force cases
 enum_force_case = 2;

@@ -17,7 +17,7 @@ except:
 	pass
 
 
-# Prepare the logs and output folders
+# Clean the logs and output folders
 for folder in (logs_folder, output_folder):
 	if not os.path.isdir(folder):
 		os.makedirs(folder)
