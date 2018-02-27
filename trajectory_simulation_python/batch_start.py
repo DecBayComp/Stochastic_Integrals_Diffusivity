@@ -2,11 +2,24 @@
 
 
 import os    # for file operations
+import socket	# for netowrk hostname
 import numpy as np
 
 ## Constants
 from constants import trials, sleep_time, logs_folder, output_folder, args_file, ksi_range, ksi_step
 D_case = 2
+
+# Identify the system where the code is running
+hostname = socket.gethostname()
+if hostname.startswith('tars-submit'):
+	script_name = 'sbatch_one_job_tars.sh'
+elif hostname == 'patmos':
+	script_name = 'sbatch_one_job_t_bayes.sh'
+else:
+	print('Unidentified hostname "' + hostname + '". Unable to choose the right code version to launch. Aborting.')
+	exit()
+
+
 
 print("Creating arguments list...")
 
@@ -43,8 +56,8 @@ id = 0
 ksi_length = (ksi_range[1] - ksi_range[0]) / ksi_step + 1
 ksi_points = np.linspace(ksi_range[0], ksi_range[1], ksi_length)
 with open(args_file, 'w') as file_object:
-	for ksi in ksi_points:
-		for trial in range(1, trials+1):
+	for trial in range(1, trials+1):
+		for ksi in ksi_points:
 			id += 1
 			args_string = '-D=%i --ksi=%f --id=%i\n' % (D_case, ksi, id)
 			file_object.write(args_string)
@@ -54,6 +67,6 @@ print("Argument list created. Launching sbatch...")
 line_count = id
 
 # Launch sbatch
-cmd_str = 'sbatch -o /dev/null --array=1-%i sbatch_one_job.sh' % (line_count)
+cmd_str = 'sbatch -o /dev/null --array=1-%i %s' % (line_count, script_name)
 os.system(cmd_str)
 

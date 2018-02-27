@@ -8,27 +8,30 @@ function plot_article_b(data_struct, trials_data, fig_count, bl_save_figures)
 
 %% Constants
 load_constants;
+% Overrides
+line_width = line_width - 1;
+
 % % % % x_lim_vec = [x_min, x_max];
 % % % % lambdas_array = [0, 0.5, 1];
 % % % % 
-% % % % % Figure size parameters
-% % % % page_width_frac = 0.25;
-% % % % height_factor = 0.5;
-% % % % 
-% % % % % Subplot params
-% % % % rows = 2;
-% % % % cols = 1;
-% % % % ML = 0.27;
-% % % % MR = 0.06;
-% % % % MT = 0.07;
-% % % % MB = 0.15;
-% % % % SH = 0.16;
-% % % % SV = 0.17;
+% Figure size parameters
+page_width_frac = 0.5;
+height_factor = 0.5;
+
+% Subplot params
+rows = 1;
+cols = 2;
+ML = 0.12;
+MR = 0.06;
+MT = 0.07;
+MB = 0.29;
+SH = 0.16;
+SV = 0.17;
 % % % % 
 % % % % % Label params
 % % % % sublabel_x = 0;
 % % % % sublabel_y = 1 + 0.525 * height_factor;
-% % % % output_filename_base = 'b';
+output_filename_base = 'b';
 % % % % 
 % % % % % Other plot parameters
 % % % % bin_plot_step = 1;	% 3
@@ -117,38 +120,45 @@ for j = 1:len_sel_ksi
 end
 
 
-%%% === Plot <b> ===
-
-
 %% Initialize figure
 h_fig = figure(fig_count);
-% set_article_figure_size(h_fig, rows, page_width_frac, height_factor);
+set_article_figure_size(h_fig, rows, page_width_frac, height_factor);
 clf;
 hold on;
+
+
+%%% === Plot <b> ===
 
 
 % Load data for selected ksi_values
 x_bins_centers = data_struct.x_bins_centers;
 MAP_b_mean = data_struct.MAP_b_mean(selected_ksi_indices, :, 1);
 
+% Initialize subplot
+h_sub = subaxis(rows, cols, 1, 'SH', SH, 'SV', SV, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
+hold on;
+
 for j = 1:len_sel_ksi
-   plot(x_bins_centers, MAP_b_mean(j, :), '-o');
+   plot(x_bins_centers, MAP_b_mean(j, :), strcat('-', markers_list{j}), ...
+       'color', color_sequence(j, :),  'LineWidth', line_width, 'markers', marker_size);
 end
 
 % Theory
 b_theor_data = data_struct.b_theor_data(:, 1);
 h_theor = plot(x_bins_centers, b_theor_data, 'k--');
+uistack(h_theor, 'bottom');
 
 % Label
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('$\langle \hat b \rangle$, $\mu\mathrm{m \cdot s^{-1/2}}$', 'interpreter', 'latex');
 
+% Ticks
+set(gca, 'FontSize', font_size);
+
 
 
 %%% === Plot <bb'> ===
-h_fig = figure(fig_count + 1);
-% set_article_figure_size(h_fig, rows, page_width_frac, height_factor);
-clf;
+subaxis(2);
 hold on;
 
 % Load data for selected ksi_values
@@ -156,12 +166,15 @@ x_bins_centers = data_struct.x_bins_centers;
 MAP_bb_prime_regular_interp_mean = data_struct.MAP_bb_prime_regular_interp_mean(selected_ksi_indices, :, 1);
 
 for j = 1:len_sel_ksi
-   plot(x_bins_centers, MAP_bb_prime_regular_interp_mean(j, :), '-o');
+   plot(x_bins_centers, MAP_bb_prime_regular_interp_mean(j, :), strcat('-', markers_list{j}), ...
+       'color', color_sequence(j, :),  'LineWidth', line_width, 'markers', marker_size);
 end
 
 % Label
 xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
 ylabel('$\langle \hat b \hat b'' \rangle$, $\mu\mathrm{m /s }$', 'interpreter', 'latex');
+
+set(gca, 'FontSize', font_size);
 
 
 
@@ -295,19 +308,19 @@ ylabel('$\langle \hat b \hat b'' \rangle$, $\mu\mathrm{m /s }$', 'interpreter', 
 % % % % 
 % % % % 
 % % % % 
-% % % % %% Save figure
-% % % % % Prepare printer
-% % % % h_fig.PaperPositionMode = 'auto';
-% % % % h_fig.Units = 'Inches';
-% % % % fig_pos = h_fig.Position;
-% % % % set(h_fig, 'PaperUnits','Inches','PaperSize', [fig_pos(3), fig_pos(4)]);
-% % % % 
-% % % % % Set filename
-% % % % output_filename = strcat(output_filename_base, '_', data_struct.str_force, '.pdf');
-% % % % output_full_path = strcat(output_figures_folder, output_filename);
-% % % % if bl_save_figures
-% % % %     print(h_fig, output_full_path, '-dpdf', '-r0');
-% % % % end
+%% Save figure
+% Prepare printer
+h_fig.PaperPositionMode = 'auto';
+h_fig.Units = 'Inches';
+fig_pos = h_fig.Position;
+set(h_fig, 'PaperUnits','Inches','PaperSize', [fig_pos(3), fig_pos(4)]);
+
+% Set filename
+output_filename = strcat(output_filename_base, '.pdf');
+output_full_path = strcat(output_figures_folder, output_filename);
+if bl_save_figures
+    print(h_fig, output_full_path, '-dpdf', '-r0');
+end
 
 
 
