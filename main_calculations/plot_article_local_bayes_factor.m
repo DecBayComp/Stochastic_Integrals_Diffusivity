@@ -10,8 +10,12 @@ load_constants;
 
 % Overrides
 marker_size = marker_size + 1;
+% line_width = 0;
+jitter_amplitude = 0.02;
+errorbar_step = 5;
 
-% y_lim_vec = [-
+
+y_lim_vec = [-10; 20];
 
 % % % sublabel_x = 0.03;
 % % % sublabel_y = 0.08;
@@ -91,6 +95,9 @@ marker_size = marker_size + 1;
 
 ksi_array = data_struct.ksi_array;
 
+% Create jitter to distinguish curves
+jitter_array = (-1.5:1.5) * jitter_amplitude;
+
 
 
 %% Plot
@@ -101,18 +108,19 @@ clf;
 hold on;
 
 for convention = 1:4
-%     plot(ksi_array, data_struct.mean_log_K_L(:, convention), ...
-%         strcat('-', markers_list{convention}), 'color', color_sequence(convention, :),  'LineWidth', line_width, 'markers', marker_size);
-    
-    errorbar(ksi_array, data_struct.mean_log_K_L(:, convention), data_struct.eb_log_K_L(:, convention), ...
+    plot(ksi_array + jitter_array(convention), data_struct.mean_log_K_L(:, convention), ...
         strcat('-', markers_list{convention}), 'color', color_sequence(convention, :),  'LineWidth', line_width, 'markers', marker_size);
+    
+    errorbar(ksi_array(1:errorbar_step:end) + jitter_array(convention), data_struct.mean_log_K_L(1:errorbar_step:end, convention), ...
+    data_struct.eb_log_K_L(1:errorbar_step:end, convention),  markers_list{convention},...
+        'color', color_sequence(convention, :),  'LineWidth', line_width, 'markers', marker_size);
     
 end
 
 % % Adjust
 % x_lim_vec = xlim();
 % x_lim_vec(1) = 0;
-% xlim(x_lim_vec);
+% ylim(y_lim_vec);
 
 xlabel('$\alpha / bb''$', 'Interpreter', 'latex');
 ylabel('$\langle \ln K_L \rangle$', 'Interpreter', 'latex');

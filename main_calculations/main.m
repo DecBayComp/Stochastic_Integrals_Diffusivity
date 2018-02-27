@@ -133,6 +133,8 @@ bb_prime_theor_fine_data = D_grad_theor_fine_data;
 
 
 fprintf('Processing trajectories...\n');
+% Select one bin in the middle to avoid boundary effects
+middle_bin = floor(x_bins_number/2);
 tic;
 parfor trial = 1:trials  % 765
     %% Initialize
@@ -262,8 +264,11 @@ parfor trial = 1:trials  % 765
     
     
     %% ===== Infer forces =====
+    
+        
+    bin = middle_bin;
     MAP_a = zeros(x_bins_number, conventions_count, 4);
-    for bin = 1:x_bins_number
+%     for bin = 1:x_bins_number
         fprintf('Estimating force. Trial: %i/%i. Bin: %i/%i\n', trial, trials, bin, x_bins_number);
         % Initialize
         [mu_n, kappa_n, nu_n, sigma2_n] = get_n_parameters(bin, data_struct, 'forward');
@@ -362,7 +367,7 @@ parfor trial = 1:trials  % 765
         % Save
         MAP_a(bin, enum_conv_marginalized, :) = a_MLE_marginalized;
 
-    end
+%     end
     
     % Save all to the data structure 
     data_struct.MAP_a = MAP_a;
@@ -458,7 +463,7 @@ for ksi_ind = 1:ksi_count
 % 	mean_log_K_G(lambda_type, :) = mean(trials_log_K_G(trial_simulation_type == lambda_type, :), 1, 'omitnan' );
 % 	std_log_K_G(lambda_type, :) = std(trials_log_K_G(trial_simulation_type == lambda_type, :), 1, 'omitnan' );
     for convention = 1:conventions_count
-        vals = reshape(trials_log_K_L(trials_ksi_type == ksi_ind, :, convention),[], 1);
+        vals = reshape(trials_log_K_L(trials_ksi_type == ksi_ind, middle_bin, convention),[], 1);
         mean_log_K_L(ksi_ind, convention) = mean(vals, 'omitnan');
         std_log_K_L(ksi_ind, convention) = std(vals, 'omitnan');
     end
