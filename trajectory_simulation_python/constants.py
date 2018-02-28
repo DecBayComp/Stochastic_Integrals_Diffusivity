@@ -26,8 +26,12 @@ sleep_time = 0.2
 logs_folder = "./logs/"
 output_folder = "./output/"
 args_file = "./arguments.dat"
+args_lock = "./arguments.lock"
+# lock_timeout = 
 ksi_range = (-1, 2)
 ksi_step = 0.1
+jobs_count = 1
+manager_script = "job_manager.py"
 
 
 output_folder = './output/';

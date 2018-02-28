@@ -1,6 +1,6 @@
 #! /bin/bash
 
-FILE_LIST=("batch_start.py constants.py D_func.py main.py sbatch_one_job_t_bayes.sh")
+FILE_LIST=("start_me.py constants.py D_func.py main.py sbatch_t_bayes.sh job_manager.py filelock.py")
 
 for file in $FILE_LIST
 do
