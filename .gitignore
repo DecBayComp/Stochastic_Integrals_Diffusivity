@@ -6,3 +6,11 @@ theory/b bias analysis_old\.nb
 trajectory_simulation_python/output/
 trajectory_simulation_python/logs/
 main_calculations/figures_for_article/results_with_force.dat
+
+trajectory_simulation_python/DBC Tars nodes\.txt
+
+trajectory_simulation_python/arguments\.dat
+
+main_calculations/figures_for_article/K_G_data_no_force\.txt
+
+main_calculations/figures_for_article/results_no_force\.dat

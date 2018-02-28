@@ -27,10 +27,11 @@ logs_folder = "./logs/"
 output_folder = "./output/"
 args_file = "./arguments.dat"
 args_lock = "./arguments.lock"
-# lock_timeout = 
+lock_timeout = 300
 ksi_range = (-1, 2)
 ksi_step = 0.1
-jobs_count = 1
+jobs_count_tars = 132
+jobs_count_t_bayes = 200
 manager_script = "job_manager.py"
 
 
@@ -40,6 +41,7 @@ CSV_DELIMITER = ';';
 
 
 ## Diffusivity constants
+D_case = 2
 D_0 = 0.01	# in um^2/s
 k = 2.0 # in um^-1
 max_D_case = 7;

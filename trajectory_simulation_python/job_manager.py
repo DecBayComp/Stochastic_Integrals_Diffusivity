@@ -13,7 +13,7 @@ calculation_script = "main.py"
 
 while True:
 	# Try to obtain lock
-	lock = FileLock(args_lock, timeout = 1)
+	lock = FileLock(args_lock, timeout = lock_timeout)
 	try:
 		# If get lock
 		with lock:
@@ -28,7 +28,7 @@ while True:
 			
 			# Write all lines back except for the first one
 			with open(args_file, 'w') as file_object:
-				four.writelines(all_lines[1:])
+				file_object.writelines(all_lines[1:])
 
 			# Get current arguments and clen
 			cur_args = all_lines[0]
