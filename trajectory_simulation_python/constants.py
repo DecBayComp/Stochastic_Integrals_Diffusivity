@@ -32,6 +32,7 @@ ksi_range = (-1, 2)
 ksi_step = 0.1
 jobs_count_tars = 132
 jobs_count_t_bayes = 200
+jobs_count_onsager = 2
 manager_script = "job_manager.py"
 
 

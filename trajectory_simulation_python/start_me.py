@@ -6,6 +6,7 @@ import os    # for file operations
 import socket	# for netowrk hostname
 import numpy as np
 import argparse	# for command-line arguments
+import subprocess	# for launching detached processes on a local PC
 
 ## Constants
 from constants import *
@@ -27,6 +28,9 @@ if hostname.startswith('tars-submit'):
 elif hostname == 'patmos':
 	script_name = 'sbatch_t_bayes.sh'
 	jobs_count = jobs_count_t_bayes
+elif hostname == 'onsager-dbc':
+	script_name = 'job_manager.py'
+	jobs_count = jobs_count_onsager
 else:
 	print('Unidentified hostname "' + hostname + '". Unable to choose the right code version to launch. Aborting.')
 	exit()
@@ -97,6 +101,14 @@ else:
 
 
 # Launch job managers
-cmd_str = 'sbatch --array=1-%i %s' % (jobs_count, script_name)	# -o /dev/null
-os.system(cmd_str)
+if script_name == 'job_manager.py':
+	cmd_str = 'python3 %s' % (script_name)
+	for j in range(1, jobs_count + 1):
+		subprocess.Popen(['python3', script_name], stdout=subprocess.PIPE)
+	print("Launched %i local job managers" % (jobs_count))
+else:
+	cmd_str = 'sbatch --array=1-%i %s' % (jobs_count, script_name)	# -o /dev/null
+	os.system(cmd_str)
+
+
 
