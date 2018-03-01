@@ -21,7 +21,7 @@ internal_steps_number = 100 # Integer. How many intermediate smaller steps are m
 
 
 ## Batch parameters
-trials = 1000
+trials = 1	# 1000
 sleep_time = 0.2
 logs_folder = "./logs/"
 output_folder = "./output/"

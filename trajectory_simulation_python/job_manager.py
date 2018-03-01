@@ -6,9 +6,10 @@ from filelock import FileLock, Timeout		# for file locks
 import os	# for shell execution of the code
 import sys
 import socket	# for netowrk hostname
+from main import main	# actual calculations
 
 from constants import *
-calculation_script = "main.py"
+# calculation_script = "main.py"
 
 
 while True:
@@ -31,7 +32,7 @@ while True:
 				file_object.writelines(all_lines[1:])
 
 			# Get current arguments and clen
-			cur_args = all_lines[0]
+			cur_args = all_lines[0].strip()
 			del all_lines
 
 	# If unable to get lock
@@ -40,9 +41,9 @@ while True:
 		sys.exit(-1)
 
 	# Launch calculation with current arguments
-	cmd = "python3 " + calculation_script + " " + cur_args
 	print("Launching calculations with parameters '" + cur_args + "'")
-	os.system(cmd)
+	main(cur_args)
+	
 
 
 
