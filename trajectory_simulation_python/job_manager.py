@@ -8,7 +8,7 @@ import sys
 import socket	# for netowrk hostname
 from main import main	# actual calculations
 
-from constants import *
+from constants import args_lock, args_file, lock_timeout
 # calculation_script = "main.py"
 
 

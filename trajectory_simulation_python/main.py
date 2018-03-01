@@ -1,7 +1,3 @@
-# This is the new main file for simulations with ksi = alpha/D' as the only parameter.
-# Use D_case = 2.
-# This file replaces 'simulate_one_trajectory.py'
-# Created: 2018-20-26
 
 
 ## Dependencies
@@ -18,8 +14,13 @@ from constants import version, max_D_case, N as N_def, progress_update_interval,
 
 
 def main(arg_str):
-
-
+	"""
+	This is the new main file for simulations with ksi = alpha/D' as the only parameter.
+	Use D_case = 2.
+	This file replaces 'simulate_one_trajectory.py'
+	Created: 2018-20-26
+	"""
+	
 	# Random seed
 	np.random.seed()
 
