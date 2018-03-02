@@ -91,7 +91,7 @@ trials_data = cell(1, trials);
 
 %% Identify suitable bin locations based on all points for all trials
 [x_bins_borders, x_bins_centers, x_bins_number, x_bins_widths,...
-            elements_in_bins_count, variance_in_bins, ~] = select_bins_adaptive_mesh(trials_x(:), trials_dx(:), points_in_bin_avg * trials);
+            ~, variance_in_bins, ~] = select_bins_adaptive_mesh(trials_x(:), trials_dx(:), -1);
 
 % Estimate dx_Mean and V used for prior only. Average over everything
 dx_mean_all_bins_all_trials = mean(trials_dx(:));
@@ -197,6 +197,9 @@ parfor trial = 1:trials  % 765
 		data_struct.mean_jump_length_bins = sqrt(data_struct.V_j(bin));
 		data_struct.dx_mean_all_bins = mean(sorted_data(2, :));
 		data_struct.V_all_bins = var(sorted_data(2, :));
+        
+        
+        
 		
 		
 		%% If for this trial, we have no points in the bin, set flag
