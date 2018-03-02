@@ -54,36 +54,48 @@ mean_jumps = zeros(1, bins_number);
 
 %% Calculate bin borders and bin the data
 % Set the right border of the last bin
-% Indices borders are always included into their bin
+% Indices borders are always included into their bin (the indexes of points
+% at the borders of the bins)
 x_bins_borders(bins_number, 2) = x_max;
 indices_bins_borders(bins_number, 2) = N;
+first_bin = 1;
 for bin = bins_number:-1:1
 	% Print progress
 	fprintf('Binning: Processing bin %i/%i.\n', bins_number - bin + 1, bins_number);
 	
-	% Store rigth border index (fixed)
+	% Store right border index (fixed)
 	right_border_ind = indices_bins_borders(bin, 2);
 	
     % Estimate the left bin border based on the point number
 	left_border_ind = right_border_ind - points_per_bin + 1;
 	
-	% Keep increasing the bin width, while the mean jump in bin is not small enough compared to the bins and while there are unbinned points left
+	% Keep increasing the bin width, while the mean jump is smaller than a
+	% pre-defined bin width fraction and while there are unbinned points left
 	bl_small_mean_jump = false;
 	ind = left_border_ind;
-	while ind >= 1
+    while ind >= 1  % try to find the index of the jump which would make the left border
 		% Calculate the mean jump in bin
 		mean_jump_length = std(dx_data_sorted(ind:right_border_ind));
 		
 		% Calculate bin width
 		bin_width = x_data_sorted(right_border_ind) - x_data_sorted(ind);
 		
-		% Leave cycle if the condition is satisfied
-		if bin_width >= mean_jump_length * min_bin_to_jump_ratio
+		% Save and leave cycle if the condition is satisfied
+        if bin_width >= mean_jump_length * min_bin_to_jump_ratio
 			% Save borders
 			indices_bins_borders(bin, 1) = ind;
-			indices_bins_borders(bin - 1, 2) = ind - 1;
-			x_bins_borders(bin, 1) = (x_data_sorted(ind) + x_data_sorted(ind - 1)) / 2;
-			x_bins_borders(bin - 1, 2) = x_bins_borders(bin, 1);
+            if ind == 1
+                % If last point
+                x_bins_borders(bin, 1) = x_data_sorted(ind);
+            else
+                x_bins_borders(bin, 1) = (x_data_sorted(ind) + x_data_sorted(ind - 1)) / 2;
+            end
+            
+            % Change the bin to the left if not the last one
+            if bin > 1
+                indices_bins_borders(bin - 1, 2) = ind - 1;
+                x_bins_borders(bin - 1, 2) = x_bins_borders(bin, 1);
+            end
 			
 			% Bin the data
 			indices = ind:right_border_ind;
@@ -141,12 +153,12 @@ for bin = bins_number:-1:1
 		
 		% Exit bin cycle
 		break;
-    end
+	end
 end
 
 
 
-%% Remove empty bins in the start
+%% Remove empty bins in the start (if any)
 x_bins_borders = x_bins_borders(first_bin:end, :);
 indices_bins_borders = indices_bins_borders(first_bin:end, :);
 variance_in_bins = variance_in_bins(first_bin:end);
@@ -172,15 +184,15 @@ x_bins_borders(1, 1) = x_bins_borders(1, 1) - (x_bins_borders(1, 2) - x_bins_bor
 x_bins_borders(end, 2) = x_bins_borders(end, 2) + (x_bins_borders(end, 2) - x_bins_borders(end, 1)) * REL_PRECISION;
 
 
-%% Binning finished. Impose the hard limit of points
-n_limits = length(max_points_per_bin);
-
-for bin = 1:bins_number
-    for lim_ind = 1:n_limits
-        
-    end
-    
-end
+% % % %% Binning finished. Impose the hard limit of points
+% % % n_limits = length(max_points_per_bin);
+% % % 
+% % % for bin = 1:bins_number
+% % %     for lim_ind = 1:n_limits
+% % %         
+% % %     end
+% % %     
+% % % end
 
 
 
