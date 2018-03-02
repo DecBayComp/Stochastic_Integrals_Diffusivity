@@ -3,9 +3,9 @@
 % 1. Approximately same number of points per bin
 % 2. The minimum bin size is related to the mean jump size in this bin through min_bin_to_jump_ratio
 %
-% The max_points_per_bin will impose a hard limit on the number of points
-% by randomly choosing after binning. The value can be a vector, then
-% several configurations will be generated
+% The max_points_per_bin will impose a hard limit on the number of points by randomly choosing after binning. 
+% The value can be a vector, then several configurations will be generated.
+% -1 means no limit
 
 
 
@@ -184,15 +184,42 @@ x_bins_borders(1, 1) = x_bins_borders(1, 1) - (x_bins_borders(1, 2) - x_bins_bor
 x_bins_borders(end, 2) = x_bins_borders(end, 2) + (x_bins_borders(end, 2) - x_bins_borders(end, 1)) * REL_PRECISION;
 
 
-% % % %% Binning finished. Impose the hard limit of points
-% % % n_limits = length(max_points_per_bin);
-% % % 
-% % % for bin = 1:bins_number
-% % %     for lim_ind = 1:n_limits
-% % %         
-% % %     end
-% % %     
-% % % end
+%% Binning finished. Impose the hard limit of points
+n_limits = max_points_per_bin;
+n_limits_count = length(max_points_per_bin);
+points_binned_new = cell(n_limits_count, bins_number);
+variance_in_bins_new = zeros(n_limits_count, bins_number);
+point_count_in_bins_new = zeros(n_limits_count, bins_number);
+
+for lim_ind = 1:n_limits_count
+    n_limit = n_limits(lim_ind);
+    
+    % For each bin create a version with different number of points per bin
+    for bin = 1:bins_number
+        tot_points_in_bin = point_count_in_bins(bin);
+
+        % Create a random draw from point indices in bin (if there are more points than required)
+        if n_limit > 0 && n_limit < tot_points_in_bin
+            sel_indices = randperm(tot_points_in_bin, n_limit);
+        else
+            sel_indices = 1:tot_points_in_bin;
+        end
+        
+        % Store the selected points
+        points_binned_new{lim_ind, bin} = points_binned{bin}(:, sel_indices);
+        
+        % Calculate variance
+        variance_in_bins_new(lim_ind, bin) = var(points_binned_new{lim_ind, bin}(2, :));
+        
+        % Count points
+        point_count_in_bins_new(lim_ind, bin) = length(sel_indices);
+    end
+end
+
+% Rewrite variables to store and return results
+points_binned = points_binned_new;
+variance_in_bins = variance_in_bins_new;
+point_count_in_bins = point_count_in_bins_new;
 
 
 
