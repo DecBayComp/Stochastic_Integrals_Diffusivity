@@ -161,11 +161,44 @@ parfor trial = 1:trials  % 765
     data_struct.trials_ksi_type = trials_ksi_type;
     data_struct.trial_first_ksi_type_index = trial_first_ksi_type_index;
     
-        
-    %% Bin points for the current trial
+    
+    
+    % Load data for the current trial
     x = trials_x(:, trial)';
     dx = trials_dx(:, trial)';
-    cur_dx_bck_data = zeros(size(dx));    % deprecated
+    
+    % Calculate averages
+    data_struct.dx_mean_all_bins = mean(dx);
+    data_struct.V_all_bins = var(dx);
+    
+    % Bin
+    [data_struct.n_j, points_in_bins, data_struct.bl_empty_bins] = bin_into_predefined_bins(x, dx, x_bins_borders, -1);
+       
+    % Calculate bin averages
+    for bin = 1:x_bins_number
+        data_struct.dx_mean_in_bins(bin) = mean(points_in_bins{bin}(2, :));
+        data_struct.V_j(bin) = var(points_in_bins{bin}(2, :));
+        data_struct.mean_jump_length_bins(bin) = sqrt(data_struct.V_j(bin));
+    end
+    
+    % Infer MAP b and D
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
     % Sort x data
     [~, sorted_indices] = sort(x, 'ascend');
     sorted_data = [x(sorted_indices); dx(sorted_indices); cur_dx_bck_data(sorted_indices)];
@@ -236,16 +269,9 @@ parfor trial = 1:trials  % 765
     %% Regularize bb' gradient based on in non-empty bins
 	% To obtain the bb' gradient, provide the function b^2/2 as input
 	b_squared_over_2 = data_struct.MAP_b(:, 1).^2 / 2;
-% 	if ~bl_empty_bin
 	[inferred_MAP_b_squared_over_2_reg, inferred_MAP_bb_prime_reg, inferred_MAP_bb_prime_reg_interpolated, norm_cost, x_grad_mesh] = ...
 		regularize_gradient(b_squared_over_2, x_bins_centers, alpha_reg);
-% 	else
-% 		inferred_MAP_b_squared_over_2_reg = zeros(bins_number, 1) * NaN;
-% 		inferred_MAP_bb_prime_reg = zeros(bins_number, 1) * NaN;
-% 		inferred_MAP_bb_prime_reg_interpolated = zeros(bins_number, 1) * NaN;
-% 		norm_cost = zeros(bins_number, 1) * NaN;
-% 		x_grad_mesh = zeros(bins_number, 1) * NaN;
-% 	end
+
     % Save
     data_struct.MAP_b_regular = sqrt(inferred_MAP_b_squared_over_2_reg * 2);
     data_struct.MAP_bb_prime_regular = inferred_MAP_bb_prime_reg;
