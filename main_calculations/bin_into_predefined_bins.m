@@ -3,10 +3,14 @@
 
 function [elements_in_bins_count, points_in_bins, bl_empty_bins] = bin_into_predefined_bins(x, dx, x_bins_borders, n_limit)
 
+% Convert input to rows
+x = reshape(x, 1, []);
+dx = reshape(dx, 1, []);
+
 % Sort x
 [~, sorted_indices] = sort(x, 'ascend');
 sorted_data = [x(sorted_indices); dx(sorted_indices)];
-x_bins_number = size(x_bins_borders, 2);
+x_bins_number = size(x_bins_borders, 1);
 
 
 % Initialize output arrays
@@ -18,7 +22,6 @@ bl_empty_bins = zeros(1, x_bins_number);
 % Bin data in pre-defined bins
 left_border_point = 1;
 for bin = 1:x_bins_number
-    bl_empty_bin = false;
 
     % Get points falling into the current bin
     bl_in_bin = (sorted_data(1, :) > x_bins_borders(bin, 1)) & (sorted_data(1, :) <= x_bins_borders(bin, 2));

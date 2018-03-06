@@ -182,6 +182,7 @@ parfor trial = 1:trials  % 765
     end
     
     % Infer MAP b and D
+    data_struct = infer_MAP_b(data_struct);
     
     
     
