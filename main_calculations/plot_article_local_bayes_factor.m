@@ -1,7 +1,7 @@
 %% Plot Bayes factor profile for each simulation and inference model combination
 
 
-function plot_article_local_bayes_factor(data_struct, fig_count, bl_save_figures)
+function plot_article_local_bayes_factor(stat_struct, fig_count, bl_save_figures)
 
 
 
@@ -14,7 +14,11 @@ marker_size = marker_size + 1;
 jitter_amplitude = 0.02;
 errorbar_step = 5;
 
+n_limits = stat_struct.n_limits;
+n_limits_count = length(n_limits);
 
+
+x_lim_vec = [-1.05, 2.05];
 y_lim_vec = [-10; 20];
 
 % % % sublabel_x = 0.03;
@@ -27,20 +31,22 @@ y_lim_vec = [-10; 20];
 % % % % Overrides
 % % % line_width = 1;
 % % % 
-% % % % Figure size parameters
-% % % page_width_frac = 1;
-% % % height_factor = 1;
-% % % 
-% % % % Subplot parameters
-% % % SH = 0.03;
-% % % SV = 0.12;
-% % % ML = 0.065;
-% % % MR = 0.015;
-% % % MT = 0.08;
-% % % MB = 0.15;
-% % % rows = 1;
-% % % cols = 4;
-% % % jitter_scale = 0.19;
+
+% Figure size parameters
+page_width_frac = 1;
+height_factor = 1;
+
+% Subplot parameters
+SH = 0.05;
+SV = 0.12;
+ML = 0.05;
+MR = 0.015;
+MT = 0.07;
+MB = 0.12;
+rows = 1;
+cols = n_limits_count;
+
+
 % % % 
 % % % % Skip some bins
 % % % plot_every = 1;
@@ -93,43 +99,55 @@ y_lim_vec = [-10; 20];
 % alpha_ends = a_ends * ones(1, length(sim_lambda_list)) + D_prime_ends * sim_lambda_list;
 % alpha_ends_over_D = alpha_ends ./ (D_prime_ends * ones(1, 4));
 
-ksi_array = data_struct.ksi_array;
+ksi_array = stat_struct.ksi_array;
 
 % Create jitter to distinguish curves
 jitter_array = (-1.5:1.5) * jitter_amplitude;
+
+lim_ind = 3;
 
 
 
 %% Plot
 % Initalize plot
 h_fig = figure(fig_count);
-% set_article_figure_size(h_fig, 1, 0.5, 1);
+set_article_figure_size(h_fig, rows, page_width_frac, height_factor);
 clf;
-hold on;
 
-for convention = 1:4
-    plot(ksi_array + jitter_array(convention), data_struct.mean_log_K_L(:, convention), ...
-        strcat('-', markers_list{convention}), 'color', color_sequence(convention, :),  'LineWidth', line_width, 'markers', marker_size);
+
+% Initalize subplots
+subaxis(rows, cols, 1, 'SH', SH, 'SV', SV, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
+
+for lim_ind = 1:n_limits_count
     
-    errorbar(ksi_array(1:errorbar_step:end) + jitter_array(convention), data_struct.mean_log_K_L(1:errorbar_step:end, convention), ...
-    data_struct.eb_log_K_L(1:errorbar_step:end, convention),  markers_list{convention},...
-        'color', color_sequence(convention, :),  'LineWidth', line_width, 'markers', marker_size);
-    
+    subaxis(lim_ind);
+    hold on;
+
+    for convention = 1:4
+        plot(ksi_array + jitter_array(convention), stat_struct.log_K_L_mean(:, lim_ind, convention), ...
+            strcat('-', markers_list{convention}), 'color', color_sequence(convention, :),  'LineWidth', line_width, 'markers', marker_size);
+
+        errorbar(ksi_array(1:errorbar_step:end) + jitter_array(convention), stat_struct.log_K_L_mean(1:errorbar_step:end, lim_ind, convention), ...
+        stat_struct.log_K_L_eb(1:errorbar_step:end, lim_ind, convention),  markers_list{convention},...
+            'color', color_sequence(convention, :),  'LineWidth', line_width, 'markers', marker_size);
+
+    end
+
+    % % Adjust
+    % x_lim_vec = xlim();
+    % x_lim_vec(1) = 0;
+    xlim(x_lim_vec);
+    % ylim(y_lim_vec);
+    set(gca, 'FontSize', font_size);
+
+    xlabel('$\alpha / bb''$', 'Interpreter', 'latex', 'FontSize', font_size);
+    ylabel('$\langle \ln K_L \rangle$', 'Interpreter', 'latex', 'FontSize', font_size);
+    title(sprintf('$n = %i$', n_limits(lim_ind)), 'Interpreter', 'latex', 'FontSize', subplot_label_font_size);
+
+    % Theory
+    h_theor = plot(xlim(), [0, 0], 'LineWidth', line_width_theor, 'color', axes_color);
+    uistack(h_theor, 'bottom');
 end
-
-% % Adjust
-% x_lim_vec = xlim();
-% x_lim_vec(1) = 0;
-% ylim(y_lim_vec);
-
-xlabel('$\alpha / bb''$', 'Interpreter', 'latex');
-ylabel('$\langle \ln K_L \rangle$', 'Interpreter', 'latex');
-% title('$bb'' > 0$', 'Interpreter', 'latex');
-
-% Theory
-h_theor = plot(xlim(), [0, 0], 'LineWidth', line_width_theor, 'color', axes_color);
-uistack(h_theor, 'bottom');
-
 
 
 

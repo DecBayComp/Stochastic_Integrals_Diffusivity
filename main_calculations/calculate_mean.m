@@ -42,9 +42,9 @@ stat_struct.MAP_D_mean = MAP_D_mean;
 stat_struct.MAP_b_mean = MAP_b_mean;
 stat_struct.MAP_bb_prime_regular_interp_mean = MAP_bb_prime_regular_interp_mean;
 stat_struct.n_j_mean = n_j_mean;
-stat_struct.mean_log_K_L = log_K_L_mean;
-stat_struct.std_log_K_L = log_K_L_std;
-stat_struct.eb_log_K_L = log_K_L_std * sqrt(2) * erfinv(0.95);
+stat_struct.log_K_L_mean = log_K_L_mean;
+stat_struct.log_K_L_std = log_K_L_std;
+stat_struct.log_K_L_eb = log_K_L_std * sqrt(2) * erfinv(0.95);
 
 
 

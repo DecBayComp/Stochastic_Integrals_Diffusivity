@@ -39,8 +39,8 @@ pdf_norm = [];
 %% Access trajectories folder and start loading trajectories
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
-% input_files_count = sum(~[cur_dir.isdir]);
-input_files_count = 31;
+input_files_count = sum(~[cur_dir.isdir]);
+% input_files_count = 31;
 
 
 
@@ -219,7 +219,6 @@ end
 
 % Save to one structure and clean
 stat_struct = struct;
-stat_struct.middle_bin = middle_bin;
 stat_struct.n_j = n_j;
 stat_struct.MAP_D = MAP_D;
 stat_struct.MAP_b = MAP_b;
@@ -234,6 +233,10 @@ stat_struct.trials_ksi = trials_ksi;
 stat_struct.ksi_array = ksi_array;
 stat_struct.trials_ksi_type = trials_ksi_type;
 stat_struct.trial_first_ksi_type_index = trial_first_ksi_type_index;
+
+% Other parameters
+stat_struct.middle_bin = middle_bin;
+stat_struct.n_limits = n_limits;
 
 
 % Calculate mean for each simulation type and n limit separately

@@ -39,7 +39,7 @@ enum_no_force_case = 1;
 points_in_bin_avg = 1000;
 min_bin_to_jump_ratio = 2;	% require a bin to be at least several times larger than the mean jump in it. This corresponds to a 61% probability to stay in bin after jump
 bl_keep_only_min_points_in_bin = true;	% When true, only the minimum number of points is kept per bin. Extra points are randomly omitted within a bin
-n_limits = [10, 100, 1000, -1];
+n_limits = [10, 100, 1000, 3000, -1];
 
 
 %% Regularization parameters
@@ -48,8 +48,8 @@ alpha_reg = 0.1;
 
 %% Plot parameters
 marker_size = 5;
-font_size = 10;
-subplot_label_font_size = 12;
+font_size = 8;
+subplot_label_font_size = 10;
 legend_font_size = font_size - 3;
 markers_list = {'s', 'o', '^', 'x', '+', 'd','v'};
 line_width = 2;
