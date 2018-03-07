@@ -135,6 +135,9 @@ end
 
 %% Combine the lambda integral with the pre-factor for the global Bayes factor of the marginalized model
 log_K_G(enum_conv_marginalized) = log_K_G_marg_prefactor - log(lambda_integral);
+
+% Flip log_K_L for output
+log_K_L = log_K_L';
 	
 end
 

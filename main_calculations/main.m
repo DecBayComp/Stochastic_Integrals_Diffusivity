@@ -75,9 +75,8 @@ end
 % trials_x = trials_x(:, trials_f_case == selected_f_case);
 % trials_dx = trials_dx(:, trials_f_case == selected_f_case);
 trials = input_files_count;
-trials_data = cell(1, trials);
-
 n_limits_count = length(n_limits);
+trials_data = cell(trials, n_limits_count);
 	
 
 
@@ -122,6 +121,16 @@ bb_prime_theor_fine_data = D_grad_theor_fine_data;
 fprintf('Processing trajectories...\n');
 % Select one bin in the middle to avoid boundary effects
 middle_bin = floor(x_bins_number/2);
+
+% Initialize
+n_j = zeros(trials, n_limits_count, x_bins_number);
+MAP_D = zeros(trials, n_limits_count, x_bins_number, 4);
+MAP_b = zeros(trials, n_limits_count, x_bins_number, 4);
+MAP_bb_prime_regular_interp = zeros(trials, n_limits_count, x_bins_number);
+MAP_a = zeros(trials, n_limits_count, x_bins_number, conventions_count, 4);
+log_K_L = zeros(trials, n_limits_count, x_bins_number, conventions_count);
+log_K_G = zeros(trials, n_limits_count, conventions_count);
+
 tic;
 parfor trial = 1:trials  % 765
     %% Initialize
@@ -172,6 +181,7 @@ parfor trial = 1:trials  % 765
         
         % Bin data
         [cur_data_struct.n_j, points_in_bins, cur_data_struct.bl_empty_bins] = bin_into_predefined_bins(x, dx, x_bins_borders, n_limit);
+        n_j(trial, lim_ind, :) = cur_data_struct.n_j;
         
         % Calculate averages in bins and across bins
         all_kept_dx = [];
@@ -191,147 +201,41 @@ parfor trial = 1:trials  % 765
         
         % Infer MAP b, D and bb'
         cur_data_struct = infer_MAP_b(cur_data_struct);
+        MAP_D(trial, lim_ind, :, :) = cur_data_struct.MAP_D;
+        MAP_b(trial, lim_ind, :, :) = cur_data_struct.MAP_b;
+        MAP_bb_prime_regular_interp(trial, lim_ind, :) = cur_data_struct.MAP_bb_prime_regular_interp;
         
         % Infer force with different conventions
         cur_data_struct = infer_force(cur_data_struct, bin, trial, trials);
+        MAP_a(trial, lim_ind, :, :, :) = cur_data_struct.MAP_a;
+        
+        % Calculate Bayes factors
+        [log_K_L(trial, lim_ind, :, :), log_K_G(trial, lim_ind, :)] = calculate_bayes_factor(cur_data_struct);
         
         % Save data_struct for each n_limit
-        data_structs{lim_ind} = cur_data_struct;
-    end
-
-    % Save results for this trial
-    trials_data{trial} = data_structs;
- 
-end
-
-
-
-
-data_struct = trials_data{trials};
-
-
-
-% Restore the time mesh
-t_mesh = (0:N) * t_step;
-
-% Combine predictions from all trials (needed for right parallelization)
-trials_MAP_D = zeros(trials, x_bins_number, 4);
-trials_MAP_b = zeros(trials, x_bins_number, 4);
-trials_MAP_a = zeros(trials, x_bins_number, conventions_count, 4);
-trials_MAP_bb_prime_regular_interp = zeros(trials, x_bins_number);
-trials_n_j = zeros(trials, x_bins_number);
-trials_log_K_L = zeros(trials, x_bins_number, conventions_count);
-trials_log_K_G = zeros(trials, conventions_count);
-parfor trial = 1:trials
-    % D
-    trials_MAP_D(trial, :, :) = trials_data{trial}.MAP_D(:, :);
-	% b
-    trials_MAP_b(trial, :, :) = trials_data{trial}.MAP_b(:, :);
-    % fD
-    trials_MAP_a(trial, :, :, :) = trials_data{trial}.MAP_a;
-    % D grad
-    trials_MAP_bb_prime_regular_interp(trial, :) = trials_data{trial}.MAP_bb_prime_regular_interp;
-	% n_j
-	trials_n_j(trial, :) = trials_data{trial}.n_j;
-	% Calculate the Bayes factors K
-	fprintf('Calculating the Bayes factor for trial %i/%i\n', trial, trials);
-	[log_K_L, log_K_G] = calculate_bayes_factor(trials_data{trial});
-	trials_log_K_L(trial, :, :) = log_K_L';
-	trials_log_K_G(trial, :) = log_K_G;
-end
-% Save
-data_struct.trials_MAP_D = trials_MAP_D;
-data_struct.trials_MAP_b = trials_MAP_b;
-data_struct.trials_MAP_a = trials_MAP_a;
-data_struct.trials_MAP_bb_prime_regular_interp = trials_MAP_bb_prime_regular_interp;
-data_struct.trials_log_K_L = trials_log_K_L;
-data_struct.trials_log_K_G = trials_log_K_G;
-
-
-
-% % % %% Calculate KS distances for a and b distributions
-% % % [trials_a_KS_distance, trials_b_KS_distance] = batch_calculate_KS_distance(trials, x_bins_number, data_struct, trials_data, trials_MAP_a, trials_MAP_b);
-% % % 
-% % % % Save
-% % % data_struct.trials_b_KS_distance = trials_b_KS_distance;
-
-
-
-%% Calculate mean for each simulation type separately
-%% Also calculate the fail rate for each simulation type
-% Initialize arrays
-MAP_D_mean = zeros(ksi_count, x_bins_number, 4);
-MAP_b_mean = zeros(ksi_count, x_bins_number, 4);
-% MAP_a_mean = zeros(lambda_types_count, x_bins_number, conventions_count, 4);
-MAP_bb_prime_regular_interp_mean = zeros(ksi_count, x_bins_number);
-% UR_b = zeros(lambda_types_count, x_bins_number);
-% UR_a = zeros(lambda_types_count, x_bins_number, conventions_count);
-% outside_count_a = zeros(lambda_types_count, x_bins_number, conventions_count);
-n_j_mean = zeros(ksi_count, x_bins_number);
-% b_KS_distance_mean = zeros(lambda_types_count, x_bins_number);
-mean_log_K_L = zeros(ksi_count, conventions_count);
-std_log_K_L = zeros(ksi_count, conventions_count);
-% mean_log_K_G = zeros(ksi_count, conventions_count);
-
-for ksi_ind = 1:ksi_count
-    % Mean
-    MAP_D_mean(ksi_ind, :, :) = mean(trials_MAP_D(trials_ksi_type == ksi_ind, :, :), 1, 'omitnan' );
-	MAP_b_mean(ksi_ind, :, :) = mean(trials_MAP_b(trials_ksi_type == ksi_ind, :, :), 1, 'omitnan' );
-%     MAP_a_mean(lambda_type, :, :, :) = mean(trials_MAP_a(trial_simulation_type == lambda_type, :, :, :), 1, 'omitnan' );
-    MAP_bb_prime_regular_interp_mean(ksi_ind, :) = mean(trials_MAP_bb_prime_regular_interp(trials_ksi_type == ksi_ind, :), 1, 'omitnan' );
-	
-	% n_j
-	n_j_mean(ksi_ind, :, :) = mean(trials_n_j(trials_ksi_type == ksi_ind, :), 1, 'omitnan' );
-        
-	% Fail rate b
-%     UR_b(lambda_type, :) = mean(double(trials_MAP_b(trial_simulation_type == lambda_type, :, 4) > CONF_LEVEL), 1, 'omitnan' );
-    
-	% Fail rate a
-%     UR_a(lambda_type, :, :) = mean(double(trials_MAP_a(trial_simulation_type == lambda_type, :, :, 4) > CONF_LEVEL), 1, 'omitnan' );
-	
-% 	% Kolmogorov-Smirnov distance for b
-% 	b_KS_distance_mean(lambda_type, :) = mean(trials_b_KS_distance(trial_simulation_type == lambda_type, :), 1, 'omitnan');
-	
-	% Bayes factors K
-% 	mean_log_K_G(lambda_type, :) = mean(trials_log_K_G(trial_simulation_type == lambda_type, :), 1, 'omitnan' );
-% 	std_log_K_G(lambda_type, :) = std(trials_log_K_G(trial_simulation_type == lambda_type, :), 1, 'omitnan' );
-    for convention = 1:conventions_count
-        vals = reshape(trials_log_K_L(trials_ksi_type == ksi_ind, middle_bin, convention),[], 1);
-        mean_log_K_L(ksi_ind, convention) = mean(vals, 'omitnan');
-        std_log_K_L(ksi_ind, convention) = std(vals, 'omitnan');
+        trials_data{trial, lim_ind} = cur_data_struct;
     end
 end
 
-% Save
-data_struct.MAP_D_mean = MAP_D_mean;
-data_struct.MAP_b_mean = MAP_b_mean;
-% data_struct.MAP_a_mean = MAP_a_mean;
-% data_struct.b_KS_distance_mean = b_KS_distance_mean;
-% data_struct.b_KS_distance_bin_mean = mean(b_KS_distance_mean, 2);
-data_struct.MAP_bb_prime_regular_interp_mean = MAP_bb_prime_regular_interp_mean;
-% data_struct.UR_b = UR_b;
-% data_struct.UR_a = UR_a;
-data_struct.n_j_mean = n_j_mean;
-% data_struct.mean_log_K_G = mean_log_K_G;
-% data_struct.std_log_K_G = std_log_K_G;
-% data_struct.eb_log_K_G = std_log_K_G * sqrt(2) * erfinv(0.95);
-data_struct.mean_log_K_L = mean_log_K_L;
-data_struct.std_log_K_L = std_log_K_L;
-data_struct.eb_log_K_L = std_log_K_L * sqrt(2) * erfinv(0.95);
+% Save to one structure and clean
+stat_struct = struct;
+stat_struct.n_j = n_j;
+stat_struct.MAP_D = MAP_D;
+stat_struct.MAP_b = MAP_b;
+stat_struct.MAP_bb_prime_regular_interp = MAP_bb_prime_regular_interp;
+stat_struct.MAP_a = MAP_a;
+stat_struct.log_K_L = log_K_L;
+stat_struct.log_K_G = log_K_G;
+clearvars n_j MAP_D MAP_b MAP_bb_prime_regular_interp MAP_a log_K_L log_K_G
 
 
-% %% Calculate mean K_L across x>0 and x<0 excluding the x=0 bin
-% zero_bin_number = get_selected_bins_indices(data_struct, 0);
-% neg_bins_indices = 1:(zero_bin_number - 1);
-% pos_bins_indices = (zero_bin_number + 1):x_bins_number;
-% 
-% % Average
-% mean_log_K_L_avg_neg_x = squeeze(mean(mean_log_K_L(:, neg_bins_indices, :), 2));
-% mean_log_K_L_avg_pos_x = squeeze(mean(mean_log_K_L(:, pos_bins_indices, :), 2));
-% 
-% % Save
-% data_struct.mean_log_K_L_avg_neg_x = mean_log_K_L_avg_neg_x;
-% data_struct.mean_log_K_L_avg_pos_x = mean_log_K_L_avg_pos_x;
+% Calculate mean for each simulation type and n limit separately
+stat_struct = calculate_mean(stat_struct);
+
+
+
+
+
 
 
 
