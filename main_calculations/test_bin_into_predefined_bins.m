@@ -45,6 +45,7 @@ function setupOnce(test_case)
     % Transfer to test cases
     test_case.TestData.x_data = x_data;
     test_case.TestData.dx_data = dx_data;
+    test_case.TestData.x_bins_borders = x_bins_borders;
     test_case.TestData.full_binning_data = full_binning_data;
     test_case.TestData.limited_binning_data = limited_binning_data;
     
@@ -86,20 +87,27 @@ end
 
 
 function test_lie_within_bins(test_case)
-    data = test_case.TestData.full_binning_data;
     N = length(test_case.TestData.x_data);
+    x_bins_borders = test_case.TestData.x_bins_borders;
+    bins_count = size(x_bins_borders, 1);
 
-%     % Full binning
-%     elements_in_bins_count = data.elements_in_bins_count;
-%     verifyEqual(test_case, sum(elements_in_bins_count), N, "Test number of points per bin for full binning");
-%     
-%     % Limited binning
-%     elements_in_bins_count = test_case.TestData.limited_binning_data.elements_in_bins_count;
-%     n_limit = test_case.TestData.limited_binning_data.n_limit;
-%     
-%     tests = elements_in_bins_count == n_limit;
-%     verifyTrue(test_case, all(tests), "Test number of points per bin for hard-limit binning");
+    % Full binning
+    data = test_case.TestData.full_binning_data.points_in_bins;
     
+    for bin = 1:bins_count
+        tests = data{bin}(1, :) >= x_bins_borders(bin, 1) & data{bin}(1, :) <= x_bins_borders(bin, 2);
+        verifyTrue(test_case, all(tests), "Test that points lie within bin borders");
+    end
+    
+    
+    % Limited binning
+    data = test_case.TestData.limited_binning_data.points_in_bins;
+    
+    for bin = 1:bins_count
+        tests = data{bin}(1, :) >= x_bins_borders(bin, 1) & data{bin}(1, :) <= x_bins_borders(bin, 2);
+        verifyTrue(test_case, all(tests), "Test that points lie within bin borders");
+    end
+        
 end
 
 
