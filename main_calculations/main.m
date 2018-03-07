@@ -8,9 +8,7 @@ set (0, 'DefaultAxesFontSize', 12);
 bl_force = true;
 load_constants;
 
-a_ABS_MAX = 10;
 KSI_PRECISION = 1e-2;
-bl_find_marginalized_fD_error_bars = false;		% keep off. A much faster calculation method was implemented
 bl_reload_trajectories = true;
 
 
@@ -123,7 +121,7 @@ fprintf('Processing trajectories...\n');
 % Select one bin in the middle to avoid boundary effects
 middle_bin = floor(x_bins_number/2);
 tic;
-parfor trial = 1:trials  % 765
+for trial = 1:trials  % 765
     %% Initialize
     % Initialize the data structure
     data_struct = initialize_data_structure(x_bins_number, fine_mesh_steps_count, conventions_count, lambda_types_count);
@@ -181,114 +179,10 @@ parfor trial = 1:trials  % 765
     data_struct = infer_MAP_b(data_struct);
     
     
-    %% ===== Infer forces =====
+    %% Infer force with different conventions
+	bin = middle_bin;
+    data_struct = infer_force(data_struct, bin, trial, trials);
     
-        
-    bin = middle_bin;
-    MAP_a = zeros(x_bins_number, conventions_count, 4);
-%     for bin = 1:x_bins_number
-        fprintf('Estimating force. Trial: %i/%i. Bin: %i/%i\n', trial, trials, bin, x_bins_number);
-        % Initialize
-        [mu_n, kappa_n, nu_n, sigma2_n] = get_n_parameters(bin, data_struct, 'forward');
-        bb_prime = data_struct.MAP_bb_prime_regular_interp(bin);
-		bl_empty_bin = data_struct.bl_empty_bin(bin);
-		
-		
-		
-		%% Skip if bin is empty
-		if bl_empty_bin
-			% Set to NaN
-			a_divine_inference = ones(1, 4) * NaN;
-			a_Ito_inference = ones(1, 4) * NaN;
-			a_Stratonovich_inference = ones(1, 4) * NaN;
-			a_Hanggi_inference = ones(1, 4) * NaN;
-			a_MLE_marginalized = ones(1, 4) * NaN;
-			
-			% Save
-			MAP_a(bin, enum_conv_divine, :) = a_divine_inference;
-			MAP_a(bin, enum_conv_Ito, :) = a_Ito_inference;
-			MAP_a(bin, enum_conv_Stratonovich, :) = a_Stratonovich_inference;
-			MAP_a(bin, enum_conv_Hanggi, :) = a_Hanggi_inference;
-			MAP_a(bin, enum_conv_marginalized, :) = a_MLE_marginalized;
-			
-			disp('Empty bin. Skipping');
-			continue;
-		end
-		
-
-
-% % %         %% Divine force estimate [removed in the new version of analysis code]
-% % %         % Prepare function
-% % %         log_function_to_minimze = @(a) bin_a_divine_inference_log_posterior_func(data_struct, trials_lambdas(trial), bin, a, bb_prime, 'forward');
-% % %         % Make an MLE guess
-% % %         lambda = data_struct.lambda;
-% % %         MLE_guess = mu_n / t_step - lambda * bb_prime;
-% % %         % Find confidence intervals if bin not empty
-% % % % 		if ~
-% % %         a_divine_inference = find_confidence_interval(log_function_to_minimze, [- a_ABS_MAX, a_ABS_MAX], true, MLE_guess,...
-% % %             CONF_LEVEL, data_struct.a_theor_data(bin), trial, bin);
-% % %         % Save
-% % %         MAP_a(bin, enum_conv_divine, :) = a_divine_inference;
-
-		
-		
-        %% Simple Ito force estimate
-        % Prepare function
-        function_to_minimze = @(a) bin_a_log_posterior_func (data_struct, bin, a, 'forward');
-        % Make an MLE guess
-        MLE_guess = mu_n / t_step;
-        % Find confidence intervals
-        a_Ito_inference = find_confidence_interval(function_to_minimze, [- a_ABS_MAX, a_ABS_MAX], true, MLE_guess,...
-            CONF_LEVEL, data_struct.a_theor_data(bin), trial, bin);
-        % Save
-        MAP_a(bin, enum_conv_Ito, :) = a_Ito_inference;
-		
-		
-
-        %% Simple Stratonovich force estimate (through Ito)
-        % Prepare function
-        function_to_minimze = @(a) bin_a_simple_Stratonovich_log_posterior_func(data_struct, bin, a, bb_prime, 'forward');
-        % Make an MLE guess
-        lambda = 1/2;
-        MLE_guess = mu_n / t_step - lambda * bb_prime;
-        % Find confidence intervals
-        a_Stratonovich_inference = find_confidence_interval(function_to_minimze, [- a_ABS_MAX, a_ABS_MAX], true, MLE_guess,...
-            CONF_LEVEL, data_struct.a_theor_data(bin), trial, bin);
-        % Save
-        MAP_a(bin, enum_conv_Stratonovich, :) = a_Stratonovich_inference;
-		
-		
-
-        %% Simple Hanggi force estimate (through Ito)
-        % Prepare function
-        function_to_minimze = @(a) bin_a_simple_Hanggi_log_posterior_func(data_struct, bin, a, bb_prime, 'forward');
-        % Make an MLE guess
-        lambda = 1;
-        MLE_guess = mu_n / t_step - lambda * bb_prime;
-        % Find confidence intervals
-        a_Hanggi_inference = find_confidence_interval(function_to_minimze, [- a_ABS_MAX, a_ABS_MAX], true, MLE_guess,...
-            CONF_LEVEL, data_struct.a_theor_data(bin), trial, bin);
-        % Save
-        MAP_a(bin, enum_conv_Hanggi, :) = a_Hanggi_inference;
-		
-		
-
-        %% Marginalized force estimate (through Ito)
-        % Prepare function
-        function_to_minimze = @(a) bin_a_lambda_marginalized_log_posterior_func(data_struct, bin, a, bb_prime, 'forward');
-        % Make a guess
-        lambda = 0.5;
-        MLE_guess = mu_n / t_step - lambda * bb_prime;
-        % Find confidence intervals
-        a_MLE_marginalized = find_confidence_interval(function_to_minimze, [- a_ABS_MAX, a_ABS_MAX], bl_find_marginalized_fD_error_bars,...
-            MLE_guess, CONF_LEVEL, data_struct.a_theor_data(bin), trial, bin);
-        % Save
-        MAP_a(bin, enum_conv_marginalized, :) = a_MLE_marginalized;
-
-%     end
-    
-    % Save all to the data structure 
-    data_struct.MAP_a = MAP_a;
     
     %% Save results for this trial
     trials_data{trial} = data_struct;
