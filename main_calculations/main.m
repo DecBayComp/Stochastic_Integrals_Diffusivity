@@ -76,6 +76,8 @@ end
 % trials_dx = trials_dx(:, trials_f_case == selected_f_case);
 trials = input_files_count;
 trials_data = cell(1, trials);
+
+n_limits_count = length(n_limits);
 	
 
 
@@ -121,7 +123,7 @@ fprintf('Processing trajectories...\n');
 % Select one bin in the middle to avoid boundary effects
 middle_bin = floor(x_bins_number/2);
 tic;
-for trial = 1:trials  % 765
+parfor trial = 1:trials  % 765
     %% Initialize
     % Initialize the data structure
     data_struct = initialize_data_structure(x_bins_number, fine_mesh_steps_count, conventions_count, lambda_types_count);
@@ -155,40 +157,59 @@ for trial = 1:trials  % 765
     data_struct.trials_ksi_type = trials_ksi_type;
     data_struct.trial_first_ksi_type_index = trial_first_ksi_type_index;
     
-    
-    
+            
     % Load data for the current trial
     x = trials_x(:, trial)';
     dx = trials_dx(:, trial)';
     
-    % Calculate averages
-    data_struct.dx_mean_all_bins = mean(dx);
-    data_struct.V_all_bins = var(dx);
-    
-    % Bin
-    [data_struct.n_j, points_in_bins, data_struct.bl_empty_bins] = bin_into_predefined_bins(x, dx, x_bins_borders, -1);
-       
-    % Calculate bin averages
-    for bin = 1:x_bins_number
-        data_struct.dx_mean_in_bins(bin) = mean(points_in_bins{bin}(2, :));
-        data_struct.V_j(bin) = var(points_in_bins{bin}(2, :));
-        data_struct.mean_jump_length_bins(bin) = sqrt(data_struct.V_j(bin));
+    % Process data with different limits
+    data_structs = cell(n_limits_count, 1);
+    bin = middle_bin;
+    for lim_ind = 1:n_limits_count
+        
+        n_limit = n_limits(lim_ind);
+        cur_data_struct = data_struct;
+        
+        % Bin data
+        [cur_data_struct.n_j, points_in_bins, cur_data_struct.bl_empty_bins] = bin_into_predefined_bins(x, dx, x_bins_borders, n_limit);
+        
+        % Calculate averages in bins and across bins
+        all_kept_dx = [];
+        for bin = 1:x_bins_number
+            % Individual bins
+            cur_data_struct.dx_mean_in_bins(bin) = mean(points_in_bins{bin}(2, :));
+            cur_data_struct.V_j(bin) = var(points_in_bins{bin}(2, :));
+            cur_data_struct.mean_jump_length_bins(bin) = sqrt(cur_data_struct.V_j(bin));
+            
+            % Collect data across bins
+            all_kept_dx = [all_kept_dx, points_in_bins{bin}(2, :)];
+        end
+        
+        % Average over all bins
+        cur_data_struct.dx_mean_all_bins = mean(all_kept_dx);
+        cur_data_struct.V_all_bins = var(all_kept_dx);
+        
+        % Infer MAP b, D and bb'
+        cur_data_struct = infer_MAP_b(cur_data_struct);
+        
+        % Infer force with different conventions
+        cur_data_struct = infer_force(cur_data_struct, bin, trial, trials);
+        
+        % Save data_struct for each n_limit
+        data_structs{lim_ind} = cur_data_struct;
     end
-    
-    % Infer MAP b, D and bb'
-    data_struct = infer_MAP_b(data_struct);
-    
-    
-    %% Infer force with different conventions
-	bin = middle_bin;
-    data_struct = infer_force(data_struct, bin, trial, trials);
-    
-    
-    %% Save results for this trial
-    trials_data{trial} = data_struct;
+
+    % Save results for this trial
+    trials_data{trial} = data_structs;
  
 end
+
+
+
+
 data_struct = trials_data{trials};
+
+
 
 % Restore the time mesh
 t_mesh = (0:N) * t_step;
