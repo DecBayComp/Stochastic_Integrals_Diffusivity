@@ -42,6 +42,14 @@ cur_dir = dir([input_data_folder, '*.csv']);
 input_files_count = sum(~[cur_dir.isdir]);
 % input_files_count = 31;
 
+% Check that input files are properly numbered before loading
+num_files_missing = check_input_sequential(input_data_folder);
+if num_files_missing > 0
+    disp("Aborting.");
+    return
+end
+
+
 
 
 % Load trajectories
