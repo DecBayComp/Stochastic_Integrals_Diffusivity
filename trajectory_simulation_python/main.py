@@ -160,6 +160,8 @@ def main(arg_str):
 		## Print out simulation progress
 		if i % update_progress_every == 0:
 			print("Simulation progress: %.1f %%. Elapsed time: %.2f s\n" % (float(i)/N*100.0, time.time() - start_time))
+
+
 		# Iterating
 
 	## Save data

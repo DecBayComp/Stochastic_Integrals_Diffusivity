@@ -21,7 +21,7 @@ internal_steps_number = 100 # Integer. How many intermediate smaller steps are m
 
 
 ## Batch parameters
-trials = 1	# 1000
+trials = 1000	# 1000
 sleep_time = 0.2
 logs_folder = "./logs/"
 output_folder = "./output/"
@@ -32,7 +32,7 @@ ksi_range = (-1, 2)
 ksi_step = 0.1
 jobs_count_tars = 132
 jobs_count_t_bayes = 200
-jobs_count_onsager = 2
+jobs_count_onsager = 12
 manager_script = "job_manager.py"
 DETACHED_PROCESS = 0x00000008
 

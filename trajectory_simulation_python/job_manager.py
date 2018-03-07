@@ -7,9 +7,13 @@ import os	# for shell execution of the code
 import sys
 import socket	# for netowrk hostname
 from main import main	# actual calculations
+# from signal import signal, SIGPIPE, SIG_DFL		# To handle broken pipe messages
 
 from constants import args_lock, args_file, lock_timeout
 # calculation_script = "main.py"
+
+# # Set Python to ignore absent write pipe for `print` operator
+# signal(SIGPIPE,SIG_DFL)
 
 
 while True:

@@ -104,7 +104,7 @@ else:
 if script_name == 'job_manager.py':
 	cmd_str = 'python3 %s' % (script_name)
 	for j in range(1, jobs_count + 1):
-		subprocess.Popen(['python3', script_name], stdout=subprocess.PIPE)
+		subprocess.Popen(['python3', script_name], stdout=None)
 	print("Launched %i local job managers" % (jobs_count))
 else:
 	cmd_str = 'sbatch --array=1-%i %s' % (jobs_count, script_name)	# -o /dev/null

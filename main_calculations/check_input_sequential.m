@@ -32,7 +32,7 @@ for file_num = 1:last_index
 end
 
 
-str_result = "Checking complete. ";
+str_result = "Check complete. ";
 if num_files_missing > 0
     str_result = strcat(str_result, sprintf("%i files missing.", num_files_missing));
 else
