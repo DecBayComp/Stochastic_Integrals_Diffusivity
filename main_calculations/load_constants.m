@@ -64,8 +64,8 @@ bin_color = [1, 1, 1] * 0.86;
 
 output_figures_folder = '.\figures_for_article\';
 output_data_folder = './processed_data/';
-% input_data_folder = 'D:\calculated_data\dilemma\';
-input_data_folder = 'D:\calculated_data\local_bayes_factor\';
+input_data_folder = 'D:\calculated_data\dilemma\';
+% input_data_folder = 'D:\calculated_data\local_bayes_factor\';
 fail_rates_filename = 'Fail_rates.dat';
 CSV_DELIMITER = ';';
 bl_save_figures = true;

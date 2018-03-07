@@ -9,11 +9,7 @@ bl_force = true;
 load_constants;
 
 a_ABS_MAX = 10;
-D_PRECISION = 1e-5;
-b_PRECISION = 1e-3;
 KSI_PRECISION = 1e-2;
-D_ABS_MAX = 1;
-b_ABS_MAX = 1;
 bl_find_marginalized_fD_error_bars = false;		% keep off. A much faster calculation method was implemented
 bl_reload_trajectories = true;
 
@@ -46,7 +42,7 @@ pdf_norm = [];
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
 % input_files_count = sum(~[cur_dir.isdir]);
-input_files_count = 20;
+input_files_count = 31;
 
 
 
@@ -194,7 +190,7 @@ parfor trial = 1:trials  % 765
         fprintf('Estimating force. Trial: %i/%i. Bin: %i/%i\n', trial, trials, bin, x_bins_number);
         % Initialize
         [mu_n, kappa_n, nu_n, sigma2_n] = get_n_parameters(bin, data_struct, 'forward');
-        bb_prime = inferred_MAP_bb_prime_reg_interpolated(bin);
+        bb_prime = data_struct.MAP_bb_prime_regular_interp(bin);
 		bl_empty_bin = data_struct.bl_empty_bin(bin);
 		
 		
