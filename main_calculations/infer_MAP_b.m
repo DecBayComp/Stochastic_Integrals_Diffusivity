@@ -32,3 +32,15 @@ for bin = 1:x_bins_number
     data_struct.MAP_b(bin, :) = b_inference;
 end
 
+ %% Regularize bb' gradient
+% To obtain the bb' gradient, provide the function b^2/2 as input
+b_squared_over_2 = data_struct.MAP_b(:, 1).^2 / 2;
+[inferred_MAP_b_squared_over_2_reg, inferred_MAP_bb_prime_reg, inferred_MAP_bb_prime_reg_interpolated, norm_cost, x_grad_mesh] = ...
+	regularize_gradient(b_squared_over_2, data_struct.x_bins_centers, alpha_reg);
+
+% Save
+data_struct.MAP_b_regular = sqrt(inferred_MAP_b_squared_over_2_reg * 2);
+data_struct.MAP_bb_prime_regular = inferred_MAP_bb_prime_reg;
+data_struct.MAP_bb_prime_regular_interp = inferred_MAP_bb_prime_reg_interpolated;
+data_struct.x_grad_mesh = x_grad_mesh;
+
