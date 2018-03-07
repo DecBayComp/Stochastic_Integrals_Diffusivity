@@ -219,6 +219,7 @@ end
 
 % Save to one structure and clean
 stat_struct = struct;
+stat_struct.middle_bin = middle_bin;
 stat_struct.n_j = n_j;
 stat_struct.MAP_D = MAP_D;
 stat_struct.MAP_b = MAP_b;
@@ -228,16 +229,15 @@ stat_struct.log_K_L = log_K_L;
 stat_struct.log_K_G = log_K_G;
 clearvars n_j MAP_D MAP_b MAP_bb_prime_regular_interp MAP_a log_K_L log_K_G
 
+% Ksi-related data
+stat_struct.trials_ksi = trials_ksi;
+stat_struct.ksi_array = ksi_array;
+stat_struct.trials_ksi_type = trials_ksi_type;
+stat_struct.trial_first_ksi_type_index = trial_first_ksi_type_index;
+
 
 % Calculate mean for each simulation type and n limit separately
 stat_struct = calculate_mean(stat_struct);
-
-
-
-
-
-
-
 
 
 %% Clean up & backup current workspace
@@ -254,7 +254,7 @@ fprintf('All trajectories processed in %.2f min\n', toc/60);
 %% Plot
 % plot_article_all(data_struct, trials_data);
 fig_count = 1; 
-plot_article_local_bayes_factor(data_struct, fig_count, 0);
+plot_article_local_bayes_factor(stat_struct, fig_count, 0);
 
 
 1;
