@@ -53,6 +53,8 @@ end
 
 
 % Load trajectories
+corrupted_files_count = 0;
+corrupted_files_list = [];
 if bl_reload_trajectories
     % Initialize arrays
     trials_x = zeros(N, input_files_count);
@@ -62,19 +64,34 @@ if bl_reload_trajectories
     trials_ksi = zeros(1, input_files_count);
 % 	trials_f_case = zeros(1, input_files_count);
     % Load
-    parfor file_num = 1:input_files_count
+    for file_num = 1:input_files_count
         filename = sprintf('sim_data_%09i.csv', file_num);
-        fprintf('Loading trajectory from  file %s. Progress: %i/%i\n', filename, file_num, input_files_count);
+        fprintf("Loading trajectory from '%s'. Progress: %i/%i\n", filename, file_num, input_files_count);
         output_full_path = strcat(input_data_folder, filename);
+        
+        try
+            input_data = dlmread(output_full_path, CSV_DELIMITER);
 
-        input_data = dlmread(output_full_path, CSV_DELIMITER);
-		
-		trials_D_case(file_num) = input_data(1,1);
-		trials_ksi(file_num) = round(input_data(1,2), -log10(KSI_PRECISION));
-        trials_x(:, file_num) = input_data(2:N+1, 1);
-        trials_dx(:, file_num) = input_data(2:N+1,2);
+            trials_D_case(file_num) = input_data(1,1);
+            trials_ksi(file_num) = round(input_data(1,2), -log10(KSI_PRECISION));
+            trials_x(:, file_num) = input_data(2:N+1, 1);
+            trials_dx(:, file_num) = input_data(2:N+1,2);
+        catch ME
+            fprintf("Error reading from file '%s'. The file may be corrupt. \n", filename);
+            disp(strcat("Error: ", getReport(ME)));
+            corrupted_files_count = corrupted_files_count +1;
+            corrupted_files_list = [corrupted_files_list; file_num];
+        end
     end
     input_data = [];
+end
+
+% Abort if corrupted files were discovered
+if corrupted_files_count > 0
+    fprintf("%i corrupted files detected: \n", corrupted_files_count);
+    disp(corrupted_files_list);
+    disp("Aborting");
+    return
 end
 
 

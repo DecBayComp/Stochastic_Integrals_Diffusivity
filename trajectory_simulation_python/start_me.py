@@ -7,6 +7,7 @@ import socket	# for netowrk hostname
 import numpy as np
 import argparse	# for command-line arguments
 import subprocess	# for launching detached processes on a local PC
+import sys		# to set exit codes
 
 ## Constants
 from constants import *
@@ -103,9 +104,21 @@ else:
 # Launch job managers
 if script_name == 'job_manager.py':
 	cmd_str = 'python3 %s' % (script_name)
+	popens = []
+	pids = []
 	for j in range(1, jobs_count + 1):
-		subprocess.Popen(['python3', script_name], stdout=None)
+		cur_popen = subprocess.Popen(["python3", script_name])
+		popens.append(cur_popen)
+		pids.append(cur_popen.pid)
 	print("Launched %i local job managers" % (jobs_count))
+	print("PIDs: ")
+	print(pids)
+
+	# Collect exit codes
+	for j in range(jobs_count):
+		popens[j].wait()
+		print("All job managers finished successfully")
+	
 else:
 	cmd_str = 'sbatch --array=1-%i %s' % (jobs_count, script_name)	# -o /dev/null
 	os.system(cmd_str)
