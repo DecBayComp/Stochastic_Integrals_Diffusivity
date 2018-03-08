@@ -50,52 +50,45 @@ end
 
 
 % Load trajectories
-corrupted_files_count = 0;
-corrupted_files_list = [];
-if bl_reload_trajectories
-    % Initialize arrays
-%     trials_x = zeros(N, input_files_count);
-%     trials_dx = zeros(N, input_files_count);
-%     trials_lambdas = zeros(1, input_files_count);
-	trials_D_case = zeros(1, input_files_count);
-    trials_ksi = zeros(1, input_files_count);
-% 	trials_f_case = zeros(1, input_files_count);
-    % Load
-    parfor file_num = 1:input_files_count
-        [D_case, ksi, x, dx, bl_file_corrupt] = load_one_file(input_data_folder, file_num);
-        corrupted_files_count = corrupted_files_count + 1 * bl_file_corrupt;
-        
-        trials_D_case(file_num) = D_case;
-        trials_ksi(file_num) = ksi;
-        
-        
-%         filename = sprintf('sim_data_%09i.csv', file_num);
-%         fprintf("Loading trajectory from '%s'. Progress: %i/%i\n", filename, file_num, input_files_count);
-%         output_full_path = strcat(input_data_folder, filename);
-%         
-%         try
-%             input_data = dlmread(output_full_path, CSV_DELIMITER);
-% 
-%             trials_D_case(file_num) = input_data(1,1);
-%             trials_ksi(file_num) = round(input_data(1,2), -log10(KSI_PRECISION));
-%             trials_x(:, file_num) = input_data(2:N+1, 1);
-%             trials_dx(:, file_num) = input_data(2:N+1,2);
-%         catch ME
-%             fprintf("Error reading from file '%s'. The file may be corrupt. \n", filename);
-%             disp(strcat("Error: ", getReport(ME)));
-%             corrupted_files_count = corrupted_files_count +1;
-%             corrupted_files_list = [corrupted_files_list; file_num];
-%         end
-    end
-end
 
-% Abort if corrupted files were discovered
-if corrupted_files_count > 0
-    fprintf("%i corrupted files detected: \n", corrupted_files_count);
-%     disp(corrupted_files_list);
-    disp("Calculations aborted.");
-    return
-end
+% if bl_reload_trajectories
+%     % Initialize arrays
+% %     trials_x = zeros(N, input_files_count);
+% %     trials_dx = zeros(N, input_files_count);
+% %     trials_lambdas = zeros(1, input_files_count);
+% 
+% % 	trials_f_case = zeros(1, input_files_count);
+%     % Load
+%     parfor file_num = 1:input_files_count
+%         fprintf("Loading parameters of simulated trajectories: %i/%i\n", file_num, input_files_count);
+%         [D_case, ksi, x, dx, bl_file_corrupt] = load_one_file(input_data_folder, file_num);
+%         corrupted_files_count = corrupted_files_count + 1 * bl_file_corrupt;
+%         
+%         trials_D_case(file_num) = D_case;
+%         trials_ksi(file_num) = ksi;
+%         
+%         
+% %         filename = sprintf('sim_data_%09i.csv', file_num);
+% %         fprintf("Loading trajectory from '%s'. Progress: %i/%i\n", filename, file_num, input_files_count);
+% %         output_full_path = strcat(input_data_folder, filename);
+% %         
+% %         try
+% %             input_data = dlmread(output_full_path, CSV_DELIMITER);
+% % 
+% %             trials_D_case(file_num) = input_data(1,1);
+% %             trials_ksi(file_num) = round(input_data(1,2), -log10(KSI_PRECISION));
+% %             trials_x(:, file_num) = input_data(2:N+1, 1);
+% %             trials_dx(:, file_num) = input_data(2:N+1,2);
+% %         catch ME
+% %             fprintf("Error reading from file '%s'. The file may be corrupt. \n", filename);
+% %             disp(strcat("Error: ", getReport(ME)));
+% %             corrupted_files_count = corrupted_files_count +1;
+% %             corrupted_files_list = [corrupted_files_list; file_num];
+% %         end
+%     end
+% end
+
+
 
 
 
@@ -108,8 +101,7 @@ trials_data = cell(trials, n_limits_count);
 	
 
 
-% Identify and enumerate simulated ksi values
-[ksi_array, ksi_count, trials_ksi_type, trial_first_ksi_type_index] = identify_ksi(trials_ksi);
+
 
 
 %% Identify suitable bin locations based on all points for all trials
@@ -159,6 +151,11 @@ MAP_bb_prime_regular_interp = zeros(trials, n_limits_count, x_bins_number);
 MAP_a = zeros(trials, n_limits_count, x_bins_number, conventions_count, 4);
 log_K_L = zeros(trials, n_limits_count, x_bins_number, conventions_count);
 log_K_G = zeros(trials, n_limits_count, conventions_count);
+trials_D_case = zeros(1, input_files_count);
+trials_ksi = zeros(1, input_files_count);
+
+corrupted_files_count = 0;
+corrupted_files_list = [];
 
 tic;
 parfor trial = 1:trials  % 765
@@ -175,9 +172,9 @@ parfor trial = 1:trials  % 765
 %     data_struct.lambda = trials_lambdas(trial);
     % The following two parameters are the same for the forward and
     % backward calculations because they are just used in the prior
-    data_struct.dx_mean_all_bins_all_trials = dx_mean_all_bins_all_trials;
+%     data_struct.dx_mean_all_bins_all_trials = dx_mean_all_bins_all_trials;
 %     data_struct.V = V;
-	data_struct.mean_jump_bins_all_trials = mean_jump_bins_all_trials;
+% 	data_struct.mean_jump_bins_all_trials = mean_jump_bins_all_trials;
     data_struct.x_fine_mesh = x_fine_mesh;
     data_struct.b_theor_fine_data = b_theor_fine_data;
 	data_struct.D_theor_fine_data = D_theor_fine_data;
@@ -190,20 +187,28 @@ parfor trial = 1:trials  % 765
 %     data_struct.trial_first_simulation_type_index = trial_first_simulation_type_index;
 
     % Ksi-related data
-    data_struct.trials_ksi = trials_ksi;
-    data_struct.ksi_array = ksi_array;
-    data_struct.trials_ksi_type = trials_ksi_type;
-    data_struct.trial_first_ksi_type_index = trial_first_ksi_type_index;
+%     data_struct.trials_ksi = trials_ksi;
+%     data_struct.ksi_array = ksi_array;
+%     data_struct.trials_ksi_type = trials_ksi_type;
+%     data_struct.trial_first_ksi_type_index = trial_first_ksi_type_index;
     
             
     % Load data for the current trial
-    [~, ~, x, dx, ~] = load_one_file(input_data_folder, file_num);
+    [D_case, ksi, x, dx, bl_file_corrupt] = load_one_file(input_data_folder, trial);
     x = x';
     dx = dx';
+    trials_D_case(trial) = D_case;
+    trials_ksi(trial) = ksi;
+    
+    if bl_file_corrupt
+        corrupted_files_count = corrupted_files_count + 1;
+        corrupted_files_list = [corrupted_files_list; trial];
+        continue;
+    end
     
     % Process data with different limits
     data_structs = cell(n_limits_count, 1);
-    bin = middle_bin;
+%     bin = middle_bin;
     for lim_ind = 1:n_limits_count
         
         n_limit = n_limits(lim_ind);
@@ -236,7 +241,7 @@ parfor trial = 1:trials  % 765
         MAP_bb_prime_regular_interp(trial, lim_ind, :) = cur_data_struct.MAP_bb_prime_regular_interp;
         
         % Infer force with different conventions
-        cur_data_struct = infer_force(cur_data_struct, bin, trial, trials);
+        cur_data_struct = infer_force(cur_data_struct, middle_bin, trial, trials);
         MAP_a(trial, lim_ind, :, :, :) = cur_data_struct.MAP_a;
         
         % Calculate Bayes factors
@@ -258,7 +263,10 @@ stat_struct.log_K_L = log_K_L;
 stat_struct.log_K_G = log_K_G;
 clearvars n_j MAP_D MAP_b MAP_bb_prime_regular_interp MAP_a log_K_L log_K_G
 
-% Ksi-related data
+% Identify and enumerate simulated ksi values
+[ksi_array, ksi_count, trials_ksi_type, trial_first_ksi_type_index] = identify_ksi(trials_ksi);
+
+% Save ksi-related data
 stat_struct.trials_ksi = trials_ksi;
 stat_struct.ksi_array = ksi_array;
 stat_struct.trials_ksi_type = trials_ksi_type;
@@ -267,6 +275,16 @@ stat_struct.trial_first_ksi_type_index = trial_first_ksi_type_index;
 % Other parameters
 stat_struct.middle_bin = middle_bin;
 stat_struct.n_limits = n_limits;
+
+
+% Abort further calculations if corrupted files were discovered
+if corrupted_files_count > 0
+    fprintf("%i corrupted files detected: \n", corrupted_files_count);
+    disp(corrupted_files_list);
+    disp("Calculations aborted.");
+    return
+end
+
 
 
 % Calculate mean for each simulation type and n limit separately

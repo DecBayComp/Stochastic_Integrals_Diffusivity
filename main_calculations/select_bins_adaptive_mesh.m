@@ -47,10 +47,13 @@ tot_points = trials_to_load_count * N;
 % Load data for binning
 x_data = ones(N, trials_to_load_count);
 dx_data = ones(N, trials_to_load_count);
-for trial = 1:trials_to_load_count
-    [~, ~, x, dx, ~] = load_one_file(input_data_folder, file_num);
+fld = input_data_folder;    % needed for parallelization
+parfor trial = 1:trials_to_load_count
+    [~, ~, x, dx, ~] = load_one_file(fld, trial);
     x_data(:, trial) = x;
     dx_data(:, trial) = dx;
+    
+    fprintf("Loading data for binning: %i/%i\n", trial, trials_to_load_count);
 end
 
 

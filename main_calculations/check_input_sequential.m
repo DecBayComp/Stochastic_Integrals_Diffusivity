@@ -29,6 +29,8 @@ for file_num = 1:last_index
         missing_indices_list = [missing_indices_list; file_num];
     end
     
+%     fprintf("Progress: %i/%i\n", file_num, last_index);
+    
 end
 
 
@@ -43,12 +45,11 @@ disp(str_result);
 
 
 
-
-
-
-
-
-
 end
+
+
+
+
+
 
 
