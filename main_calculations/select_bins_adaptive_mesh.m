@@ -10,7 +10,7 @@
 
 
 function [x_bins_borders, x_bins_centers, bins_number, x_bins_widths,...
-    point_count_in_bins, variance_in_bins, points_binned] = select_bins_adaptive_mesh(x_data, dx_data, max_points_per_bin)
+    point_count_in_bins, variance_in_bins, points_binned] = select_bins_adaptive_mesh(trials, max_points_per_bin)
 %% The calculations assume no points have exactly the same locations
 
 
@@ -21,31 +21,46 @@ tic;
 load_constants;
 REL_PRECISION = 1e-4;
 initial_bins_number = 100;
-N_for_binning = 1e6;
+max_points_for_binning = 1e6;
 
 
 conv_factor = 1/2;	% convergence rate to the desired bin width
 
 
-%% Initialize
-N = length(x_data);
+%% Choose and load data
 
-% To save memory on large datasets, drop some of the points to optimize performance
-if N > N_for_binning
-    % Select indices
-    sel_indices = randperm(N, N_for_binning);
-    
-    % Reduce data size
-    x_data = x_data(sel_indices);
-    dx_data = dx_data(sel_indices);
-    N = N_for_binning;
+% Indetify trials for binning
+tot_points = trials * N;
+% Limit number of points for binning if too much data is available
+if tot_points > max_points_for_binning
+   trials_to_load_count = ceil(trials * N / max_points_for_binning);
+   
+   % Select trials indices
+    sel_trials_indices = randperm(trials, trials_to_load_count);
+else
+    trials_to_load_count = trials;
+    sel_trials_indices = 1:trials;
 end
+tot_points = trials_to_load_count * N;
+
+
+% Load data for binning
+x_data = ones(N, trials_to_load_count);
+dx_data = ones(N, trials_to_load_count);
+for trial = 1:trials_to_load_count
+    [~, ~, x, dx, ~] = load_one_file(input_data_folder, file_num);
+    x_data(:, trial) = x;
+    dx_data(:, trial) = dx;
+end
+
+
+%% Start binning
 
 
 % The excess of the points will go into the first bin, so start binning
 % from the right-hand end
 bins_number = initial_bins_number;
-points_per_bin = floor(N / bins_number);
+points_per_bin = floor(tot_points / bins_number);
 
 % Sort data
 [x_data_sorted, sorted_indices] = sort(reshape(x_data, 1, []), 'ascend');
@@ -71,7 +86,7 @@ mean_jumps = zeros(1, bins_number);
 % Indices borders are always included into their bin (the indexes of points
 % at the borders of the bins)
 x_bins_borders(bins_number, 2) = x_max;
-indices_bins_borders(bins_number, 2) = N;
+indices_bins_borders(bins_number, 2) = tot_points;
 first_bin = 1;
 for bin = bins_number:-1:1
 	% Print progress
@@ -214,19 +229,19 @@ for lim_ind = 1:n_limits_count
 
         % Create a random draw from point indices in bin (if there are more points than required)
         if n_limit > 0 && n_limit < tot_points_in_bin
-            sel_indices = randperm(tot_points_in_bin, n_limit);
+            sel_trials_indices = randperm(tot_points_in_bin, n_limit);
         else
-            sel_indices = 1:tot_points_in_bin;
+            sel_trials_indices = 1:tot_points_in_bin;
         end
         
         % Store the selected points
-        points_binned_new{lim_ind, bin} = points_binned{bin}(:, sel_indices);
+        points_binned_new{lim_ind, bin} = points_binned{bin}(:, sel_trials_indices);
         
         % Calculate variance
         variance_in_bins_new(lim_ind, bin) = var(points_binned_new{lim_ind, bin}(2, :));
         
         % Count points
-        point_count_in_bins_new(lim_ind, bin) = length(sel_indices);
+        point_count_in_bins_new(lim_ind, bin) = length(sel_trials_indices);
     end
 end
 
