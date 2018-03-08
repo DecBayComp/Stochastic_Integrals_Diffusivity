@@ -21,6 +21,7 @@ tic;
 load_constants;
 REL_PRECISION = 1e-4;
 initial_bins_number = 100;
+N_for_binning = 1e6;
 
 
 conv_factor = 1/2;	% convergence rate to the desired bin width
@@ -28,6 +29,19 @@ conv_factor = 1/2;	% convergence rate to the desired bin width
 
 %% Initialize
 N = length(x_data);
+
+% To save memory on large datasets, drop some of the points to optimize performance
+if N > N_for_binning
+    % Select indices
+    sel_indices = randperm(N, N_for_binning);
+    
+    % Reduce data size
+    x_data = x_data(sel_indices);
+    dx_data = dx_data(sel_indices);
+    N = N_for_binning;
+end
+
+
 % The excess of the points will go into the first bin, so start binning
 % from the right-hand end
 bins_number = initial_bins_number;

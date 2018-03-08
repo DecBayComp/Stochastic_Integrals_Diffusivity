@@ -90,7 +90,7 @@ end
 if corrupted_files_count > 0
     fprintf("%i corrupted files detected: \n", corrupted_files_count);
     disp(corrupted_files_list);
-    disp("Aborting");
+    disp("Calculations aborted.");
     return
 end
 
