@@ -16,3 +16,5 @@ main_calculations/figures_for_article/K_G_data_no_force\.txt
 main_calculations/figures_for_article/results_no_force\.dat
 trajectory_simulation_python/arguments.lock
 main_calculations/test.py
+main_calculations/processed_data/stat_struct.mat
+main_calculations/processed_data/stat_struct_wrong_D.mat
