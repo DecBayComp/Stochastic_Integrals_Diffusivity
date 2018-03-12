@@ -2,7 +2,7 @@
 % selected values of ksi
 
 
-function plot_article_b(data_struct, trials_data, fig_count, bl_save_figures)
+function plot_article_b(stat_struct, trials_data, fig_count, bl_save_figures)
 
 
 
@@ -115,7 +115,7 @@ output_filename_base = 'b';
 len_sel_ksi = length(selected_ksi_array);
 selected_ksi_indices = zeros(len_sel_ksi, 1);
 for j = 1:len_sel_ksi
-   ksi_distance = abs(data_struct.ksi_array - selected_ksi_array(j));
+   ksi_distance = abs(stat_struct.ksi_array - selected_ksi_array(j));
    selected_ksi_indices(j) = find(ksi_distance == min(ksi_distance), 1);
 end
 
@@ -131,8 +131,12 @@ hold on;
 
 
 % Load data for selected ksi_values
-x_bins_centers = data_struct.x_bins_centers;
-MAP_b_mean = data_struct.MAP_b_mean(selected_ksi_indices, :, 1);
+x_bins_centers = stat_struct.x_bins_centers;
+n_limits_count = length(stat_struct.n_limits);
+lim_ind = n_limits_count;
+
+
+MAP_b_mean = stat_struct.MAP_b_mean(selected_ksi_indices, lim_ind, :, 1);
 
 % Initialize subplot
 h_sub = subaxis(rows, cols, 1, 'SH', SH, 'SV', SV, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
@@ -144,7 +148,7 @@ for j = 1:len_sel_ksi
 end
 
 % Theory
-b_theor_data = data_struct.b_theor_data(:, 1);
+b_theor_data = stat_struct.b_theor_data(:, 1);
 h_theor = plot(x_bins_centers, b_theor_data, 'k--');
 uistack(h_theor, 'bottom');
 
@@ -162,8 +166,8 @@ subaxis(2);
 hold on;
 
 % Load data for selected ksi_values
-x_bins_centers = data_struct.x_bins_centers;
-MAP_bb_prime_regular_interp_mean = data_struct.MAP_bb_prime_regular_interp_mean(selected_ksi_indices, :, 1);
+x_bins_centers = stat_struct.x_bins_centers;
+MAP_bb_prime_regular_interp_mean = stat_struct.MAP_bb_prime_regular_interp_mean(selected_ksi_indices, lim_ind, :, 1);
 
 for j = 1:len_sel_ksi
    plot(x_bins_centers, MAP_bb_prime_regular_interp_mean(j, :), strcat('-', markers_list{j}), ...
@@ -308,19 +312,21 @@ set(gca, 'FontSize', font_size);
 % % % % 
 % % % % 
 % % % % 
-%% Save figure
-% Prepare printer
-h_fig.PaperPositionMode = 'auto';
-h_fig.Units = 'Inches';
-fig_pos = h_fig.Position;
-set(h_fig, 'PaperUnits','Inches','PaperSize', [fig_pos(3), fig_pos(4)]);
 
-% Set filename
-output_filename = strcat(output_filename_base, '.pdf');
-output_full_path = strcat(output_figures_folder, output_filename);
-if bl_save_figures
-    print(h_fig, output_full_path, '-dpdf', '-r0');
-end
+
+% % % %% Save figure
+% % % % Prepare printer
+% % % h_fig.PaperPositionMode = 'auto';
+% % % h_fig.Units = 'Inches';
+% % % fig_pos = h_fig.Position;
+% % % set(h_fig, 'PaperUnits','Inches','PaperSize', [fig_pos(3), fig_pos(4)]);
+% % % 
+% % % % Set filename
+% % % output_filename = strcat(output_filename_base, '.pdf');
+% % % output_full_path = strcat(output_figures_folder, output_filename);
+% % % if bl_save_figures
+% % %     print(h_fig, output_full_path, '-dpdf', '-r0');
+% % % end
 
 
 

@@ -2,7 +2,7 @@
 
 
 ## Constants
-version = 20180226
+version = 20180312
 
 
 # % m = 1;
@@ -30,8 +30,8 @@ args_lock = "./arguments.lock"
 lock_timeout = 300
 ksi_range = (-1, 2)
 ksi_step = 0.1
-jobs_count_tars = 132
-jobs_count_t_bayes = 200
+jobs_count_tars = 12	# 132+12
+jobs_count_t_bayes = 132
 jobs_count_onsager = 2
 manager_script = "job_manager.py"
 DETACHED_PROCESS = 0x00000008

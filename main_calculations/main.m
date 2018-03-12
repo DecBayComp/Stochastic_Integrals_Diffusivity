@@ -39,7 +39,7 @@ pdf_norm = [];
 % Count the number of csv trajectories in a folder
 cur_dir = dir([input_data_folder, '*.csv']);
 input_files_count = sum(~[cur_dir.isdir]);
-% input_files_count = 31;
+input_files_count = 160;
 
 % Check that input files are properly numbered before loading
 num_files_missing = check_input_sequential(input_data_folder);
@@ -141,7 +141,7 @@ bb_prime_theor_fine_data = D_grad_theor_fine_data;
 
 fprintf('Processing trajectories...\n');
 % Select one bin in the middle to avoid boundary effects
-middle_bin = floor(x_bins_number/2);
+middle_bin = ceil(x_bins_number/2);
 
 % Initialize
 n_j = zeros(trials, n_limits_count, x_bins_number);
@@ -263,6 +263,12 @@ stat_struct.log_K_L = log_K_L;
 stat_struct.log_K_G = log_K_G;
 clearvars n_j MAP_D MAP_b MAP_bb_prime_regular_interp MAP_a log_K_L log_K_G
 
+% Bin parameters
+stat_struct.x_bins_number = x_bins_number;
+stat_struct.x_bins_centers = x_bins_centers;
+stat_struct.x_bins_widths = x_bins_widths;
+stat_struct.x_bins_borders = x_bins_borders;
+
 % Identify and enumerate simulated ksi values
 [ksi_array, ksi_count, trials_ksi_type, trial_first_ksi_type_index] = identify_ksi(trials_ksi);
 
@@ -275,6 +281,9 @@ stat_struct.trial_first_ksi_type_index = trial_first_ksi_type_index;
 % Other parameters
 stat_struct.middle_bin = middle_bin;
 stat_struct.n_limits = n_limits;
+
+% Theory
+stat_struct.b_theor_data = [b_bins, b_prime_bins, b_prime_prime_bins];
 
 
 % Abort further calculations if corrupted files were discovered
@@ -295,17 +304,17 @@ stat_struct = calculate_mean(stat_struct);
 trials_x = [];
 trials_dx = [];
 points_binned = [];
-save(strcat('backup_workspace.mat'));
-save(strcat(output_data_folder, 'trials_data.mat'), 'data_struct', 'trials_data');
+save(strcat('backup_workspace.mat'), '-v7.3');
+save(strcat(output_data_folder, 'stat_struct.mat'), 'stat_struct');
 
 % Print execution time
 fprintf('All trajectories processed in %.2f min\n', toc/60);
 
 
 %% Plot
-% plot_article_all(data_struct, trials_data);
-fig_count = 1; 
-plot_article_local_bayes_factor(stat_struct, fig_count, 0);
+plot_article_all(stat_struct, trials_data);
+% fig_count = 1; 
+% plot_article_local_bayes_factor(stat_struct, fig_count, 0);
 
 
 1;

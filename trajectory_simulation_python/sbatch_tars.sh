@@ -2,12 +2,11 @@
 
 # Sbatch options
 #SBATCH -J ito-man
-#SBATCH -p dedicated
+#SBATCH -p dbc_pmo
 #SBATCH --qos=dbc
-### #SBATCH --qos=fast
 #SBATCH --cpus-per-task=1 
 #SBATCH --mem-per-cpu=1200MB
-## #SBATCH --time=120
+
 
 
 # Constants

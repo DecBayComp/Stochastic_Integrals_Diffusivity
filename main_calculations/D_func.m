@@ -24,7 +24,7 @@ switch D_case_number
 %         D_prime_func = @(x) 0.*x;
         
     case 2 % Linear D (with k)
-        D_func_local = @(x) D_0 * (1 + k * x);
+        D_func_local = @(x) D_0 * (2 + k * x);
         D_prime_func = @(x) D_0 * k * ones(size(x));  
 		D_scnd_der_func = @(x) zeros(size(x));  
         D_antider_func = @(x) zeros(size(x));
