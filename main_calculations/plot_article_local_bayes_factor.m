@@ -167,7 +167,7 @@ for lim_ind = 1:n_limits_count
 
     xlabel('$\alpha / bb''$', 'Interpreter', 'latex', 'FontSize', font_size);
     ylabel('$\langle \ln K_L \rangle$', 'Interpreter', 'latex', 'FontSize', font_size);
-    title(sprintf('$n = %i$ $(\\zeta = %.2f)$', n_limits(lim_ind), zetas(lim_ind)), 'Interpreter', 'latex', 'FontSize', subplot_label_font_size);
+    title(sprintf('$n = %i$', n_limits(lim_ind)), 'Interpreter', 'latex', 'FontSize', subplot_label_font_size);
     
     % Theory
     h_theor = plot(xlim(), [0, 0], 'LineWidth', line_width_theor, 'color', axes_color);
