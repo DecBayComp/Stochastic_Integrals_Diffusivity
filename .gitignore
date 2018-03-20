@@ -18,3 +18,7 @@ trajectory_simulation_python/arguments.lock
 main_calculations/test.py
 main_calculations/processed_data/stat_struct.mat
 main_calculations/processed_data/stat_struct_wrong_D.mat
+
+analytical_bayes_factor/\.ipynb_checkpoints/
+
+main_calculations/figures_for_article/
