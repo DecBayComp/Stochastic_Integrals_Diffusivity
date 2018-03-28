@@ -22,3 +22,5 @@ main_calculations/processed_data/stat_struct_wrong_D.mat
 analytical_bayes_factor/\.ipynb_checkpoints/
 
 main_calculations/figures_for_article/
+marginal_fun.png
+marginal_fun_low_K.png

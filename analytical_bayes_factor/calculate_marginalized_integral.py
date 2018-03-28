@@ -1,6 +1,6 @@
 
 
-import numpy as numpy
+import numpy as np
 from scipy import integrate
 
 
@@ -13,6 +13,7 @@ def calculate_marginalized_integral(zeta_t, zeta_sp, n, n_pi):
 
 	# Constants
 	n0 = n + n_pi
+	tol = 1e-8
 
 	# Check input
 	if not isinstance(zeta_t, list) or not isinstance(zeta_sp, list):
@@ -27,6 +28,12 @@ def calculate_marginalized_integral(zeta_t, zeta_sp, n, n_pi):
 	for zeta_ind in range(zeta_length):
 		zeta_sp_cur = zeta_sp[zeta_ind]
 		zeta_t_cur = zeta_t[zeta_ind]
+
+		# If input is 0, no need to actually integrate
+		if np.isclose(zeta_sp_cur, 0, rtol = tol, atol = tol):
+			result = (1.0 + n / n0 * zeta_t_cur ** 2.0) ** ((2.0 - n0) / 2.0)
+			results.append([result, 0])
+			continue
 
 		# Check if a break-point needs to be added
 		break_lambda = zeta_t_cur/zeta_sp_cur

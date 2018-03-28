@@ -14,7 +14,7 @@ def calculate_zeta_t_roots(zeta_sp, lamb, n, n_pi, K):
 
 	zeta_t_roots = 2.0 / (n0 - 2.0) * (np.log(K) - log_C(n0, n_pi))
 	zeta_t_roots = np.exp(zeta_t_roots) - 1.0
-	zeta_t_roots = np.sqrt(n / n0 * zeta_t_roots)
+	zeta_t_roots = np.sqrt(n0 / n * zeta_t_roots)
 	zeta_t_roots = lamb * zeta_sp + np.asarray([-1.0, 1.0]) * zeta_t_roots
 
 	return zeta_t_roots
