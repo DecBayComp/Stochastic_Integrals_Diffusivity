@@ -104,3 +104,4 @@ def plot_K_L(zeta_sps, zeta_t_roots, ns):
 	plt.tight_layout()
 	# plt.subplots_adjust(wspace=0, hspace=0, left = 0.0, right = 1.0)
 	plt.show()
+	# plt.savefig("results.png")
