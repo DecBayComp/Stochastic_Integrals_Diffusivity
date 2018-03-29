@@ -61,7 +61,7 @@ def plot_K_L(zeta_sps, zeta_t_roots, ns):
 			# Positive zeta_t branch
 			# branch_ind = 0
 			# y_axis = zeta_t_roots[lamb_ind, branch_ind, :]
-			print(zeta_t_roots[n_ind, lamb_ind, 0, :])
+			# print(zeta_t_roots[n_ind, lamb_ind, 0, :])
 			ax.fill_between(zeta_sps, zeta_t_roots[n_ind, lamb_ind, 0, :], zeta_t_roots[n_ind, lamb_ind, 1, :],
 				color = color_sequence[lamb_ind], alpha = alpha)
 

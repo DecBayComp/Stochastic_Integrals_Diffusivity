@@ -6,9 +6,9 @@ import numpy as np
 from scipy import optimize
 
 
-def find_marginalized_zeta_t_roots(zeta_sp, n, n_pi, K):
+def find_marginalized_zeta_t_roots(zeta_sp, n, n_pi, B, v):
 	"""
-	Find marginalized roots zeta_t under condition that zeta_sp != 0.
+	Find marginalized roots zeta_t under condition that zeta_sp != 0 (to check?).
 	I have proven that the min K for the marginalized inference is achieved at zeta_t = zeta_sp/2.
 	"""
 
@@ -20,38 +20,34 @@ def find_marginalized_zeta_t_roots(zeta_sp, n, n_pi, K):
 	if not isinstance(zeta_sp, list):
 		raise TypeError("'zeta_sp' must be a 1D list.")
 
-	n0 = n + n_pi
-	log_C = log_C_func(n_0 = n0, n_pi = n_pi)
-
+	eta = np.sqrt(n_pi / (n + n_pi))
+	
 	zeta_length = len(zeta_sp)
 
 	# Function to optimize
 	def solve_me(zeta_t_cur):
-		integration_res = calculate_marginalized_integral([zeta_t_cur], [zeta_sp_cur], n, n_pi)
-		integration_res = np.asarray(integration_res)[0, 0]
-		return np.exp(log_C) / integration_res - K
+		E = eta ** 2
+		upstairs = calculate_marginalized_integral([zeta_t_cur], [zeta_sp_cur], n, n_pi, v, E)
+		upstairs = np.asarray(upstairs)[0, 0]
+
+		E = 1
+		downstairs = calculate_marginalized_integral([zeta_t_cur], [zeta_sp_cur], n, n_pi, v, E)
+		downstairs = np.asarray(downstairs)[0, 0]
+		return upstairs - B / eta * downstairs
 
 	zeta_sp_ind = 0
 	zeta_sp_cur = zeta_sp[zeta_sp_ind]
 
-	# Guess sign change intervals
+	# Guess sign change intervals centered around zeta_t = zeta_sp / 2
 	zeta_t_lims = np.array([0.0, 0.5, 1.0]) * zeta_sp_cur
 	zeta_t_width = zeta_t_lims[-1] - zeta_t_lims[0]
 	min_value = solve_me(zeta_t_lims[1])
 
-	
-	# def minimize_me(zeta_t_cur):
-	# 	return solve_me(zeta_t = [zeta_t_cur], zeta_sp = [zeta_sp_cur])
 
-	# mid_value = solve_me(zeta_t = [zeta_t_lims[1]], zeta_sp = [zeta_sp_cur])
-	# min_value = optimize.minimize(minimize_me, zeta_t_lims[1]).x
-	# print(zeta_t_lims[1], min_value)
-
-
-	# If the minimized function is positive for the middle point we won't be able to find roots
+	# If the minimized function is negative for the middle point we won't be able to find roots
 	# print(min_value) 
 	# print([solve_me(zeta_t_lims[0]), solve_me(zeta_t_lims[-1])])
-	if min_value >= 0:
+	if min_value > 0:
 		# print("Warning: No marginalized zeta_t roots exist for zeta_sp = %.2f. Min Bayes factor value (%.3g) is always greater than the requested value (%.3g) for any zeta_t." % (zeta_sp_cur, min_value + K, K))
 		return [np.nan, np.nan]
 
@@ -89,6 +85,7 @@ def find_marginalized_zeta_t_roots(zeta_sp, n, n_pi, K):
 	
 	# Sort roots
 	zeta_t_roots.sort()
+	# print(zeta_t_roots)
 
 	return(zeta_t_roots)
 
