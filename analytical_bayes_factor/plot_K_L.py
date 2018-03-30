@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_K_L(zeta_sps, zeta_t_roots, ns, vs):
+def plot_K_L(zeta_sps, zeta_t_roots, ns, vs, dim):
 	"""
 	Make the parametric plot of the local Bayes factor
 	"""
@@ -15,15 +15,19 @@ def plot_K_L(zeta_sps, zeta_t_roots, ns, vs):
 	font_size = 8
 	pagewidth_in = 6.85
 	dpi = 120
-	rows = 2
+	# rows = 2
 	cols = 3
-	figsize = np.asarray([1, 0.8]) * pagewidth_in # in inches
+	
 
 	lambs_count = np.size(zeta_t_roots, 2)
 	ns_count = len(ns)
 	vs_count = len(vs)
 	# branch_ind = 0
 	# fig = mpl.pyplot.figure()
+
+	figsize = np.asarray([1, 0.33 * vs_count]) * pagewidth_in # in inches
+	
+
 
 	# # Make a cyclic plot mesh
 	# zeta_t_points_back = np.flipud(zeta_t_points_abs[0:-1])
@@ -38,12 +42,16 @@ def plot_K_L(zeta_sps, zeta_t_roots, ns, vs):
 	plt.rc('text', usetex = True)
 	# plt.style.use("axes.labelsize = font_size")
 
-	fig, axarr = plt.subplots(rows, cols, num = 1, sharey = False, sharex = False)
+	fig, axarr = plt.subplots(vs_count, cols, num = 1, sharey = True, sharex = False)
 
 	# Adjust
 	fig.set_dpi(dpi)
 	fig.set_figwidth(figsize[0])
 	fig.set_figheight(figsize[1])
+
+	# Print dimensions
+	dim_str = "%iD" % dim
+	fig.text(0.01, 0.96, dim_str, fontsize = font_size + 4, weight = 'bold')
 	
 
 	# plt.subplots_adjust(wspace=0, hspace=0)
@@ -51,7 +59,14 @@ def plot_K_L(zeta_sps, zeta_t_roots, ns, vs):
 
 	for v_ind in range(vs_count):
 		v = vs[v_ind]
-		axarr[v_ind, 0].set_ylabel('$\zeta_\mathrm{t}$ $(v=%.1f)$' % (v))
+
+		# y title
+		if dim == 1:
+			y_str = '$\zeta_\mathrm{t}$ $(v='
+		elif dim == 2:
+			y_str = '$\zeta_{\mathrm{t}\parallel}$ $(v_\perp='
+		y_str += '%.1f)$' % (v)
+		axarr[v_ind, 0].set_ylabel(y_str)
 
 		for n_ind in range(ns_count):
 			ax = axarr[v_ind, n_ind]
@@ -113,4 +128,6 @@ def plot_K_L(zeta_sps, zeta_t_roots, ns, vs):
 	plt.tight_layout()
 	# plt.subplots_adjust(wspace=0, hspace=0, left = 0.0, right = 1.0)
 	plt.show()
-	# plt.savefig("results.png")
+	
+	plt.savefig("results.pdf")
+	plt.savefig("results.png")

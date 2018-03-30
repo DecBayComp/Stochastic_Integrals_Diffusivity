@@ -6,7 +6,7 @@ import numpy as np
 from scipy import optimize
 
 
-def find_marginalized_zeta_t_roots(zeta_sp, n, n_pi, B, v):
+def find_marginalized_zeta_t_roots(zeta_sp, n, n_pi, B, v, dim):
 	"""
 	Find marginalized roots zeta_t under condition that zeta_sp != 0 (to check?).
 	I have proven that the min K for the marginalized inference is achieved at zeta_t = zeta_sp/2.
@@ -21,19 +21,26 @@ def find_marginalized_zeta_t_roots(zeta_sp, n, n_pi, B, v):
 		raise TypeError("'zeta_sp' must be a 1D list.")
 
 	eta = np.sqrt(n_pi / (n + n_pi))
+
+	if dim == 1:
+		eta_pow = 1.0
+	elif dim == 2:
+		eta_pow = 2.0
+	else:
+		raise ValueError("'dim' variable must be 1 or 2")
 	
 	zeta_length = len(zeta_sp)
 
 	# Function to optimize
 	def solve_me(zeta_t_cur):
 		E = eta ** 2
-		upstairs = calculate_marginalized_integral([zeta_t_cur], [zeta_sp_cur], n, n_pi, v, E)
+		upstairs = calculate_marginalized_integral([zeta_t_cur], [zeta_sp_cur], n, n_pi, v, E, dim)
 		upstairs = np.asarray(upstairs)[0, 0]
 
 		E = 1
-		downstairs = calculate_marginalized_integral([zeta_t_cur], [zeta_sp_cur], n, n_pi, v, E)
+		downstairs = calculate_marginalized_integral([zeta_t_cur], [zeta_sp_cur], n, n_pi, v, E, dim)
 		downstairs = np.asarray(downstairs)[0, 0]
-		return upstairs - B / eta * downstairs
+		return upstairs - B / eta ** eta_pow * downstairs
 
 	zeta_sp_ind = 0
 	zeta_sp_cur = zeta_sp[zeta_sp_ind]
