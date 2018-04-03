@@ -24,3 +24,9 @@ analytical_bayes_factor/\.ipynb_checkpoints/
 main_calculations/figures_for_article/
 marginal_fun.png
 marginal_fun_low_K.png
+final_results_1D.pdf
+final_results_2D.pdf
+new_prior_results_1D.pdf
+new_prior_results.png
+old_prior_results.png
+results.png
