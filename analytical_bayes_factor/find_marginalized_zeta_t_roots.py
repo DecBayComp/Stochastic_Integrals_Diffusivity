@@ -1,46 +1,44 @@
 
 
 from calculate_marginalized_integral import calculate_marginalized_integral
-from log_C import log_C as log_C_func
+# from log_C import log_C as log_C_func
 import numpy as np
 from scipy import optimize
 
 
-def find_marginalized_zeta_t_roots(zeta_sp, n, n_pi, B, v, dim):
+def find_marginalized_zeta_t_roots(zeta_sp, n, n_pi, B, u, dim, zeta_t_perp):
 	"""
 	Find marginalized roots zeta_t under condition that zeta_sp != 0 (to check?).
-	I have proven that the min K for the marginalized inference is achieved at zeta_t = zeta_sp/2.
+	I have proven that the min B for the marginalized inference is achieved at zeta_t = zeta_sp/2.
 	"""
 
 	# Constants
 	max_init_search_attempts = 50
-	increase_factor = 2
+	increase_factor = 2.0
 	
 	# Check input
 	if not isinstance(zeta_sp, list):
 		raise TypeError("'zeta_sp' must be a 1D list.")
 
 	eta = np.sqrt(n_pi / (n + n_pi))
+	p = dim * (n + n_pi + 1.0) / 2.0 - 2.0
 
-	if dim == 1:
-		eta_pow = 1.0
-	elif dim == 2:
-		eta_pow = 2.0
-	else:
-		raise ValueError("'dim' variable must be 1 or 2")
-	
+	# Define v function
+	def v(s):
+		return(1.0 + n_pi / n * u + (dim - 1.0) * s * zeta_t_perp ** 2)
+
 	zeta_length = len(zeta_sp)
 
 	# Function to optimize
 	def solve_me(zeta_t_cur):
-		E = eta ** 2
-		upstairs = calculate_marginalized_integral([zeta_t_cur], [zeta_sp_cur], n, n_pi, v, E, dim)
+		E = eta ** 2.0
+		upstairs = calculate_marginalized_integral([zeta_t_cur], [zeta_sp_cur], p, v(E), E, dim)
 		upstairs = np.asarray(upstairs)[0, 0]
 
-		E = 1
-		downstairs = calculate_marginalized_integral([zeta_t_cur], [zeta_sp_cur], n, n_pi, v, E, dim)
+		E = 1.0
+		downstairs = calculate_marginalized_integral([zeta_t_cur], [zeta_sp_cur],p, v(E), E, dim)
 		downstairs = np.asarray(downstairs)[0, 0]
-		return upstairs - B / eta ** eta_pow * downstairs
+		return upstairs * eta ** dim - B * downstairs
 
 	zeta_sp_ind = 0
 	zeta_sp_cur = zeta_sp[zeta_sp_ind]

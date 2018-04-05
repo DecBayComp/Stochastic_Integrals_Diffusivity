@@ -4,24 +4,19 @@ import numpy as np
 from scipy import integrate
 
 
-def calculate_marginalized_integral(zeta_t, zeta_sp, n, n_pi, v, E, dim):
+def calculate_marginalized_integral(zeta_t, zeta_sp, p, v, E, dim):
 	"""
-	Calculate the lambda integral for the given values of zeta_t and zeta_sp. 
+	Calculate the lambda integral 
+	
+	Integrate[(v + E * (zeta_t - lambda * zeta_sp) **2) ** (-p), {lambda, 0, 1}]
+
+	for the given values of zeta_t and zeta_sp. 
 	They must be 1D lists of same length.
 	n and n0 are scalars.
-	E is the coefficient that appears in forn of (zeta_t - lambda * zeta_sp)^2
 	"""
 
 	# Constants
 	tol = 1e-8
-
-	# Calculate the power
-	if dim == 1:
-		pw = (3 - n - n_pi) / 2.0
-	elif dim == 2:
-		pw = 1 - n - n_pi
-	else:
-		raise ValueError("'dim' variable must be 1 or 2")
 
 	# Check input
 	if not isinstance(zeta_t, list) or not isinstance(zeta_sp, list):
@@ -31,7 +26,6 @@ def calculate_marginalized_integral(zeta_t, zeta_sp, n, n_pi, v, E, dim):
 	if zeta_length != len(zeta_sp):
 		raise ValueError("'zeta_t' and 'zeta_sp' must have same length.")
 
-
 	results = []
 	for zeta_ind in range(zeta_length):
 		zeta_sp_cur = zeta_sp[zeta_ind]
@@ -39,7 +33,7 @@ def calculate_marginalized_integral(zeta_t, zeta_sp, n, n_pi, v, E, dim):
 
 		# If zeta_sp ~ 0, no need to actually integrate
 		if np.isclose(zeta_sp_cur, 0, rtol = tol, atol = tol):
-			result = (v + E * zeta_t_cur ** 2.0) ** pw
+			result = (v + E * zeta_t_cur ** 2.0) ** (-p)
 			results.append([result, 0])
 			continue
 
@@ -52,7 +46,7 @@ def calculate_marginalized_integral(zeta_t, zeta_sp, n, n_pi, v, E, dim):
 
 		# Define the integrand function
 		def integrate_me(l):
-			return (v + E * (l * zeta_sp_cur - zeta_t_cur) ** 2.0) ** pw
+			return (v + E * (l * zeta_sp_cur - zeta_t_cur) ** 2.0) ** (-p)
 
 		# Perform integration
 		result = integrate.quad(integrate_me, 0.0, 1.0, points = break_lambda, full_output = 0)
