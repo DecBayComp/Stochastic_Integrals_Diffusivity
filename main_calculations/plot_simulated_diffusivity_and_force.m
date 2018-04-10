@@ -9,23 +9,30 @@ function plot_simulated_diffusivity_and_force(fig_count, bl_save_figures)
 %% Constants
 load_constants;
 load_color_scheme;
-x_marker_step = 0.05 * L;
-marker_step = 10;
-x_step = x_marker_step/marker_step;
-output_D_filename = 'Simulated_D_a_b.pdf';
+x_step = L * 1e-3;
+x_marker_step = L;
+marker_step = round(x_marker_step/x_step);
+output_D_filename = 'simulated_D_a_b.pdf';
+
+% Figure size parameters
+page_width_frac = 0.5;
+height_factor = 0.6;
 
 % Subplot parameters
-spacing = 0.08;
-ML = 0.07;
-MR = 0.0125;
-MT = 0.09;
-MB = 0.17;
+rows = 2;
+cols = 2;
+ML = 0.14;
+MR = 0.025;
+MT = 0.06;
+MB = 0.12;
+SH = 0.16;
+SV = 0.16;
 
 % Label params
-sublabel_x = 0.015;
-sublabel_y = 1.13;
+sublabel_x = 0.02;
+sublabel_y = 1.2;
 
-x_tick_increment = 0.25;
+% x_tick_increment = 0.25;
 
 
 
@@ -35,13 +42,28 @@ x_mesh_length = length(x_mesh);
 
 %% Calculate
 % D
-D_data = D_func(selected_D_case, x_mesh, L);
+[D_data, D_der_data] = D_func(selected_D_case, x_mesh, L);
+
 % Force f
-f_data = f_func(selected_f_case, x_mesh, L);
-% Local drag
-a_data = f_data / gamma_drag;	% in um/s
+f_data_force = f_func(enum_force_case, x_mesh, L);
+f_data_no_force = f_func(enum_no_force_case, x_mesh, L);
+
+% Conservative force [3 x mesh_size]
+a_data_force = [1; 1; 1] * f_data_force / gamma_drag;	% in um/s
+a_data_no_force = [1; 1; 1] * f_data_no_force / gamma_drag;	% in um/s
+
+% Spurious force [3 x mesh_size]
+spur_data = [0; 0.5; 1] * D_der_data;
+
+% Total force
+alpha_data_no_force = spur_data + a_data_no_force;
+alpha_data_force = spur_data + a_data_force;
+
+
 % Diffusivity b(x)
 b_data = sqrt(2*D_data);
+
+a_y_lim_vec = max(max(abs([alpha_data_force, alpha_data_no_force]))) * [-1, 1];
 
 
 
@@ -49,71 +71,47 @@ b_data = sqrt(2*D_data);
 % Common figure
 h_fig = figure(fig_count);
 clf;
-set_article_figure_size(h_fig, 1, 2, 1);
+set_article_figure_size(h_fig, 2, page_width_frac, height_factor);
 
 % Initialize subplots
-h_sub = subaxis(1, 3, 1, 'Spacing', spacing, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
+h_sub = subaxis(rows, cols, 1, 'SH', SH, 'SV', SV, 'ML', ML, 'MR', MR, 'MT', MT, 'MB', MB);
 
 
 
-%% 'a' figure
-% Initialize subplot
-h_sub = subaxis(1, 3, 1);
+%% Diffusivity figure
+% Initialize sbuplot
+h_sub = subaxis(1);
 
 % Plot
 % color = 
-plot(x_mesh, a_data, '-o', 'LineWidth', 2,...
-    'color', standard_colors(1).DeepBlue, ...
-	'MarkerSize', marker_size, 'MarkerFaceColor', standard_colors(1).DeepBlue,...
-    'MarkerIndices', 1:marker_step:x_mesh_length);
+plot(x_mesh, D_data, '-', 'LineWidth', 2,...
+    'color', standard_colors(1).DeepBlue); %, ...
+	%'MarkerSize', marker_size, 'MarkerFaceColor', standard_colors(1).DeepBlue,...
+    % 'MarkerIndices', 1:marker_step:x_mesh_length);
 
-% Adjust
-ylim([0, max(a_data)]);
+% Label
 box on;
-grid on;
-xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('$a$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
+% grid on;
+% xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
+ylabel('$D$, $\mu \mathrm{m^2/s}$', 'interpreter', 'latex');
 
 % Modify ticks
-set(gca,'xtick', x_min:x_tick_increment:x_max);
+set(gca, 'FontSize', font_size);
+
+% set(gca,'xtick', x_min:x_tick_increment:x_max);
 
 % Subplot label
 text(sublabel_x, sublabel_y, 'A', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 
 
 
-%% Diffusivity figure
-% Initialize sbuplot
-h_sub = subaxis(1, 3, 2);
-
-% Plot
-% color = 
-plot(x_mesh, D_data, '-o', 'LineWidth', 2,...
-    'color', standard_colors(1).DeepBlue, ...
-	'MarkerSize', marker_size, 'MarkerFaceColor', standard_colors(1).DeepBlue,...
-    'MarkerIndices', 1:marker_step:x_mesh_length);
-
-% Label
-box on;
-grid on;
-xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('$D$, $\mu \mathrm{m^2/s}$', 'interpreter', 'latex');
-
-% Modify ticks
-set(gca,'xtick', x_min:x_tick_increment:x_max);
-
-% Subplot label
-text(sublabel_x, sublabel_y, 'B', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
-
-
-
 %% b figure
 % Initialize sbuplot
-h_sub = subaxis(1, 3, 3);
+h_sub = subaxis(2);
 
 % Plot
 % color = 
-plot(x_mesh, b_data, '-o', 'LineWidth', 2,...
+plot(x_mesh, b_data, '-', 'LineWidth', line_width,...
     'color', standard_colors(1).DeepBlue, ...
 	'MarkerSize', marker_size, 'MarkerFaceColor', standard_colors(1).DeepBlue,...
     'MarkerIndices', 1:marker_step:x_mesh_length);
@@ -122,16 +120,52 @@ plot(x_mesh, b_data, '-o', 'LineWidth', 2,...
 y_lim_vec = [min(b_data), max(b_data)];
 ylim(y_lim_vec);
 box on;
-grid on;
-xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
-ylabel('$b$, $\mu \mathrm{m / s^{1/2}}$', 'interpreter', 'latex');
+% grid on;
+% xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
+ylabel('$b$, $\mu \mathrm{m \cdot s^{-1/2}}$', 'interpreter', 'latex');
 
 % Modify ticks
-set(gca,'xtick', x_min:x_tick_increment:x_max);
+set(gca, 'FontSize', font_size);
+% set(gca,'xtick', x_min:x_tick_increment:x_max);
 
 % Subplot label
-text(sublabel_x, sublabel_y, 'C', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+text(sublabel_x, sublabel_y, 'B', 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
 
+
+
+%% 'alpha' for NO FORCE and FORCE
+force_data_array = {alpha_data_no_force, alpha_data_force};
+title_array = {'No force', 'Force'};
+% Initialize subplot
+for f_ind = 1:2
+    h_sub = subaxis(2 + f_ind);
+    hold on;
+
+    % Parse simulated fixed-lambda^*
+    for convention = 1:3
+        plot(x_mesh, force_data_array{f_ind}(convention, :), strcat('-', markers_list{convention}),...
+            'color', color_sequence(convention, :), 'MarkerIndices', 1:marker_step:x_mesh_length, ...
+            'markers', marker_size, 'linewidth', line_width);
+    end
+
+    % Adjust
+    ylim(a_y_lim_vec);
+    box on;
+    xlabel('$x$, $\mu \mathrm{m}$', 'interpreter', 'latex');
+    ylabel('$\alpha$, $\mu \mathrm{m/s}$', 'interpreter', 'latex');
+
+    title(title_array{f_ind}, 'interpreter', 'latex');
+
+    % Modify ticks
+    set(gca, 'FontSize', font_size);
+    
+    % Zero level
+    h_zero = plot(xlim(), [0,0], '-', 'linewidth', line_width_theor, 'color', axes_color);
+    uistack(h_zero, 'bottom');
+
+    % Subplot label
+    text(sublabel_x, sublabel_y, char('B' + f_ind), 'Units', 'Normalized', 'VerticalAlignment', 'Top', 'FontSize', subplot_label_font_size);
+end
 
 
 
@@ -146,7 +180,7 @@ output_full_path = strcat(output_figures_folder, output_D_filename);
 % Print
 if bl_save_figures
 	print(h_fig, output_full_path, '-dpdf', '-r0');
-end;
+end
 
 
 

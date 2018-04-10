@@ -3,13 +3,10 @@
 
 import math
 import numpy as np
+from constants import D_0, k
 
 
 def D_func(D_case_number, x, L):
-
-	## Local constants
-	D_0 = 0.01	# in um^2/s
-	k = 1.0 # in um^-1
 
 	# omega = 10.0	# in um^-1
 
@@ -24,7 +21,7 @@ def D_func(D_case_number, x, L):
 		
 		# Linear
 		elif D_case_number == 2:
-			return D_0 * (1.0 + k * (x + L/2.0))
+			return D_0 * (2.0 + k * x)
 		
 		# Diffusivity jump
 		elif D_case_number == 3:
@@ -42,8 +39,13 @@ def D_func(D_case_number, x, L):
 			D_shift = 1.5
 			D_slope = 1.0
 			return D_shift + D_slope * x/float(L)
+
 		elif D_case_number == 6: # Oscillating
 			return D_0/2.0 * (2.0 + np.sin(np.pi * omega * x))
+
+		# Saw-tooth, two parts 
+		elif D_case_number == 7:
+			return D_0 * (1.0 + k * (L/2.0 - np.abs(x)))
 			
 
 
@@ -73,8 +75,13 @@ def D_func(D_case_number, x, L):
 			D_shift = 1.5
 			D_slope = 1.0
 			return D_slope * 1.0 / float(L)
+
 		elif D_case_number == 6: # Oscillating
 			return D_0/2.0 * np.pi * omega * np.cos(np.pi * omega * x)
+
+		# Saw-tooth, two parts 
+		elif D_case_number == 7:
+			return - D_0 * k * np.sign(x)
 
 
 	## Calculate the result

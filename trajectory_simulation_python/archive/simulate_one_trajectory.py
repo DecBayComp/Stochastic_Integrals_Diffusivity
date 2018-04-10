@@ -88,8 +88,8 @@ else:
 start_time = time.time()
 t_step_internal = t_step / internal_steps_number
 N_internal = N * internal_steps_number
-x_array = np.zeros(N+1, dtype = float)
-# dx_array = np.zeros(N, dtype = float)
+x_array = np.zeros(N+1, dtype = np.float32)
+dx_array = np.zeros(N, dtype = np.float32)
 t_mesh = np.arange(N + 1) * t_step
 
 
@@ -99,7 +99,7 @@ print("Performing a test save to ensure enough memory is available...\n")
 filename = "sim_data_%09i.csv" % (file_id)
 output_full_path = output_folder + filename
 # print x_array
-output_data = np.reshape(np.insert(x_array, 0, -1), (-1, 1))
+output_data = np.zeros((N + 1, 2), dtype = np.float32)
 # print output_data
 # output_data = np.transpose(output_data)
 # Open the output file for writing
@@ -123,6 +123,7 @@ x_i = x_0
 ## Using Verlet method for iterations
 for i in range(N):
 	q = np.random.normal(0.0, 1.0, internal_steps_number)    # Random noise
+	dx_next = 0.0
 	for m in range(internal_steps_number):
 		# Calculate f and D at x_i
 		[f_i, _] = f_func(f_case, x_i, L)	# in fN
@@ -144,6 +145,7 @@ for i in range(N):
 		# print dx
 		
 		x_next = x_i + dx
+		dx_next = dx_next + dx
 		## Taking into account the BCs
 		if bl_periodic:
 			if x_next > x_max:
@@ -159,6 +161,7 @@ for i in range(N):
 		x_i = x_next      	        
 	## Save
 	x_array[i+1] = x_next
+	dx_array[i] = dx_next
 	# print x_i, x_next
 	# print x_next
 	
@@ -172,8 +175,13 @@ for i in range(N):
 
 ## Save data
 print("Saving trajectory...\n")
-output_data = np.reshape(np.insert(x_array, 0, Lambda), (-1, 1))
 
+# Prepare the output array
+output_data = np.zeros((N + 2, 4), dtype = np.float32)
+output_data[0, :2] = [D_case, f_case]
+output_data[1, :] = [Lambda, 0]
+output_data[2:, 0] = x_array[0:N]
+output_data[2:, 1] = dx_array[0:N]
 
 
 # Open the output file for writing

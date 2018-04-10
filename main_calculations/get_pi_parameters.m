@@ -7,8 +7,8 @@ function [mu_pi, kappa_pi, nu_pi, sigma2_pi] = get_pi_parameters(data_struct)
 
 
 %% Load data
-dx_Mean = data_struct.dx_mean_all_bins_all_trials;
-V = data_struct.V;
+dx_Mean = data_struct.dx_mean_all_bins;
+V = data_struct.V_all_bins;
 
 
 % _pi parameters

@@ -5,7 +5,7 @@ function [f_func_value, U_func_value] = f_func (f_case_number, x, L)
 %% Constants
 f_shift_7 = 10.0;
 f_weak = 0.0;	% fN
-f_strong = 3.0;	% fN
+f_strong = 8.0;	% fN
 
 
 %% Select function
@@ -14,10 +14,9 @@ switch f_case_number
         f0 = 0.0;
         f_func_local = @(x) 0 .* x + f0;
         U_func = @(x) -f0 * x;
-    case 2 % Flat f0 = 0
-        f0 = 10.0;
-        f_func_local = @(x) 0 .* x + f0;
-        U_func = @(x) -f0 * x;
+    case 2 % Constant force
+        f_func_local = @(x) 0 .* x + f_strong;
+        U_func = @(x) -f_strong * x;
     case 3 % Flat f0
         f0 = -10.0;
         f_func_local = @(x) 0 .* x + f0;

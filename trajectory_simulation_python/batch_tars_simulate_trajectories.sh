@@ -7,8 +7,9 @@ sleep_time=0.2
 logs_folder="./logs/"
 output_folder="./output/"
 args_file="./arguments.dat"
-D_case=2
-f_case=8
+D_case=7
+f_force_case=2
+f_no_force_case=1
 
 echo "Creating arguments list..."
 
@@ -17,22 +18,24 @@ rm $args_file
 
 
 # Create the logs folder
+echo "Cleaning up the logs folder"
 if [ ! -d "$logs_folder" ]
 then
 	mkdir $logs_folder
 # Else empty the folder
 else
-	rm -v "${logs_folder}*"
+	rm -v ${logs_folder}*
 fi
 
 
 # Create the output folder
+echo "Cleaning up the output folder"
 if [ ! -d "$output_folder" ]
 then
 	mkdir $output_folder
 # Else empty the folder
 else
-	rm -v "${output_folder}*"
+	rm -v ${output_folder}*
 fi
 
 
@@ -44,23 +47,19 @@ do
 	for lambda in 0.0 0.5 1.0
 	do
 		id=$((id+1))
-		# echo "Submitting task to cluster. Trial: ${trial}. Lambda: ${lambda}..."
-		# module load Python/2.7.11
-		# srun -o "${logs_folder}log_lambda_fixed_${id}.out" -e "${logs_folder}log_lambda_fixed_${id}.err" -J "T=${trial}_${lambda}" --cpus-per-task=1 --mem=100MB --qos=fast python simulate_one_trajectory.py -D=6 -f=7 -l=$lambda --id=$id &
-		echo "-D=${D_case} -f=${f_case} -l=$lambda --id=$id" >> $args_file
+		echo "-D=${D_case} -f=${f_force_case} -l=$lambda --id=$id" >> $args_file
 
-		# sleep ${sleep_time}s
-		# echo "Task submitted"
+		id=$((id+1))	
+		echo "-D=${D_case} -f=${f_no_force_case} -l=$lambda --id=$id" >> $args_file
+
 	done
 
 	# Random lambda
 	id=$((id+1))
-	# echo "Submitting task to cluster. Trial: ${trial}. Lambda: rand..."
-	# module load Python/2.7.11
-	# srun -o "${logs_folder}log_lambda_rand_${trial}.out" -e "${logs_folder}log_lambda_rand_${trial}.err" -J "T=${trial}_rnd" --cpus-per-task=1 --mem=100MB --qos=fast python simulate_one_trajectory.py -D=6 -f=7 --rand --id=$trial &
-	echo "-D=${D_case} -f=${f_case} --rand --id=$id" >> $args_file
-	# sleep ${sleep_time}s
-	# echo "Task submitted"
+	echo "-D=${D_case} -f=${f_force_case} --rand --id=$id" >> $args_file
+
+	id=$((id+1))
+	echo "-D=${D_case} -f=${f_no_force_case} --rand --id=$id" >> $args_file
 done
 echo "Argument list created. Launching sbatch..."
 

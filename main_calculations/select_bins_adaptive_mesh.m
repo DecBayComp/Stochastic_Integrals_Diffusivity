@@ -2,11 +2,15 @@
 % Conditions:
 % 1. Approximately same number of points per bin
 % 2. The minimum bin size is related to the mean jump size in this bin through min_bin_to_jump_ratio
+%
+% The max_points_per_bin will impose a hard limit on the number of points by randomly choosing after binning. 
+% The value can be a vector, then several configurations will be generated.
+% -1 means no limit
 
 
 
 function [x_bins_borders, x_bins_centers, bins_number, x_bins_widths,...
-    points_count_in_bins, variance_in_bins, points_binned] = select_bins_adaptive_mesh(x_data, dx_data, points_in_bin)
+    point_count_in_bins, variance_in_bins, points_binned] = select_bins_adaptive_mesh(trials, max_points_per_bin)
 %% The calculations assume no points have exactly the same locations
 
 
@@ -16,25 +20,54 @@ tic;
 %% Constants
 load_constants;
 REL_PRECISION = 1e-4;
+initial_bins_number = 100;
+max_points_for_binning = 1e6;
 
-% The bin size will be increased by the following number of points each time that the bin is smaller than the mean jump
-increase_step = ceil(points_in_bin / 1000);
 
 conv_factor = 1/2;	% convergence rate to the desired bin width
 
 
-%% Initialize
-N = length(x_data);
-% Calculate the number of bins
-% The excess of the points will go into the first bin, so I start binning
+%% Choose and load data
+
+% Indetify trials for binning
+tot_points = trials * N;
+% Limit number of points for binning if too much data is available
+if tot_points > max_points_for_binning
+   trials_to_load_count = ceil(trials * N / max_points_for_binning);
+   
+   % Select trials indices
+    sel_trials_indices = randperm(trials, trials_to_load_count);
+else
+    trials_to_load_count = trials;
+    sel_trials_indices = 1:trials;
+end
+tot_points = trials_to_load_count * N;
+
+
+% Load data for binning
+x_data = ones(N, trials_to_load_count);
+dx_data = ones(N, trials_to_load_count);
+fld = input_data_folder;    % needed for parallelization
+parfor trial = 1:trials_to_load_count
+    [~, ~, x, dx, ~] = load_one_file(fld, trial);
+    x_data(:, trial) = x;
+    dx_data(:, trial) = dx;
+    
+    fprintf("Loading data for binning: %i/%i\n", trial, trials_to_load_count);
+end
+
+
+%% Start binning
+
+
+% The excess of the points will go into the first bin, so start binning
 % from the right-hand end
-bins_number = floor(N/points_in_bin);
+bins_number = initial_bins_number;
+points_per_bin = floor(tot_points / bins_number);
 
 % Sort data
 [x_data_sorted, sorted_indices] = sort(reshape(x_data, 1, []), 'ascend');
 dx_data_sorted = reshape(dx_data(sorted_indices), 1, []);
-
-sum(x_data_sorted<0) / length(x_data_sorted)
 
 % Determine zone size
 x_min = x_data_sorted(1);
@@ -45,7 +78,7 @@ x_bins_borders = zeros(bins_number, 2);
 indices_bins_borders = zeros(bins_number, 2);
 
 % Initialize output containers
-points_count_in_bins = zeros(1, bins_number);
+point_count_in_bins = zeros(1, bins_number);
 points_binned = cell(1, bins_number);
 variance_in_bins = zeros(1, bins_number);
 mean_jumps = zeros(1, bins_number);
@@ -53,53 +86,65 @@ mean_jumps = zeros(1, bins_number);
 
 %% Calculate bin borders and bin the data
 % Set the right border of the last bin
-% Indices borders are always included into their bin
+% Indices borders are always included into their bin (the indexes of points
+% at the borders of the bins)
 x_bins_borders(bins_number, 2) = x_max;
-indices_bins_borders(bins_number, 2) = N;
+indices_bins_borders(bins_number, 2) = tot_points;
+first_bin = 1;
 for bin = bins_number:-1:1
 	% Print progress
 	fprintf('Binning: Processing bin %i/%i.\n', bins_number - bin + 1, bins_number);
 	
-	% Store rigth border index (fixed)
+	% Store right border index (fixed)
 	right_border_ind = indices_bins_borders(bin, 2);
 	
     % Estimate the left bin border based on the point number
-	left_border_ind = right_border_ind - points_in_bin + 1;
+	left_border_ind = right_border_ind - points_per_bin + 1;
 	
-	% Keep increasing the bin width, while the mean jump in bin is not small enough compared to the bins and while there are unbinned points left
+	% Keep increasing the bin width, while the mean jump is smaller than a
+	% pre-defined bin width fraction and while there are unbinned points left
 	bl_small_mean_jump = false;
 	ind = left_border_ind;
-	while ind >= 1
+    while ind >= 1  % try to find the index of the jump which would make the left border
 		% Calculate the mean jump in bin
 		mean_jump_length = std(dx_data_sorted(ind:right_border_ind));
 		
 		% Calculate bin width
 		bin_width = x_data_sorted(right_border_ind) - x_data_sorted(ind);
 		
-		% Leave cycle if the condition is satisfied
-		if bin_width >= mean_jump_length * min_bin_to_jump_ratio
+		% Save and leave cycle if the condition is satisfied
+        if bin_width >= mean_jump_length * min_bin_to_jump_ratio
 			% Save borders
 			indices_bins_borders(bin, 1) = ind;
-			indices_bins_borders(bin - 1, 2) = ind - 1;
-			x_bins_borders(bin, 1) = (x_data_sorted(ind) + x_data_sorted(ind - 1)) / 2;
-			x_bins_borders(bin - 1, 2) = x_bins_borders(bin, 1);
+            if ind == 1
+                % If last point
+                x_bins_borders(bin, 1) = x_data_sorted(ind);
+            else
+                x_bins_borders(bin, 1) = (x_data_sorted(ind) + x_data_sorted(ind - 1)) / 2;
+            end
+            
+            % Change the bin to the left if not the last one
+            if bin > 1
+                indices_bins_borders(bin - 1, 2) = ind - 1;
+                x_bins_borders(bin - 1, 2) = x_bins_borders(bin, 1);
+            end
 			
 			% Bin the data
 			indices = ind:right_border_ind;
 			points_binned{bin} = [x_data_sorted(indices); dx_data_sorted(indices)];
-			points_count_in_bins(bin) = right_border_ind - ind + 1;
+			point_count_in_bins(bin) = right_border_ind - ind + 1;
 			
 			% Calculate varaince
 			variance_in_bins(bin) = var(points_binned{bin}(2, :));
 			mean_jumps(bin) = mean_jump_length;
 			
 			% Print progress
-			fprintf('The bin was smaller than %.1f * (mean jump) and was enlarged by %i points.\n', min_bin_to_jump_ratio, right_border_ind - ind + 1 - points_in_bin);
+			fprintf('The bin was smaller than %.1f * (mean jump) and was enlarged by %i points.\n', min_bin_to_jump_ratio, right_border_ind - ind + 1 - points_per_bin);
 			
 			% Set flag
 			bl_small_mean_jump = true;
 			break;
-		end;
+        end
 		
 		%% Estimate the index of the border which would give the right bin size
 		est_width_increase_ratio = mean_jump_length * min_bin_to_jump_ratio / bin_width;
@@ -114,7 +159,7 @@ for bin = bins_number:-1:1
 		ind = ind - est_points_increase;
 		1;
 		
-	end;
+    end
 	
 	% If the condition was not satisfied, then we ran out of points, and the current points will be attached to the previous bin
 	if ~bl_small_mean_jump 
@@ -126,7 +171,7 @@ for bin = bins_number:-1:1
 		left_border_ind = 1;
 		indices = left_border_ind:right_border_ind;
 		points_binned{bin + 1} = [x_data_sorted(indices); dx_data_sorted(indices)];
-		points_count_in_bins(bin + 1) = right_border_ind - left_border_ind + 1;
+		point_count_in_bins(bin + 1) = right_border_ind - left_border_ind + 1;
 
 		% Recalculate varaince
 		variance_in_bins(bin + 1) = var(points_binned{bin + 1}(2, :));
@@ -140,35 +185,74 @@ for bin = bins_number:-1:1
 		
 		% Exit bin cycle
 		break;
-	end;
+	end
 end
 
 
 
-%% Remove empty bins in the start
+%% Remove empty bins in the start (if any)
 x_bins_borders = x_bins_borders(first_bin:end, :);
 indices_bins_borders = indices_bins_borders(first_bin:end, :);
 variance_in_bins = variance_in_bins(first_bin:end);
 mean_jumps = mean_jumps(first_bin:end);
-points_count_in_bins = points_count_in_bins(first_bin:end);
+point_count_in_bins = point_count_in_bins(first_bin:end);
 
 % Binned points
 points_binned_new = cell(1, bins_number);
 for bin = 1:bins_number
 	points_binned_new{bin} = points_binned{first_bin + bin - 1};
-end;
+end
 points_binned = points_binned_new;
 
 
 
 %% Print some statistics
-fprintf('Binning: %i bins were smaller than %.1f * (mean jump) and were enlarged.\n', sum(points_count_in_bins > points_in_bin),min_bin_to_jump_ratio);
+fprintf('Binning: %i bins were smaller than %.1f * (mean jump) and were enlarged.\n', sum(point_count_in_bins > points_per_bin),min_bin_to_jump_ratio);
 
 
 
 %% Slightly shift the first and the last boundary to be sure to include the boundary points
 x_bins_borders(1, 1) = x_bins_borders(1, 1) - (x_bins_borders(1, 2) - x_bins_borders(1, 1)) * REL_PRECISION;
 x_bins_borders(end, 2) = x_bins_borders(end, 2) + (x_bins_borders(end, 2) - x_bins_borders(end, 1)) * REL_PRECISION;
+
+
+%% Binning finished. Impose the hard limit of points
+n_limits = max_points_per_bin;
+n_limits_count = length(max_points_per_bin);
+points_binned_new = cell(n_limits_count, bins_number);
+variance_in_bins_new = zeros(n_limits_count, bins_number);
+point_count_in_bins_new = zeros(n_limits_count, bins_number);
+
+for lim_ind = 1:n_limits_count
+    n_limit = n_limits(lim_ind);
+    
+    % For each bin create a version with different number of points per bin
+    for bin = 1:bins_number
+        tot_points_in_bin = point_count_in_bins(bin);
+
+        % Create a random draw from point indices in bin (if there are more points than required)
+        if n_limit > 0 && n_limit < tot_points_in_bin
+            sel_trials_indices = randperm(tot_points_in_bin, n_limit);
+        else
+            sel_trials_indices = 1:tot_points_in_bin;
+        end
+        
+        % Store the selected points
+        points_binned_new{lim_ind, bin} = points_binned{bin}(:, sel_trials_indices);
+        
+        % Calculate variance
+        variance_in_bins_new(lim_ind, bin) = var(points_binned_new{lim_ind, bin}(2, :));
+        
+        % Count points
+        point_count_in_bins_new(lim_ind, bin) = length(sel_trials_indices);
+    end
+end
+
+% Rewrite variables to store and return results
+points_binned = points_binned_new;
+variance_in_bins = variance_in_bins_new;
+point_count_in_bins = point_count_in_bins_new;
+
 
 
 %% Binning finished. Prepare the output
