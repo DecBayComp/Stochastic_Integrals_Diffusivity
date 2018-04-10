@@ -1,5 +1,5 @@
 # The function reads one line of arguments from a file and launches code execution.
-# It correctly handles the existence of several job_managers in parallel.
+# It uses FileLock to correctly handle the co-existence of several job_managers in parallel.
 
 
 from filelock import FileLock, Timeout		# for file locks
