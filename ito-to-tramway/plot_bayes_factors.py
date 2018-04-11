@@ -7,8 +7,15 @@ import numpy  as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from tramway.inference.calculate_bayes_factors import calculate_bayes_factors
+from calculate_bayes_factors import calculate_bayes_factors
 
+# Simulation parameters
+dt = 0.04 # s
+D_0 = 0.01 # um^2/s
+k = 2.0 # um^{-1}
+ksi = -1.0
+abs_tol = 1.0e-8
+data_folder = './data/'
 
 # all the following examples are 2D
 precomputed_meshes = [
@@ -25,7 +32,7 @@ precomputed_meshes = [
 	]
 
 # my advice: start with a single mesh
-precomputed_meshes = [ '000000002' ]
+precomputed_meshes = [ data_folder + '000000002' ]
 
 # lipid_* and VLP_* files contain several kmeans and gwr meshes of varying spatial resolution;
 # label `mesh` is either 'kmeans' or 'gwr' followed by a number that approximates the average 
@@ -137,11 +144,6 @@ for example in precomputed_meshes:
 		
 
 		# Check the inferred gradient compared to the simulated gradient
-		dt = 0.04 # s
-		D_0 = 0.01 # um^2/s
-		k = 2.0 # um^{-1}
-		ksi = -1.0
-		abs_tol = 1.0e-8
 		
 		# Set non-calculated values to nan
 		zeta_sps[np.abs(zeta_sps) < abs_tol] = np.nan
@@ -193,7 +195,7 @@ for example in precomputed_meshes:
 		# ...
 		# plt.show() # waits for the user to close the resulting window
 		## ... or alternatively plot in a file
-		map_plot(my_map, cells=cells, output_file = 'result_' + precomputed_meshes[0] + "_" + mesh + '.png', clip = False)
+		map_plot(my_map, cells=cells, output_file = precomputed_meshes[0] + "_" + mesh + '.png', clip = False)
 		
 
 

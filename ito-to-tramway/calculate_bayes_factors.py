@@ -1,6 +1,6 @@
 
 
-from .calculate_marginalized_integral import calculate_marginalized_integral
+from calculate_marginalized_integral import calculate_marginalized_integral
 import numpy as np
 
 def calculate_bayes_factors(zeta_ts, zeta_sps, ns, Vs, Vs_pi):
