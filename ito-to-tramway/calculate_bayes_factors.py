@@ -1,6 +1,8 @@
+# Copyright © 2018, Alexander Serov
 
 
 from calculate_marginalized_integral import calculate_marginalized_integral
+from calculate_minimal_n import calculate_minimal_n
 import numpy as np
 
 def calculate_bayes_factors(zeta_ts, zeta_sps, ns, Vs, Vs_pi):
@@ -15,10 +17,11 @@ def calculate_bayes_factors(zeta_ts, zeta_sps, ns, Vs, Vs_pi):
 	Vs_pi --- jump variance in all other bins relative to the current bin. Size: M x 1.
 
 	Output:
-	Bs, bl_forces
+	Bs, forcess
 
 	Bs --- Bayes factor values in the bins. Size: M x 1,
-	bl_forces --- Booleans for the presence of a conservative force. Bayes factors are thresholded at a level corresponding to strong evidence. Size: M x 1.
+	forces --- Returns 1 if there is strong evidence for the presence of a conservative forces, 
+	-1 for strong evidence for 	a spurious force, and 0 if the is not enough evidence. Size: M x 1.
 
 	Notation:
 	M --- number of bins.
@@ -50,17 +53,22 @@ def calculate_bayes_factors(zeta_ts, zeta_sps, ns, Vs, Vs_pi):
 
 	# Calculate 
 	lg_Bs = np.zeros((M, 1))
+	min_ns = np.zeros((M, 1))
 	for i in range(M):
 		upstairs = calculate_marginalized_integral(zeta_t = zeta_ts[i, :], zeta_sp = zeta_sps[i, :], p = pows[i],
 			v = v0s[i], E = etas[i]**2.0)
 		downstairs = calculate_marginalized_integral(zeta_t = zeta_ts[i, :], zeta_sp = zeta_sps[i, :], p = pows[i],
 			v = v0s[i], E = 1.0)
 		lg_Bs[i] = dim * np.log10(etas[i]) + np.log10(upstairs) - np.log10(downstairs)
+		min_ns[i] = calculate_minimal_n(zeta_ts[i, :], zeta_sp = zeta_sps[i, :], V = Vs[i], V_pi = Vs_pi[i])
 	
-	# Threshold
-	bl_force = lg_Bs >= np.log10(B_threshold)
+	# Threshold into 3 categories: strong evidence for either of the models and insufficient evidence
+	forces = 1 * (lg_Bs	>= np.log10(B_threshold)) - 1 * (lg_Bs <= -np.log10(B_threshold))
+	# forces = np.zeros_like(lg_Bs, dtype = int)
+	# forces [lg_Bs	>= np.log10(B_threshold)] = 1
+	# forces [lg_Bs	<= - np.log10(B_threshold)] = -1
 
-	return (10.0 ** lg_Bs, bl_force)
+	return (10.0 ** lg_Bs, forces, min_ns)
 
 
 

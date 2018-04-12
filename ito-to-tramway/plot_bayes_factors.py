@@ -8,14 +8,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from calculate_bayes_factors import calculate_bayes_factors
+from constants import dt, D_0, k, ksi, abs_tol, data_folder, filename
 
-# Simulation parameters
-dt = 0.04 # s
-D_0 = 0.01 # um^2/s
-k = 2.0 # um^{-1}
-ksi = -1.0
-abs_tol = 1.0e-8
-data_folder = './data/'
 
 # all the following examples are 2D
 precomputed_meshes = [
@@ -32,7 +26,7 @@ precomputed_meshes = [
 	]
 
 # my advice: start with a single mesh
-precomputed_meshes = [ data_folder + '000000002' ]
+precomputed_meshes = [ data_folder + filename ]
 
 # lipid_* and VLP_* files contain several kmeans and gwr meshes of varying spatial resolution;
 # label `mesh` is either 'kmeans' or 'gwr' followed by a number that approximates the average 
@@ -89,7 +83,7 @@ for example in precomputed_meshes:
 		# print(type(snr))
 		n = snr['n']
 		D = snr['diffusivity']
-		print(np.asarray(D))
+		# print(np.asarray(D))
 		zeta_total = snr['zeta_total']
 		zeta_spurious = snr['zeta_spurious']
 		if True: # Vpi_name not in snr.variables:
@@ -106,6 +100,7 @@ for example in precomputed_meshes:
 			dr_mean = dr / vec_to_2D(n)
 			dr_mean2 = sum_dims(dr_mean ** 2)
 			dr2_mean = sum_dims(dr2) / n
+			# print(np.mean(dr_mean2))
 			Vs = np.asarray(dr2_mean - dr_mean2)
 
 			# calculate prior variance
@@ -138,8 +133,8 @@ for example in precomputed_meshes:
 		D = np.asarray(D)
 		# Vs = 
 
-		Bs, bl_forces = calculate_bayes_factors(zeta_ts = zeta_ts, zeta_sps = zeta_sps, ns = ns, Vs = Vs, Vs_pi = Vs_prior)
-		# print (bl_forces)
+		Bs, forces, min_ns = calculate_bayes_factors(zeta_ts = zeta_ts, zeta_sps = zeta_sps, ns = ns, Vs = Vs, Vs_pi = Vs_prior)
+		# print (forces)
 
 		
 
@@ -155,20 +150,29 @@ for example in precomputed_meshes:
 		# Check total force
 		alpha_dt_inf = zeta_ts * vec_to_2D(np.sqrt(Vs))
 		mean_alpha_dt_inf = np.median(alpha_dt_inf, axis = 0)
-		alpha_dt_sim = np.asarray([ksi * D_0 * k , 0]) * dt
-		
+				
 		# Simulated SNRs
+		alpha_dt_sim = np.asarray([ksi * D_0 * k , 0]) * dt
 		zeta_ts_exp = alpha_dt_sim / vec_to_2D(np.sqrt(Vs))
 		zeta_sps_exp = gdt_sim / vec_to_2D(np.sqrt(Vs))
 
+		# Expected order of magnitude of the variance
+		V_magnitude = 4 * D_0 * dt
+
 		# General parameters
+		print(min_ns)
+		print ("\n\nMean jump along x: <dx>=\t%.2g um" % (np.mean(dr_mean, axis = 0)[0]))
+		print ("Expected mean jump along x: <dx>=\t%.2g um" % (ksi * D_0 * k * dt))
+
 		print ("\n\nMedian Vs:\t%.2g um^2" % (np.median(Vs)))
+		print ("Expected order of magnitude of Vs:\t%.2g um^2" % (V_magnitude))
 		print ("Median sqrt(Vs):\t%.2g um" % (np.median(np.sqrt(Vs))))
 		print ("Median zeta_ts:\t%s" % (np.median(zeta_ts, axis = 0)))
 		print ("Expected zeta_ts:\t%s" % (np.median(zeta_ts_exp, axis = 0)))
 		print ("Median zeta_sps:\t%s" % (np.nanmedian(zeta_sps, axis = 0)))
 		print ("Expected zeta_sps:\t%s" % (np.median(zeta_sps_exp, axis = 0)))
 		print ("Median n:\t%i" % np.median(ns, axis = 0))
+		print ("Median min_n:\t%i" % np.median(min_ns, axis = 0))
 
 		# Inferred gradient
 		print("Inferred <g dt>:\t%s um" % (mean_gdt_inf))
@@ -181,8 +185,9 @@ for example in precomputed_meshes:
 		print("\n\n")
 
 		# my_map = pd.DataFrame(np.log10(Bs), index = n.index, columns = ['log10(B)'])
-		# my_map = pd.DataFrame(bl_forces * 1.0, index = n.index, columns = ['bool Bayes factor'])
-		my_map = pd.DataFrame(D.T[0], index = n.index, columns = ['D'])
+		# my_map = pd.DataFrame(ns, index = n.index, columns = ['n'])
+		my_map = pd.DataFrame(forces * 1.0, index = n.index, columns = ['Evidence for models'])
+		# my_map = pd.DataFrame(D.T[0], index = n.index, columns = ['D'])
 		# my_map = pd.DataFrame(alpha_dt_inf, index = n.index, columns = ['$alpha dt$ x', '$alpha dt$ y'])
 		# my_map = pd.DataFrame(gdt_inf, index = n.index, columns = ['$g dt$ x', '$g dt$ y'])
 

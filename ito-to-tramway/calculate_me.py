@@ -7,10 +7,10 @@ import numpy as np
 import pandas as pd
 import os.path
 from snr import infer_snr
+from constants import dt, filename
 
-dt = .04
 
-traj_file = "./data/000000002.csv"
+traj_file = "./data/" + filename + ".csv"
 traj, _ = os.path.splitext(traj_file)
 traj = traj.split('_')[-1]
 rwa_file = '{}.rwa'.format(traj)
@@ -22,6 +22,8 @@ if not os.path.exists(rwa_file):
 
 	tessellate(data, 'gwr', output_file=rwa_file, label='gwr', verbose=True)
 	cell_plot(rwa_file, output_file=traj+'.png')
+else:
+	print("Warning: trajectories not recalculated!")
 
 # from tramway.inference import *
 # setup, module = plugins['snr']
@@ -42,5 +44,5 @@ a = load_rwa(rwa_file)
 d = distributed(a['gwr'].data, new_cell=Sashas)
 x = d.run(infer_snr, max_iter=50, localization_error = 0.0)
 a['gwr'].add(Maps(x, mode='snr'), label='snr')
-save_rwa(rwa_file, a)
+save_rwa(rwa_file, a, verbose = True)
 

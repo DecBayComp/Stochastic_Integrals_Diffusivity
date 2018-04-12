@@ -1,4 +1,4 @@
-
+# Copyright © 2018, Alexander Serov
 
 import numpy as np
 from scipy import integrate
@@ -13,7 +13,8 @@ def calculate_marginalized_integral(zeta_t, zeta_sp, p, v, E):
 	for the given values of zeta_t and zeta_sp. 
 	
 	Input: 
-	All parameters are scalars and correspond to the formula above
+	zeta_t and zeta_sp are vectors of length 2 (x, y).
+	All other parameters are scalars.
 	"""
 
 	# Constants

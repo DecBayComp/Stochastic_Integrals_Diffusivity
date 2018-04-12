@@ -2,16 +2,17 @@
 
 
 ## Constants
-version = 20180409
+version = 20180411
 
 dim = 2	# number of dimensions (1 or 2)
-L = 0.1	# linear size of the system, in um 
+L = 1.0	# linear size of the system, in um 
 x_min = -L/2.0	# in um
 x_max = L/2.0	# in um
-t_step = 1.0e-3 # in seconds # 0.125
-N = int(1.0e5) # int(1.0e6) or int(1.0e5)
+t_step = 0.001 # in seconds # 0.125
+N = int(1.0e6) # int(1.0e6) or int(1.0e5)
 progress_update_interval = 100.0
 internal_steps_number = 100 # Integer. How many intermediate smaller steps are made before the next point is saved
+
 
 ## Batch parameters
 trials = 1	# 1000
@@ -36,7 +37,7 @@ CSV_DELIMITER = ';';
 D_case = 2
 D_0 = 0.01	# in um^2/s
 gamma_drag = 400.0	# viscous drag, in fN * s / um
-k = 20.0 # diffusivity gradient, D'/D, in um^-1
+k = 2.0 # diffusivity gradient, D'/D, in um^-1
 max_D_case = 7;
 
 max_f_case = 8;

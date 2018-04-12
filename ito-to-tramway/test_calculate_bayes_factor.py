@@ -1,8 +1,9 @@
-
+# Copyright © 2018, Alexander Serov
 
 
 from calculate_bayes_factors import calculate_bayes_factors
 from calculate_marginalized_integral import calculate_marginalized_integral
+from calculate_minimal_n import calculate_minimal_n
 import numpy as np
 import unittest
 
@@ -96,7 +97,34 @@ class bayes_test(unittest.TestCase):
 		self.assertTrue(np.abs(res - true_res) < tol, 
 			"Marginalized integral calculation test failed for zeta_sp = 0. The obtained value %.2g does not match the expected %.2g" % (res, true_res))
 
-
+	def test_minimal_n(self):
+		"""
+		Test calculations of the minimal number of jumps per bin to produce strong evidence.
+		"""
+		# Load data
+		B_threshold = 10
+		# >> Test three input bins <<
+		zeta_ts = np.asarray([[0.7, 0.5], [-1.0, 2.3], [-1.1, -0.33]])
+		zeta_sps = np.asarray([[0.8, 0.6], [-0.45, 0.67], [6.32, 0.115]])
+		ns = np.asarray([[20, 100, 3]])
+		Vs = np.asarray([[0.8 ** 2.0, 1.25 ** 2.0, 0.3 ** 2.0]])
+		us = np.asarray([[0.95, 8.7, 2.45]])
+		ns = ns.T
+		Vs = Vs.T
+		us = us.T
+		Vs_pi = us * Vs
+		N = len(ns)
+		
+		# Calculate min_ns
+		Bs, _, min_ns = calculate_bayes_factors(zeta_ts = zeta_ts, zeta_sps = zeta_sps, ns = ns, Vs = Vs, Vs_pi = Vs_pi)
+		# Calculate Bs for min_ns to check
+		Bs, _, _ = calculate_bayes_factors(zeta_ts = zeta_ts, zeta_sps = zeta_sps, ns = min_ns, Vs = Vs, Vs_pi = Vs_pi)
+		
+		# Perform check
+		self.assertTrue(np.all(np.abs(np.log10(Bs[0])) >= np.log10(B_threshold)), 
+			"Print not all of the Bayes factors for the minimal ns returned strong evidence. Bs: %s" % (Bs))
+		# print(Bs)
+	
 
 	def test_bayes_factors(self):
 		# Load data
@@ -106,40 +134,44 @@ class bayes_test(unittest.TestCase):
 		# >> Test one input bin <<
 		zeta_ts = np.asarray([[0.7, 0.4]])
 		zeta_sps = np.asarray([[0.8, 0.6]])
-		ns = np.asarray([20])
-		Vs = np.asarray([0.8 ** 2.0])
-		us = np.asarray([0.95])
+		ns = np.asarray([[20]])
+		Vs = np.asarray([[0.8 ** 2.0]])
+		us = np.asarray([[0.95]])
 		Vs_pi = us * Vs
-		Bs, bl_forces = calculate_bayes_factors(zeta_ts = zeta_ts, zeta_sps = zeta_sps, ns = ns, Vs = Vs, Vs_pi = Vs_pi)
+		Bs, forces, _ = calculate_bayes_factors(zeta_ts = zeta_ts, zeta_sps = zeta_sps, ns = ns, Vs = Vs, Vs_pi = Vs_pi)
 		true_B = 0.3584912872575023
 
 		# Check value
 		self.assertTrue(np.isclose(Bs[0],true_B, rtol = tol), 
 			"Bayes factor calculation failed for one bin. The obtained B = %.8g does not match the expected B = %.8g" % (Bs[0, 0], true_B))
 		# Check force presence
-		self.assertTrue((true_B >= B_threshold) == bl_forces[0], "Boolean conservative force return incorrect for the case of one bin")
+		self.assertTrue((true_B >= B_threshold) == forces[0], "Boolean conservative force return incorrect for the case of one bin")
 
 
 		# >> Test three input bins <<
-		zeta_ts = np.asarray([[0.7, 0.5], [-1.0, 2.3], [-1.1, -0.33]])
+		zeta_ts = np.asarray([[0.4, 0.3], [-1.0, 2.3], [-1.1, -0.33]])
 		zeta_sps = np.asarray([[0.8, 0.6], [-0.45, 0.67], [6.32, 0.115]])
-		ns = np.asarray([20, 100, 3])
-		Vs = np.asarray([0.8 ** 2.0, 1.25 ** 2.0, 0.3 ** 2.0])
-		us = np.asarray([0.95, 8.7, 2.45])
+		ns = np.asarray([[500, 100, 3]])
+		Vs = np.asarray([[0.4 ** 2.0, 1.25 ** 2.0, 0.3 ** 2.0]])
+		us = np.asarray([[0.95, 8.7, 2.45]])
 		ns = ns.T
 		Vs = Vs.T
 		us = us.T
 		Vs_pi = us * Vs
 		N = len(ns)
-		Bs, bl_forces = calculate_bayes_factors(zeta_ts = zeta_ts, zeta_sps = zeta_sps, ns = ns, Vs = Vs, Vs_pi = Vs_pi)
-		true_Bs = [0.3163940070088798, 7.049757711102560e47, 1.559486019347759]
+		Bs, forces, _ = calculate_bayes_factors(zeta_ts = zeta_ts, zeta_sps = zeta_sps, ns = ns, Vs = Vs, Vs_pi = Vs_pi)
+		true_Bs = [7.48505919e-02, 7.049757711102560e47, 1.559486019347759]
+		print(Bs)
+		print (forces)
 
 		for i in range(N):
 			# Check value
 			self.assertTrue(np.isclose(Bs[i], true_Bs[i], rtol = tol), 
 				"Bayes factor calculation failed for one bin. For bin no. %i, the obtained B = %.8g does not match the expected B = %.8g" % (i + 1, Bs[i], true_Bs[i]))
 			# Check force presence
-			self.assertTrue((true_Bs[i] >= B_threshold) == bl_forces[i], 
-				"For bin %i, the boolean force prediction (%r) did not correspond to expected value (%r)" % (i, true_Bs[i] >= B_threshold, bl_forces[i]))
+			true_forces = (1 * (np.log10(true_Bs[i]) >= np.log10(B_threshold)) - 
+				1 * (np.log10(true_Bs[i]) <= -np.log10(B_threshold)))
+			self.assertTrue(true_forces == forces[i], 
+				"For bin %i, the boolean force prediction (%r) did not correspond to expected value (%r)" % (i, true_Bs[i] >= B_threshold, forces[i]))
 
 unittest.main()
