@@ -10,7 +10,7 @@ import time 			# to measure elapsed time
 
 from D_func import D_func
 from constants import version, max_D_case, N as N_def, progress_update_interval, output_folder, str_mode, t_step, \
-	internal_steps_number, CSV_DELIMITER, L, x_max, x_min, dim
+	internal_steps_number, CSV_DELIMITER, L, x_max, x_min, dim, D_grad_abs
 
 
 def main(arg_str):
@@ -94,7 +94,7 @@ def main(arg_str):
 
 	# Choosing the first point randomly
 	np.random.seed()
-	r_0 = (np.random.rand(dim) - 0.5) * L
+	r_0 = np.random.rand(dim) * L
 	r_array[:, 0] = r_0
 	r_i = r_0
 
@@ -106,7 +106,7 @@ def main(arg_str):
 		for m in range(internal_steps_number):
 			# Calculate f and D at x_i (forces are aligned along the gradient)
 			[D_i, b_prime_b_i] = D_func(D_case, r_i[0], L)	# [D] = um^2/s, [D'] = [um/s]
-			alpha_i = np.asarray([ksi * b_prime_b_i, 0])	# the force is also aligned along x
+			alpha_i = np.asarray([ksi * D_grad_abs, 0])	# the force is also aligned along x
 					
 			# Convert lists to np
 			D_i = np.asarray(D_i)
@@ -163,8 +163,8 @@ def main(arg_str):
 		# output_data[1:N + 1, 3] = dr_array[1, :]	# dy
 
 	print ("Mean |dr|: ", np.mean(np.abs(dr_array), 1))
+	print ("Mean ||dr||: ", np.mean(np.sqrt(dr_array[:, 0] ** 2 + dr_array[:, 1] ** 2)))
 	
-
 
 	# Open the output file for writing
 	with open(output_full_path, 'w') as file_pointer:

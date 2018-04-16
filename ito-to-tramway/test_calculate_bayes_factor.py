@@ -161,8 +161,8 @@ class bayes_test(unittest.TestCase):
 		N = len(ns)
 		Bs, forces, _ = calculate_bayes_factors(zeta_ts = zeta_ts, zeta_sps = zeta_sps, ns = ns, Vs = Vs, Vs_pi = Vs_pi)
 		true_Bs = [7.48505919e-02, 7.049757711102560e47, 1.559486019347759]
-		print(Bs)
-		print (forces)
+		# print(Bs)
+		# print (forces)
 
 		for i in range(N):
 			# Check value

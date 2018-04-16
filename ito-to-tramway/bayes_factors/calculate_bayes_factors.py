@@ -1,8 +1,8 @@
 # Copyright © 2018, Alexander Serov
 
 
-from calculate_marginalized_integral import calculate_marginalized_integral
-from calculate_minimal_n import calculate_minimal_n
+from .calculate_marginalized_integral import calculate_marginalized_integral
+from .calculate_minimal_n import calculate_minimal_n
 import numpy as np
 
 def calculate_bayes_factors(zeta_ts, zeta_sps, ns, Vs, Vs_pi):
@@ -53,14 +53,15 @@ def calculate_bayes_factors(zeta_ts, zeta_sps, ns, Vs, Vs_pi):
 
 	# Calculate 
 	lg_Bs = np.zeros((M, 1))
-	min_ns = np.zeros((M, 1))
+	min_ns = np.zeros((M, 1), dtype = int)
 	for i in range(M):
 		upstairs = calculate_marginalized_integral(zeta_t = zeta_ts[i, :], zeta_sp = zeta_sps[i, :], p = pows[i],
 			v = v0s[i], E = etas[i]**2.0)
 		downstairs = calculate_marginalized_integral(zeta_t = zeta_ts[i, :], zeta_sp = zeta_sps[i, :], p = pows[i],
 			v = v0s[i], E = 1.0)
 		lg_Bs[i] = dim * np.log10(etas[i]) + np.log10(upstairs) - np.log10(downstairs)
-		min_ns[i] = calculate_minimal_n(zeta_ts[i, :], zeta_sp = zeta_sps[i, :], V = Vs[i], V_pi = Vs_pi[i])
+		min_ns[i] = calculate_minimal_n(zeta_ts[i, :], zeta_sp = zeta_sps[i, :], n0 = ns[i], V = Vs[i], 
+			V_pi = Vs_pi[i])
 	
 	# Threshold into 3 categories: strong evidence for either of the models and insufficient evidence
 	forces = 1 * (lg_Bs	>= np.log10(B_threshold)) - 1 * (lg_Bs <= -np.log10(B_threshold))
