@@ -54,21 +54,21 @@ if bl_restart:
 		pass
 
 
-	# Clean the logs and output folders
-	for folder in (logs_folder, output_folder):
-		if os.path.isdir(folder):
-			print("Cleaning up the folder: '" + folder + "'.")
-			cmd = "rm -rfv " + folder 
-			try:
-				os.system(cmd)
-			except Exception as e:
-				print(e)
+	# # Clean the logs and output folders
+	# for folder in (logs_folder, output_folder):
+	# 	if os.path.isdir(folder):
+	# 		print("Cleaning up the folder: '" + folder + "'.")
+	# 		cmd = "rm -rfv " + folder 
+	# 		try:
+	# 			os.system(cmd)
+	# 		except Exception as e:
+	# 			print(e)
 
-		# Recreate the folder
-		try:
-			os.makedirs(folder)
-		except Exception as e:
-			print(e)
+	# 	# Recreate the folder
+	# 	try:
+	# 		os.makedirs(folder)
+	# 	except Exception as e:
+	# 		print(e)
 
 	# Clean slurm files in the root folder
 	cmd = "rm -fv ./slurm-*" 
@@ -78,12 +78,12 @@ if bl_restart:
 		print(e)
 
 
-	# Clean rwa files in the data folder
-	cmd = "rm -fv " + data_folder + "*.rwa"
-	try:
-		os.system(cmd)
-	except Exception as e:
-		print(e)
+	# # Clean rwa files in the data folder
+	# cmd = "rm -fv " + data_folder + "*.rwa"
+	# try:
+	# 	os.system(cmd)
+	# except Exception as e:
+	# 	print(e)
 
 
 	## Write arguments to file

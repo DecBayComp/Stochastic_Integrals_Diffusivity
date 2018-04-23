@@ -105,7 +105,7 @@ def main(arg_str):
 		dr_next = [0.0, 0.0]
 		for m in range(internal_steps_number):
 			# Calculate f and D at x_i (forces are aligned along the gradient)
-			[D_i, b_prime_b_i] = D_func(D_case, r_i[0], L)	# [D] = um^2/s, [D'] = [um/s]
+			[D_i, b_prime_b_i] = D_func(D_case, r_i[0], r_i[1], L)	# [D] = um^2/s, [D'] = [um/s]
 			alpha_i = np.asarray([ksi * D_grad_abs, 0])	# the force is also aligned along x
 					
 			# Convert lists to np

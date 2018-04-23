@@ -35,3 +35,50 @@ data
 000000001.rwa
 arguments.dat
 arguments.lock
+../ito-to-tramway - Copy/
+.ipynb_checkpoints/
+arguments - Copy.dat
+arguments_2.dat
+arguments_2.lock
+results/
+results.7z
+conservative_forces.png
+combined_data.csv
+../ito-to-tramway - Copy/__pycache__
+../ito-to-tramway - Copy/__pycache__ - Copy
+../ito-to-tramway - Copy/000000001.rwa
+../ito-to-tramway - Copy/arguments - Copy.dat
+../ito-to-tramway - Copy/arguments.dat
+../ito-to-tramway - Copy/arguments.lock
+../ito-to-tramway - Copy/arguments_2.dat
+../ito-to-tramway - Copy/arguments_2.lock
+../ito-to-tramway - Copy/bayes_factors
+../ito-to-tramway - Copy/calculate.py
+../ito-to-tramway - Copy/collect_net_rwa_win.py
+../ito-to-tramway - Copy/combine_results.ipynb
+../ito-to-tramway - Copy/combined_data.csv
+../ito-to-tramway - Copy/conservative_forces.png
+../ito-to-tramway - Copy/constants.py
+../ito-to-tramway - Copy/copy_to_tars.sh
+../ito-to-tramway - Copy/data
+../ito-to-tramway - Copy/filelock.py
+../ito-to-tramway - Copy/job_manager.py
+../ito-to-tramway - Copy/LICENSE-filelock.rst
+../ito-to-tramway - Copy/logs
+../ito-to-tramway - Copy/main.py
+../ito-to-tramway - Copy/output
+../ito-to-tramway - Copy/prepare_arguments.py
+../ito-to-tramway - Copy/results
+../ito-to-tramway - Copy/results.7z
+../ito-to-tramway - Copy/run_bayes.py
+../ito-to-tramway - Copy/sbatch_tars.sh
+../ito-to-tramway - Copy/set_figure_size.py
+../ito-to-tramway - Copy/simulation_results.pdf
+../ito-to-tramway - Copy/simulation_results.png
+../ito-to-tramway - Copy/snr.py
+../ito-to-tramway - Copy/start_me.py
+../ito-to-tramway - Copy/tesselate_and_infer.py
+../ito-to-tramway - Copy/TRamWAy
+../ito-to-tramway - Copy
+simulation_results.pdf
+simulation_results.png

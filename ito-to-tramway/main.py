@@ -1,9 +1,10 @@
 
 
 import argparse			# for command-line arguments
-from constants import version
 from tesselate_and_infer import tesselate_and_infer
+from calculate import calculate
 
+from constants import version, output_folder, bl_produce_maps
 
 def main(arg_str):
 	"""
@@ -28,5 +29,5 @@ def main(arg_str):
 	tesselate_and_infer(file)
 
 	## Calculate Bayes factors and output results
-	
+	calculate(file, output_folder, bl_output_map = False)
 

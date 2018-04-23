@@ -3,14 +3,15 @@
 
 import math
 import numpy as np
-from constants import D_0, D_ratio, L, q
+from constants import D_0, D_ratio, L, q, well_radius
 
 
-def D_func(D_case_number, x, L):
+def D_func(D_case_number, x, y, L):
 
 	# Load constants
 	D_min = D_0
 	D_max = D_0 * D_ratio
+	
 
 	# Initialize
 	period = L/q
@@ -26,6 +27,11 @@ def D_func(D_case_number, x, L):
 		if D_case_number == 1:
 			return D_max - (D_max - D_min) * np.abs(rel_x_in_period(x) - 0.5) * 2.0
 		
+		# Round well
+		elif D_case_number == 2:
+			return D_min + (np.sqrt((x - L / 2.0)**2 + (y - L/2.0)**2) >= well_radius).astype(np.float16) * (D_max - D_min)
+
+
 		# # Linear
 		# elif D_case_number == 2:
 		# 	return D_0 * (2.0 + k * x)
@@ -62,6 +68,10 @@ def D_func(D_case_number, x, L):
 		if D_case_number == 1:	
 			sign = (rel_x_in_period(x) <= 0.5) * 2.0 - 1.0
 			return D_grad_abs * sign
+
+		# Round well
+		elif D_case_number == 2:
+			return x * 0.0
 		
 		# # Linear
 		# elif D_case_number == 2:

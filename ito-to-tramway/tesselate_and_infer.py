@@ -11,14 +11,12 @@ from constants import dt
 
 
 
-def tesselate_and_infer(file):
-	traj_file = file
-	traj, _ = os.path.splitext(traj_file)
-	traj = traj.split('_')[-1]
-	rwa_file = '{}.rwa'.format(traj)
+def tesselate_and_infer(csv_file, bl_dr = True):
+	rwa_file, _ = os.path.splitext(csv_file)
+	rwa_file = '{}.rwa'.format(rwa_file)
 
 	if not os.path.exists(rwa_file):
-		data = pd.read_csv(traj_file, sep=';', skiprows=1, names=['x', 'dx', 'y', 'dy'])
+		data = pd.read_csv(csv_file, sep=';', skiprows=1, names=['x', 'dx', 'y', 'dy'])
 		data['n'] = np.zeros(data.shape[0])
 		data['t'] = np.arange(0., dt * data.shape[0], dt)
 
@@ -26,10 +24,6 @@ def tesselate_and_infer(file):
 		# cell_plot(rwa_file, output_file = traj+'_mesh.png')
 	else:
 		print("Warning: trajectories not reloaded! Meshes not recalculated.")
-
-	# from tramway.inference import *
-	# setup, module = plugins['snr']
-	# snr = getattr(module, setup['infer'])
 
 	class Sashas(Translocations):
 		def _extract_space(self):
@@ -44,7 +38,11 @@ def tesselate_and_infer(file):
 	print("\nMesh constructed. Starting inference\n")
 	# rwa_file = '.\\results\\{}.rwa'.format(traj)
 	a = load_rwa(rwa_file)
-	d = distributed(a['gwr'].data, new_cell=Sashas)
+	if bl_dr:
+		cell_types = Sashas
+	else:
+		cell_types = Translocations
+	d = distributed(a['gwr'].data, new_cell=cell_types)
 	x = d.run(infer_snr, max_iter=50, localization_error = 1e-3) #, diffusivity_prior = 0.001, min_diffusivity = 0.001)
 	a['gwr'].add(Maps(x, mode='snr'), label='snr')
 	save_rwa(rwa_file, a, verbose = True, force = True)

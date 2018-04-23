@@ -1,17 +1,23 @@
 #!/usr/bin/env python
 
+import csv
 from tramway.core   import *
 from tramway.helper import *
 import os.path
 import numpy  as np
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 from bayes_factors.calculate_bayes_factors import calculate_bayes_factors
-from constants import dt, abs_tol, data_folder
+from constants import dt, abs_tol, data_folder, CSV_DELIMITER
+
+# for theoretical checks
+from constants import D_0, k
 
 
-def calculate(csv_file):
+def calculate(csv_file, results_folder, bl_output_map):
 	# # all the following examples are 2D
 	# precomputed_meshes = [
 	# 	# standard example where nothing special happens
@@ -34,15 +40,21 @@ def calculate(csv_file):
 	# # location count per cell (20, 40 or 60)
 
 	# Replace .csv extension by .rwa
-	rwa_file, _ = os.path.splitext(csv_file)
-	rwa_file = '{}.rwa'.format(csv_file)
-	if not os.ispath(rwa_file):
-		raise RuntimeError("rwa file not found. Aborting")
+	input_file_no_ext, _ = os.path.splitext(csv_file)
+	rwa_file = '{}.rwa'.format(input_file_no_ext)
+	filename = os.path.splitext(os.path.basename(csv_file))[0]
+	if not os.path.exists(rwa_file):
+		raise RuntimeError("rwa file (%s) not found. Aborting" % rwa_file)
 
-	# Read ksi value from .csv file
-	with open(csv_file, 'r') as file_object:
-		ksi = pd.read_csv(csv_file, sep=';', nrows=1)[2]
-		print(ksi)
+	# Read ksi value from .csv file if it exists
+	ksi = np.nan
+	try:
+		with open(csv_file, 'r') as f:
+			reader = csv.reader(f, delimiter = CSV_DELIMITER)
+			ksi = float(next(reader)[2])
+			# print(ksi)
+	except:
+		print(".csv file not found. Skipping reading ksi")
 
 
 	snr_label = 'snr'
@@ -68,12 +80,12 @@ def calculate(csv_file):
 	# 	tessellate(example+'.txt', 'gwr', strict_min_location_count=10, label='gwr')
 
 	# load the .rwa file
-	analysis_tree = load_rwa(example+'.rwa')
+	analysis_tree = load_rwa(rwa_file)
 
 	# loop over the available meshes
 	anything_new = False
 	for mesh in analysis_tree: # `mesh` is a label (a key in dict-like `analysis_tree`)
-		print('{} - {}'.format(example, mesh))
+		print("Using ", rwa_file)
 
 		# infer snr-related maps with the 'snr' plugin
 		# (will skip to the next step for precomputed maps)
@@ -82,7 +94,7 @@ def calculate(csv_file):
 			infer(analysis_tree, 'snr', input_label=mesh, output_label=snr_label,
 				max_iter=50)
 			anything_new = True
-			save_rwa(example+'.rwa', analysis_tree, force=True)
+			save_rwa(rwa_file, analysis_tree, force=True)
 
 		snr = analysis_tree[mesh][snr_label].data
 
@@ -145,6 +157,8 @@ def calculate(csv_file):
 		D = np.asarray(D)
 		# Vs = 
 
+		# print("Vs: %s" % Vs)
+		# print("Vs_prior: %s" % Vs_prior)
 		Bs, forces, min_ns = calculate_bayes_factors(zeta_ts = zeta_ts, zeta_sps = zeta_sps, ns = ns, Vs = Vs, Vs_pi = Vs_prior)
 
 		# # Calculate the Bs that we would get with sufficient n
@@ -156,28 +170,28 @@ def calculate(csv_file):
 
 		# # Check the inferred gradient compared to the simulated gradient
 		
-		# # Set non-calculated values to nan
-		# zeta_sps[np.abs(zeta_sps) < abs_tol] = np.nan
-		# # print(zeta_sps)
-		# gdt_inf = zeta_sps * vec_to_2D(np.sqrt(Vs))
-		# median_gdt_inf = np.nanmedian(np.abs(gdt_inf), axis = 0)
-		# gdt_sim = np.asarray([D_0 * k, 0]) * dt
+		# Set non-calculated values to nan
+		zeta_sps[np.abs(zeta_sps) < abs_tol] = np.nan
+		# print(zeta_sps)
+		gdt_inf = zeta_sps * vec_to_2D(np.sqrt(Vs))
+		median_gdt_inf = np.nanmedian(np.abs(gdt_inf), axis = 0)
+		gdt_sim = np.asarray([D_0 * k, 0]) * dt
 
-		# # Check total force
-		# alpha_dt_inf = zeta_ts * vec_to_2D(np.sqrt(Vs))
-		# mean_alpha_dt_inf = np.median(alpha_dt_inf, axis = 0)
+		# Check total force
+		alpha_dt_inf = zeta_ts * vec_to_2D(np.sqrt(Vs))
+		mean_alpha_dt_inf = np.median(alpha_dt_inf, axis = 0)
 				
-		# # Simulated SNRs
+		# Simulated SNRs
 		# alpha_dt_sim = np.asarray([ksi * D_0 * k , 0]) * dt
 		# zeta_ts_exp = alpha_dt_sim / vec_to_2D(np.sqrt(Vs))
-		# zeta_sps_exp = gdt_sim / vec_to_2D(np.sqrt(Vs))
+		zeta_sps_exp = gdt_sim / vec_to_2D(np.sqrt(Vs))
 
-		# # Expected order of magnitude of the variance
+		# Expected order of magnitude of the variance
 		# V_magnitude = 4 * D_0 * dt
 
-		# # Estimate diffusivity
-		# D_est = Vs / 4 / dt
-		# median_D_est = np.median(D_est)
+		# Estimate diffusivity
+		D_est = Vs / 4 / dt
+		median_D_est = np.median(D_est)
 
 
 		# General parameters
@@ -201,7 +215,7 @@ def calculate(csv_file):
 		print ("\n\nMedian zeta_ts:\t%s" % (np.median(zeta_ts, axis = 0)))
 		# print ("Expected zeta_ts:\t%s" % (np.median(zeta_ts_exp, axis = 0)))
 		print ("Median abs(zeta_sps):\t%s" % (np.nanmedian(np.abs(zeta_sps), axis = 0)))
-		# print ("Expected zeta_sps:\t%s" % (np.median(zeta_sps_exp, axis = 0)))
+		print ("Expected zeta_sps:\t%s" % (np.median(zeta_sps_exp, axis = 0)))
 		print ("Median n:\t%i" % np.median(ns, axis = 0))
 		print ("Median min_n:\t%i" % np.median(min_ns, axis = 0))
 		print ("max(min_n):\t%i" % np.max(min_ns, axis = 0))
@@ -218,30 +232,70 @@ def calculate(csv_file):
 		## Prepare to output into a file
 		# Output: ksi - first line and next all log10(Bs)
 		cells_number = np.size(ns, 0)
-		output = np.zeros((cells_number + 1, 1), dtype = np.float16)
-		output[0] = 0.0
-		output[1:] = np.log10(Bs)
-		print(output)
+		# output = np.zeros((cells_number + 1, 1), dtype = np.float16)
+		# output[0] = ksi
+		# output[1:] = np.log10(Bs)
+		# print(output)
+		# print(ns)
+		# print(np.log10(Bs))
+		output_df = pd.DataFrame(columns = ["ksi", "log10_B", "n_mean", "force_evidence"], dtype = np.float16)
+		output_df["log10_B"] = np.log10(Bs)[:, 0]
+		output_df["force_evidence"] = forces[:, 0]
+		output_df["n_mean"] = ns[:, 0]
+		output_df["ksi"].loc[0] = ksi
+		# output_df = pd.DataFrame(data = {"log10_B": np.log10(Bs)[:, 0], 
+		# 	"n_mean": ns[:, 0]})
+		# output_df.assign(ksi = np.nan)
+		# print(output_df)
+		# print(output_df.dtypes)
+
+
+		# Save the file
+		dat_file = results_folder + filename + '.dat'
+		output_df.to_csv(dat_file)
+		# with open(dat_file, 'w') as f:
+		# 	csv_writer = csv.writer(f, delimiter = CSV_DELIMITER, lineterminator = '\n')
+		# 	csv_writer.writerows(output.tolist())
 
 
 		## Plot
-		cells = analysis_tree[mesh].data # `cells` contains the mesh
-		# my_map = pd.DataFrame(np.log10(Bs), index = n.index, columns = ['log10(B)'])
-		# my_map = pd.DataFrame(ns, index = n.index, columns = ['n'])
-		# my_map = pd.DataFrame(forces, index = n.index, columns = ['Evidence for models'])
-		# my_map = pd.DataFrame(D.T[0], index = n.index, columns = ['D'])
-		# my_map = pd.DataFrame(alpha_dt_inf, index = n.index, columns = ['$alpha dt$ x', '$alpha dt$ y'])
-		# my_map = pd.DataFrame(gdt_inf, index = n.index, columns = ['$g dt$ x', '$g dt$ y'])
+		if bl_output_map:
+			cells = analysis_tree[mesh].data # `cells` contains the mesh
+			
+			# Detected forces
+			my_map = pd.DataFrame(forces, index = n.index, columns = ['Evidence for models'])
+			output_file = results_folder + filename + "_forces" + '.png'
+			map_plot(my_map, cells=cells, output_file = output_file, clip = False)
+
+			# Log10(B)
+			my_map = pd.DataFrame(np.log10(Bs), index = n.index, columns = ['log10(B) clipped'])
+			output_file = results_folder + filename + "_log_B" + '.png'
+			map_plot(my_map, cells=cells, output_file = output_file, clip = True)
+
+			# D
+			my_map = pd.DataFrame(D.T[0], index = n.index, columns = ['D'])
+			output_file = results_folder + filename + "_D" + '.png'
+			map_plot(my_map, cells=cells, output_file = output_file, clip = False)
+
+			# Log10(B)
+			my_map = pd.DataFrame(alpha_dt_inf, index = n.index, columns = ['$alpha dt$ x', '$alpha dt$ y'])
+			output_file = results_folder + filename + "_alpha_dt" + '.png'
+			map_plot(my_map, cells=cells, output_file = output_file, clip = False)
+
+			# my_map = pd.DataFrame(ns, index = n.index, columns = ['n'])
+			# my_map = pd.DataFrame(D.T[0], index = n.index, columns = ['D'])
+			# my_map = pd.DataFrame(alpha_dt_inf, index = n.index, columns = ['$alpha dt$ x', '$alpha dt$ y'])
+			# my_map = pd.DataFrame(gdt_inf, index = n.index, columns = ['$g dt$ x', '$g dt$ y'])
 
 		# # map_plot(my_map, cells=cells, show=False)
 		# # ...
 		# # plt.show() # waits for the user to close the resulting window
 		# ## ... or alternatively plot in a file
-		# map_plot(my_map, cells=cells, output_file = precomputed_meshes[0] + "_" + '.png', clip = False)
+		# 
 			
 
 
 		# save the intermediate snr-related maps
 		if anything_new:
-			save_rwa(example+'.rwa', analysis_tree, force=True)
+			save_rwa(rwa_file, analysis_tree, force=True)
 

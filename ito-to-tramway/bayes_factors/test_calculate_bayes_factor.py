@@ -1,9 +1,9 @@
 # Copyright © 2018, Alexander Serov
 
 
-from calculate_bayes_factors import calculate_bayes_factors
-from calculate_marginalized_integral import calculate_marginalized_integral
-from calculate_minimal_n import calculate_minimal_n
+from .calculate_bayes_factors import calculate_bayes_factors
+from .calculate_marginalized_integral import calculate_marginalized_integral
+from .calculate_minimal_n import calculate_minimal_n
 import numpy as np
 import unittest
 

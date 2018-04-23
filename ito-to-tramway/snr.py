@@ -2,6 +2,7 @@
 
 from tramway.inference.base import *
 from tramway.inference.smooth_d import smooth_d_neg_posterior
+# from TRamWAy.tramway.inference.base import smooth_infer_init
 import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
