@@ -11,13 +11,13 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 from bayes_factors.calculate_bayes_factors import calculate_bayes_factors
-from constants import dt, abs_tol, data_folder, CSV_DELIMITER
+from constants import abs_tol, data_folder, CSV_DELIMITER
 
 # for theoretical checks
 from constants import D_0, k
 
 
-def calculate(csv_file, results_folder, bl_output_map):
+def calculate(csv_file, results_folder, bl_output_map, dt):
 	# # all the following examples are 2D
 	# precomputed_meshes = [
 	# 	# standard example where nothing special happens
@@ -238,10 +238,11 @@ def calculate(csv_file, results_folder, bl_output_map):
 		# print(output)
 		# print(ns)
 		# print(np.log10(Bs))
-		output_df = pd.DataFrame(columns = ["ksi", "log10_B", "n_mean", "force_evidence"], dtype = np.float16)
+		output_df = pd.DataFrame(columns = ["ksi", "log10_B", "force_evidence", "n_mean", "min_n"], dtype = np.float16)
 		output_df["log10_B"] = np.log10(Bs)[:, 0]
 		output_df["force_evidence"] = forces[:, 0]
 		output_df["n_mean"] = ns[:, 0]
+		output_df["min_n"] = min_ns.astype(int)[:, 0]
 		output_df["ksi"].loc[0] = ksi
 		# output_df = pd.DataFrame(data = {"log10_B": np.log10(Bs)[:, 0], 
 		# 	"n_mean": ns[:, 0]})
@@ -277,15 +278,25 @@ def calculate(csv_file, results_folder, bl_output_map):
 			output_file = results_folder + filename + "_D" + '.png'
 			map_plot(my_map, cells=cells, output_file = output_file, clip = False)
 
-			# Log10(B)
+			# Alpha dt
 			my_map = pd.DataFrame(alpha_dt_inf, index = n.index, columns = ['$alpha dt$ x', '$alpha dt$ y'])
 			output_file = results_folder + filename + "_alpha_dt" + '.png'
 			map_plot(my_map, cells=cells, output_file = output_file, clip = False)
 
-			# my_map = pd.DataFrame(ns, index = n.index, columns = ['n'])
+			# g dt
+			my_map = pd.DataFrame(gdt_inf, index = n.index, columns = ['$g dt$ x', '$g dt$ y'])
+			output_file = results_folder + filename + "_g_dt" + '.png'
+			map_plot(my_map, cells=cells, output_file = output_file, clip = False)
+
+			# n
+			my_map = pd.DataFrame(ns, index = n.index, columns = ['n'])
+			output_file = results_folder + filename + "_n" + '.png'
+			map_plot(my_map, cells=cells, output_file = output_file, clip = False)
+
+			# 
 			# my_map = pd.DataFrame(D.T[0], index = n.index, columns = ['D'])
 			# my_map = pd.DataFrame(alpha_dt_inf, index = n.index, columns = ['$alpha dt$ x', '$alpha dt$ y'])
-			# my_map = pd.DataFrame(gdt_inf, index = n.index, columns = ['$g dt$ x', '$g dt$ y'])
+			# 
 
 		# # map_plot(my_map, cells=cells, show=False)
 		# # ...

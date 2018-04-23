@@ -7,6 +7,9 @@ from calculate import calculate
 import glob
 import os
 
+## Constants
+dt = 0.05
+
 root_path = r"\\157.99.40.171\@Dbc\LAB_shared_stuff\Francois_Laurent\tests_tramway\numerical_trajectories"
 # root_path = r"D:\\git\Stochastic_Integrals_Diffusivity\ito-to-tramway"
 
@@ -15,7 +18,7 @@ file_list = []
 # Parse all subdirectories to extract .rwa files and store
 # print(os.path.exists(root_path))
 # print(root_path + r"\**\*.rwa")
-file_list = [f for f in glob.iglob(root_path + r"\**\*.rwa", recursive = True)]
+file_list = [f for f in glob.iglob(root_path + r"\**\trajectoire_8_snr.rwa", recursive = True)]
 # print(files_list)
 
 for i in range(len(file_list)):
@@ -23,6 +26,6 @@ for i in range(len(file_list)):
 	folder, _ = os.path.split(file)
 	folder = folder + "\\"
 	print("Processing file: %s" % file)
-	calculate(file, folder, True)
+	calculate(file, folder, True, dt)
 
 
