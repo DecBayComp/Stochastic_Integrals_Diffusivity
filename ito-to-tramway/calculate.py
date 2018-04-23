@@ -17,7 +17,7 @@ from constants import abs_tol, data_folder, CSV_DELIMITER
 from constants import D_0, k
 
 
-def calculate(csv_file, results_folder, bl_output_map, dt):
+def calculate(csv_file, results_folder, bl_output_map, dt, snr_label):
 	# # all the following examples are 2D
 	# precomputed_meshes = [
 	# 	# standard example where nothing special happens
@@ -57,7 +57,7 @@ def calculate(csv_file, results_folder, bl_output_map, dt):
 		print(".csv file not found. Skipping reading ksi")
 
 
-	snr_label = 'snr'
+	# snr_label = 'snr(mu=0)'
 	Vpi_name = 'V_prior'
 
 	# a few convenience functions
@@ -160,6 +160,9 @@ def calculate(csv_file, results_folder, bl_output_map, dt):
 		# print("Vs: %s" % Vs)
 		# print("Vs_prior: %s" % Vs_prior)
 		Bs, forces, min_ns = calculate_bayes_factors(zeta_ts = zeta_ts, zeta_sps = zeta_sps, ns = ns, Vs = Vs, Vs_pi = Vs_prior)
+		_, forces_grad_only, _ = calculate_bayes_factors(zeta_ts = zeta_ts * 0.0, zeta_sps = zeta_sps, ns = ns, Vs = Vs, Vs_pi = Vs_prior)
+		_, forces_drift_only, _ = calculate_bayes_factors(zeta_ts = zeta_ts, zeta_sps = zeta_sps * 0.0, ns = ns, Vs = Vs, Vs_pi = Vs_prior)
+
 
 		# # Calculate the Bs that we would get with sufficient n
 		# suf_Bs, _, _ = calculate_bayes_factors(zeta_ts = zeta_ts, zeta_sps = zeta_sps, ns = min_ns, Vs = Vs, Vs_pi = Vs_prior)
@@ -238,12 +241,17 @@ def calculate(csv_file, results_folder, bl_output_map, dt):
 		# print(output)
 		# print(ns)
 		# print(np.log10(Bs))
-		output_df = pd.DataFrame(columns = ["ksi", "log10_B", "force_evidence", "n_mean", "min_n"], dtype = np.float16)
+		output_df = pd.DataFrame(columns = ["ksi", "log10_B", "force_evidence", "zeta_t_x", "zeta_t_y",
+		"zeta_sp_x", "zeta_sp_y", "n_mean", "min_n"], dtype = np.float16)
 		output_df["log10_B"] = np.log10(Bs)[:, 0]
 		output_df["force_evidence"] = forces[:, 0]
 		output_df["n_mean"] = ns[:, 0]
 		output_df["min_n"] = min_ns.astype(int)[:, 0]
 		output_df["ksi"].loc[0] = ksi
+		output_df["zeta_t_x"] = zeta_ts[:, 0]
+		output_df["zeta_t_y"] = zeta_ts[:, 1]
+		output_df["zeta_sp_x"] = zeta_sps[:, 0]
+		output_df["zeta_sp_y"] = zeta_sps[:, 1]
 		# output_df = pd.DataFrame(data = {"log10_B": np.log10(Bs)[:, 0], 
 		# 	"n_mean": ns[:, 0]})
 		# output_df.assign(ksi = np.nan)
@@ -252,7 +260,7 @@ def calculate(csv_file, results_folder, bl_output_map, dt):
 
 
 		# Save the file
-		dat_file = results_folder + filename + '.dat'
+		dat_file = results_folder + filename + mesh + '.dat'
 		output_df.to_csv(dat_file)
 		# with open(dat_file, 'w') as f:
 		# 	csv_writer = csv.writer(f, delimiter = CSV_DELIMITER, lineterminator = '\n')
@@ -265,32 +273,41 @@ def calculate(csv_file, results_folder, bl_output_map, dt):
 			
 			# Detected forces
 			my_map = pd.DataFrame(forces, index = n.index, columns = ['Evidence for models'])
-			output_file = results_folder + filename + "_forces" + '.png'
+			output_file = results_folder + filename + mesh + "_forces" + '.png'
 			map_plot(my_map, cells=cells, output_file = output_file, clip = False)
+
+			my_map = pd.DataFrame(forces_grad_only, index = n.index, columns = ['Evidence for models | alpha = 0'])
+			output_file = results_folder + filename + mesh + "_forces_grad_only" + '.png'
+			map_plot(my_map, cells=cells, output_file = output_file, clip = False)
+
+			my_map = pd.DataFrame(forces_drift_only, index = n.index, columns = ['Evidence for models | g = 0'])
+			output_file = results_folder + filename + mesh + "_forces_drift_only" + '.png'
+			map_plot(my_map, cells=cells, output_file = output_file, clip = False)
+
 
 			# Log10(B)
 			my_map = pd.DataFrame(np.log10(Bs), index = n.index, columns = ['log10(B) clipped'])
-			output_file = results_folder + filename + "_log_B" + '.png'
+			output_file = results_folder + filename + mesh + "_log_B" + '.png'
 			map_plot(my_map, cells=cells, output_file = output_file, clip = True)
 
 			# D
 			my_map = pd.DataFrame(D.T[0], index = n.index, columns = ['D'])
-			output_file = results_folder + filename + "_D" + '.png'
+			output_file = results_folder + filename + mesh + "_D" + '.png'
 			map_plot(my_map, cells=cells, output_file = output_file, clip = False)
 
 			# Alpha dt
 			my_map = pd.DataFrame(alpha_dt_inf, index = n.index, columns = ['$alpha dt$ x', '$alpha dt$ y'])
-			output_file = results_folder + filename + "_alpha_dt" + '.png'
+			output_file = results_folder + filename + mesh + "_alpha_dt" + '.png'
 			map_plot(my_map, cells=cells, output_file = output_file, clip = False)
 
 			# g dt
 			my_map = pd.DataFrame(gdt_inf, index = n.index, columns = ['$g dt$ x', '$g dt$ y'])
-			output_file = results_folder + filename + "_g_dt" + '.png'
+			output_file = results_folder + filename + mesh + "_g_dt" + '.png'
 			map_plot(my_map, cells=cells, output_file = output_file, clip = False)
 
 			# n
 			my_map = pd.DataFrame(ns, index = n.index, columns = ['n'])
-			output_file = results_folder + filename + "_n" + '.png'
+			output_file = results_folder + filename + mesh + "_n" + '.png'
 			map_plot(my_map, cells=cells, output_file = output_file, clip = False)
 
 			# 
