@@ -7,7 +7,7 @@ import os.path
 import numpy  as np
 import pandas as pd
 import matplotlib
-matplotlib.use('Agg')
+# matplotlib.use('Agg') # enable for console runs with no displays
 import matplotlib.pyplot as plt
 
 from bayes_factors.calculate_bayes_factors import calculate_bayes_factors
@@ -260,7 +260,7 @@ def calculate(csv_file, results_folder, bl_output_map, dt, snr_label):
 
 
 		# Save the file
-		dat_file = results_folder + filename + mesh + '.dat'
+		dat_file = results_folder + filename + "_" + mesh + '.dat'
 		output_df.to_csv(dat_file)
 		# with open(dat_file, 'w') as f:
 		# 	csv_writer = csv.writer(f, delimiter = CSV_DELIMITER, lineterminator = '\n')
@@ -270,45 +270,40 @@ def calculate(csv_file, results_folder, bl_output_map, dt, snr_label):
 		## Plot
 		if bl_output_map:
 			cells = analysis_tree[mesh].data # `cells` contains the mesh
+
+			def png_name(str):
+				return results_folder + filename + "_" + mesh + str + '.png'
 			
 			# Detected forces
 			my_map = pd.DataFrame(forces, index = n.index, columns = ['Evidence for models'])
-			output_file = results_folder + filename + mesh + "_forces" + '.png'
-			map_plot(my_map, cells=cells, output_file = output_file, clip = False)
+			map_plot(my_map, cells=cells, output_file = png_name("_forces"), clip = False)
 
 			my_map = pd.DataFrame(forces_grad_only, index = n.index, columns = ['Evidence for models | alpha = 0'])
-			output_file = results_folder + filename + mesh + "_forces_grad_only" + '.png'
-			map_plot(my_map, cells=cells, output_file = output_file, clip = False)
+			map_plot(my_map, cells=cells, output_file = png_name("_forces_grad_only"), clip = False)
 
 			my_map = pd.DataFrame(forces_drift_only, index = n.index, columns = ['Evidence for models | g = 0'])
-			output_file = results_folder + filename + mesh + "_forces_drift_only" + '.png'
-			map_plot(my_map, cells=cells, output_file = output_file, clip = False)
+			map_plot(my_map, cells=cells, output_file = png_name("_forces_drift_only"), clip = False)
 
 
 			# Log10(B)
 			my_map = pd.DataFrame(np.log10(Bs), index = n.index, columns = ['log10(B) clipped'])
-			output_file = results_folder + filename + mesh + "_log_B" + '.png'
-			map_plot(my_map, cells=cells, output_file = output_file, clip = True)
+			map_plot(my_map, cells=cells, output_file = png_name("_log_B"), clip = True)
 
 			# D
 			my_map = pd.DataFrame(D.T[0], index = n.index, columns = ['D'])
-			output_file = results_folder + filename + mesh + "_D" + '.png'
-			map_plot(my_map, cells=cells, output_file = output_file, clip = False)
+			map_plot(my_map, cells=cells, output_file = png_name("_D"), clip = False)
 
 			# Alpha dt
 			my_map = pd.DataFrame(alpha_dt_inf, index = n.index, columns = ['$alpha dt$ x', '$alpha dt$ y'])
-			output_file = results_folder + filename + mesh + "_alpha_dt" + '.png'
-			map_plot(my_map, cells=cells, output_file = output_file, clip = False)
+			map_plot(my_map, cells=cells, output_file = png_name("_alpha_dt"), clip = False)
 
 			# g dt
 			my_map = pd.DataFrame(gdt_inf, index = n.index, columns = ['$g dt$ x', '$g dt$ y'])
-			output_file = results_folder + filename + mesh + "_g_dt" + '.png'
-			map_plot(my_map, cells=cells, output_file = output_file, clip = False)
+			map_plot(my_map, cells=cells, output_file = png_name("_g_dt"), clip = False)
 
 			# n
 			my_map = pd.DataFrame(ns, index = n.index, columns = ['n'])
-			output_file = results_folder + filename + mesh + "_n" + '.png'
-			map_plot(my_map, cells=cells, output_file = output_file, clip = False)
+			map_plot(my_map, cells=cells, output_file = png_name("_n"), clip = False)
 
 			# 
 			# my_map = pd.DataFrame(D.T[0], index = n.index, columns = ['D'])
