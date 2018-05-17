@@ -23,7 +23,7 @@ from plot_zeta_t_perp import plot_zeta_t_perp
 import sys
 
 
-# %%
+# %% Main calculations
 
 # Constants
 lambs = (0, 0.5, 1.0)
@@ -31,12 +31,12 @@ zeta_sp_abs_lim = 1.00  # 0.02
 zeta_sp_steps = 100
 dim = 1
 n_pi = 5 - dim  # minimum number of jumps is different for priors in 1D and 2D
-ns = [10, 100, 1000]
+ns = [100, 1000]
 B = 10  # at least strong evidence against H0
 log10_B = np.log10(B)
 zeta_t_perp = 0.02  # total force component orthogonal to the diffusivity gradient
 
-# Relative prior uncertainties
+# Relative prior uncertainties (u = Vp/V)
 us = [0.5, 1.0, 2.0]
 
 

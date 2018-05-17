@@ -4,27 +4,38 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-def set_figure_size(num, rows, page_width_frac):
-	pagewidth_in = 6.85
-	font_size = 8
-	dpi = 120
 
-	figsize = np.asarray([page_width_frac, 0.33 * rows]) * pagewidth_in # in inches
-	
-	# Set default font size and LaTeX usage
-	matplotlib.rcParams.update({'font.size': font_size})
-	plt.rc('text', usetex = True)
+def set_figure_size(num, rows, page_width_frac, height_factor=1.0):
+    pagewidth_in = 6.85
+    font_size = 8
+    dpi = 100
 
-	# Create and return figure handle
-	fig = plt.figure(num)
-	fig.clf()
+    figsize = np.asarray([1.0, 0.33 * rows *
+                          height_factor]) * page_width_frac * pagewidth_in  # in inches
 
-	# Set figure size and dpi
-	fig.set_dpi(dpi)
-	fig.set_figwidth(figsize[0])
-	fig.set_figheight(figsize[1])
+    # Set default font size
+    matplotlib.rcParams.update({'font.size': font_size})
 
-	# fig.tight_layout()
+    # Enable LaTeX and set font to Helvetica
+    plt.rc('text', usetex=True)
+    plt.rcParams['text.latex.preamble'] = [
+        r'\usepackage{tgheros}',    # helvetica font
+        r'\usepackage{sansmath}',   # math-font matching  helvetica
+        r'\sansmath'                # actually tell tex to use it!
+        r'\usepackage{siunitx}',    # micro symbols
+        r'\sisetup{detect-all}',    # force siunitx to use the fonts
+    ]
 
-	# Return figure handle
-	return (fig)
+    # Create and return figure handle
+    fig = plt.figure(num)
+    fig.clf()
+
+    # Set figure size and dpi
+    fig.set_dpi(dpi)
+    fig.set_figwidth(figsize[0])
+    fig.set_figheight(figsize[1])
+
+    # fig.tight_layout()
+
+    # Return figure handle
+    return (fig)
