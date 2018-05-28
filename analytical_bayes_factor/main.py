@@ -37,7 +37,7 @@ log10_B = np.log10(B)
 zeta_t_perp = 0.02  # total force component orthogonal to the diffusivity gradient
 
 # Relative prior uncertainties (u = Vp/V)
-us = [0.1, 1.0, 10.0]
+us = [0.1, 10.0]
 
 
 # Create zeta_sp mesh
