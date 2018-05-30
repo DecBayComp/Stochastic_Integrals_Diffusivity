@@ -7,7 +7,7 @@ import numpy as np
 from set_figure_size import set_figure_size
 
 
-def plot_K_L(zeta_sps, zeta_t_roots, ns, us, dim, zeta_t_perp):
+def plot_K_L_2D(zeta_sps, zeta_t_roots, ns, us, dim, zeta_t_perp):
     """
     Make the parametric plot of the local Bayes factor
     """
@@ -23,7 +23,7 @@ def plot_K_L(zeta_sps, zeta_t_roots, ns, us, dim, zeta_t_perp):
     lambs_count = np.size(zeta_t_roots, 2)
     ns_count = len(ns)
     us_count = len(us)
-    rows = us_count
+    rows = 2
 
     fig = set_figure_size(
         num=1, rows=rows, page_width_frac=0.5, height_factor=1.0)

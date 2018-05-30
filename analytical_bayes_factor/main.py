@@ -19,6 +19,7 @@ import importlib
 from log_C import log_C as log_C_func
 import numpy as np
 from plot_K_L import plot_K_L
+from plot_K_L_2D import plot_K_L_2D
 from plot_zeta_t_perp import plot_zeta_t_perp
 import sys
 
@@ -29,16 +30,20 @@ import sys
 lambs = (0, 0.5, 1.0)
 zeta_sp_abs_lim = 1.00  # 0.02
 zeta_sp_steps = 100
-dim = 1
+dim = 2
 n_pi = 5 - dim  # minimum number of jumps is different for priors in 1D and 2D
-ns = [100, 1000]
+ns = [100, 500]
 B = 10  # at least strong evidence against H0
 log10_B = np.log10(B)
-zeta_t_perp = 0.02  # total force component orthogonal to the diffusivity gradient
+zeta_t_perp = 0.5  # total force component orthogonal to the diffusivity gradient
 
 # Relative prior uncertainties (u = Vp/V)
-us = [0.1, 10.0]
-
+us_1D = [0.1, 10.0]
+us_2D = [1.0]
+if dim == 1:
+    us = us_1D
+else:
+    us = us_2D
 
 # Create zeta_sp mesh
 zeta_sps = np.linspace(- zeta_sp_abs_lim, zeta_sp_abs_lim, zeta_sp_steps)
@@ -49,6 +54,8 @@ ns_count = len(ns)
 us_count = len(us)
 zeta_t_roots_size = (us_count, ns_count, lambs_count + 1, 2, zeta_sp_steps)
 zeta_t_roots = np.zeros(zeta_t_roots_size, dtype=np.float)
+print(zeta_t_roots_size)
+print(np.size(zeta_t_roots))
 
 
 for u_ind in range(us_count):
@@ -99,8 +106,12 @@ print("Calculation terminated")
 # print(zeta_t_roots)
 
 # %% plot
-plot_K_L(zeta_sps=zeta_sps, zeta_t_roots=zeta_t_roots,
-         ns=ns, us=us, dim=dim, zeta_t_perp=zeta_t_perp)
+if dim == 1:
+    plot_K_L(zeta_sps=zeta_sps, zeta_t_roots=zeta_t_roots,
+             ns=ns, us=us, dim=dim, zeta_t_perp=zeta_t_perp)
+else:
+    plot_K_L_2D(zeta_sps=zeta_sps, zeta_t_roots=zeta_t_roots,
+                ns=ns, us=us, dim=dim, zeta_t_perp=zeta_t_perp)
 
 
 #
