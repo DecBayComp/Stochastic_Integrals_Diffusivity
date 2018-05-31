@@ -71,7 +71,7 @@ def calculate_bayes_factors(zeta_ts, zeta_sps, ns, Vs, Vs_pi):
             # print(lg_Bs)
             min_ns[i] = calculate_minimal_n(zeta_ts[i, :], zeta_sp=zeta_sps[i, :], n0=ns[i], V=Vs[i],
                                             V_pi=Vs_pi[i])
-            print(min_ns)
+            # print(min_ns)
         except:
             print("Warning: Detected data error in bin %i. Skipping bin." % i)
 
