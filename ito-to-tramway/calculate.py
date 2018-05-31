@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 """
-This function launches TRamWAy analysis on the specified files, then claculates the Bayes factors and plots figures. Launch it through `start_me.py`
+Calculate Bayes factors after TRamWAY basic inference if finished.
+Plots figures.
 """
 
 import csv

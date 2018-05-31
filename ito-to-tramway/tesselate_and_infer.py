@@ -2,7 +2,7 @@
 
 """
 This function may be outdated
-""" \
+"""
 
 from tramway.core import *
 from tramway.helper import *
