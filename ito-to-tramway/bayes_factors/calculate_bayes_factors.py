@@ -31,8 +31,8 @@ def calculate_bayes_factors(zeta_ts, zeta_sps, ns, Vs, Vs_pi):
     """
 
     # Constants
-    n_pi = 4
     dim = 2
+    n_pi = n_pi_func(dim)
     B_threshold = 10  # corresponds to strong evidence for the conservative force
 
     # Convert input to numpy
@@ -53,7 +53,7 @@ def calculate_bayes_factors(zeta_ts, zeta_sps, ns, Vs, Vs_pi):
     us = np.divide(Vs_pi, Vs)
     v0s = 1.0 + np.multiply(n_pi / ns, us)
     # pows = dim * (ns + n_pi + 1.0) / 2.0 - 2.0
-    pows = p(ns, n_pi, dim)
+    pows = p(ns, dim)
 
     # Calculate
     lg_Bs = np.zeros((M, 1)) * np.nan
@@ -62,12 +62,16 @@ def calculate_bayes_factors(zeta_ts, zeta_sps, ns, Vs, Vs_pi):
         try:
             upstairs = calculate_marginalized_integral(zeta_t=zeta_ts[i, :], zeta_sp=zeta_sps[i, :], p=pows[i],
                                                        v=v0s[i], E=etas[i]**2.0)
+            # print(upstairs)
             downstairs = calculate_marginalized_integral(zeta_t=zeta_ts[i, :], zeta_sp=zeta_sps[i, :], p=pows[i],
                                                          v=v0s[i], E=1.0)
+            # print(downstairs)
             lg_Bs[i] = dim * np.log10(etas[i]) + \
                 np.log10(upstairs) - np.log10(downstairs)
+            # print(lg_Bs)
             min_ns[i] = calculate_minimal_n(zeta_ts[i, :], zeta_sp=zeta_sps[i, :], n0=ns[i], V=Vs[i],
                                             V_pi=Vs_pi[i])
+            print(min_ns)
         except:
             print("Warning: Detected data error in bin %i. Skipping bin." % i)
 

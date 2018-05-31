@@ -28,7 +28,7 @@ def find_marginalized_zeta_t_roots(zeta_sp, n, n_pi, B, u, dim, zeta_t_perp):
 
     eta = np.sqrt(n_pi / (n + n_pi))
     # p = dim * (n + n_pi + 1.0) / 2.0 - 2.0
-    pow = p(n, n_pi, dim)
+    pow = p(n, dim)
 
     # Define v function
     def v(s):

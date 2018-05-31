@@ -9,22 +9,20 @@ import scipy
 
 def calculate_minimal_n(zeta_t, zeta_sp, n0, V, V_pi):
     """
-    Calculate the minimal number of jumps per bin to obtain strong evidence for a conservative
-    or a spurious force in the Bayes factor.
+    Calculate the minimal number of jumps per bin to obtain strong evidence for a conservative or a spurious force in the Bayes factor.
 
     Input:
     zeta_t, zeta_sp --- vectors of length 2 (x, y) in one bin
-    n0 --- initial number of jumps (evidence already available). This way I can fing the "next" strong evidence,
-    i.e. the minimal number of data points to support the current conclusion
+    n0 --- initial number of jumps (evidence already available). This way the "next" strong evidence can be found, i.e. the minimal number of data points to support the current conclusion
 
     Output:
     min_n --- minimal number of jumps to obtain strong evidence for the conservative force model.
     Return -1 if unable to find the min_n
     """
-
+    print("Hello!!!")
     # Local constants
-    n_pi = 4
     dim = 2
+    n_pi = n_pi_func(dim)
     B_threshold = 10.0
     increase_factor = 2
     max_attempts = 20
@@ -34,13 +32,21 @@ def calculate_minimal_n(zeta_t, zeta_sp, n0, V, V_pi):
     # Initialize
     lg_B_threshold = np.log10(B_threshold)
     u = V_pi / V
+    print(u)
+
+    print("Huh1")
 
     def eta(n):
         return np.sqrt(n_pi / (n + n_pi))
+    print("Huh2")
 
     # def p(n):
     # 	return dim * (n + n_pi + 1) / 2 - 2
-    pow = p(n, n_pi, dim)
+    print(n)
+    print(dim)
+    pow = p(n, dim)
+    print("Huh2")
+    print(pow)
 
     def v0(n):
         return 1.0 + n_pi / n * u
@@ -61,6 +67,7 @@ def calculate_minimal_n(zeta_t, zeta_sp, n0, V, V_pi):
     # Find initial search interval
     bl_found = False
     for attempt in range(max_attempts):
+        print(attempt)
         n = n0 - 1 + increase_factor ** attempt
         if lg_B(n) >= lg_B_threshold:
             bl_found = True
