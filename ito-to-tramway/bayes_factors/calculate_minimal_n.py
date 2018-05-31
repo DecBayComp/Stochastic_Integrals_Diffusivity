@@ -19,34 +19,25 @@ def calculate_minimal_n(zeta_t, zeta_sp, n0, V, V_pi):
     min_n --- minimal number of jumps to obtain strong evidence for the conservative force model.
     Return -1 if unable to find the min_n
     """
-    print("Hello!!!")
+    # print("Hello!!!")
     # Local constants
     dim = 2
     n_pi = n_pi_func(dim)
     B_threshold = 10.0
     increase_factor = 2
-    max_attempts = 20
+    max_attempts = 40
     xtol = 0.1
     rtol = 0.1
 
     # Initialize
     lg_B_threshold = np.log10(B_threshold)
     u = V_pi / V
-    print(u)
-
-    print("Huh1")
 
     def eta(n):
         return np.sqrt(n_pi / (n + n_pi))
-    print("Huh2")
 
     # def p(n):
     # 	return dim * (n + n_pi + 1) / 2 - 2
-    print(n)
-    print(dim)
-    pow = p(n, dim)
-    print("Huh2")
-    print(pow)
 
     def v0(n):
         return 1.0 + n_pi / n * u
@@ -54,9 +45,9 @@ def calculate_minimal_n(zeta_t, zeta_sp, n0, V, V_pi):
     # Define the Bayes factor
     def lg_B(n):
         upstairs = calculate_marginalized_integral(
-            zeta_t=zeta_t, zeta_sp=zeta_sp, p=pow, v=v0(n), E=eta(n)**2.0)
+            zeta_t=zeta_t, zeta_sp=zeta_sp, p=p(n, dim), v=v0(n), E=eta(n)**2.0)
         downstairs = calculate_marginalized_integral(
-            zeta_t=zeta_t, zeta_sp=zeta_sp, p=pow, v=v0(n), E=1.0)
+            zeta_t=zeta_t, zeta_sp=zeta_sp, p=p(n, dim), v=v0(n), E=1.0)
         lg_B = dim * np.log10(eta(n)) + \
             np.log10(upstairs) - np.log10(downstairs)
         return lg_B
@@ -67,7 +58,7 @@ def calculate_minimal_n(zeta_t, zeta_sp, n0, V, V_pi):
     # Find initial search interval
     bl_found = False
     for attempt in range(max_attempts):
-        print(attempt)
+        # print(attempt)
         n = n0 - 1 + increase_factor ** attempt
         if lg_B(n) >= lg_B_threshold:
             bl_found = True
