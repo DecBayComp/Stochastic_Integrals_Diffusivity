@@ -1,5 +1,5 @@
 """
-This script collects .rwa files in subfolders on the net and creates an arguments file with their names.
+This script collects .rwa files in subfolders on the network and creates an arguments file with their names.
 The goal is to analyze J-B's simulated trajectories
 """
 

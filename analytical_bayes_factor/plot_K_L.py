@@ -29,13 +29,6 @@ def plot_K_L(zeta_sps, zeta_t_roots, ns, us, dim, zeta_t_perp):
         num=1, rows=rows, page_width_frac=0.5, height_factor=1.0)
     fig, axarr = plt.subplots(rows, cols, num=1, sharey=True, sharex=True)
 
-    # Print dimensions
-    dim_str = "%iD" % (dim)
-    if dim == 2:
-        dim_str += " ($\zeta_{t\perp}=%.2f$)" % (zeta_t_perp)
-    # fig.text(0.01, 0.97, dim_str, fontsize = font_size + 2, weight = 'bold')
-    fig.suptitle(dim_str, fontsize=font_size + 2)
-
     count = 0
     for u_ind in range(us_count):
         u = us[u_ind]
@@ -82,6 +75,13 @@ def plot_K_L(zeta_sps, zeta_t_roots, ns, us, dim, zeta_t_perp):
             ax.text(label_location[0], label_location[1],
                     str_label, transform=ax.transAxes, fontsize=font_size)
             count += 1
+
+    # Title
+    dim_str = "%iD" % (dim)
+    if dim == 2:
+        dim_str += " ($\zeta_{t\perp}=%.2f$)" % (zeta_t_perp)
+    # fig.text(0.01, 0.97, dim_str, fontsize = font_size + 2, weight = 'bold')
+    fig.suptitle(dim_str, fontsize=font_size + 2)
 
     # plt.axis('square')
     fig.tight_layout()

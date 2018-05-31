@@ -1,30 +1,35 @@
+"""
+A copy of my universal function to keep figures the same size
+"""
 
 
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def set_figure_size(num, rows, page_width_frac):
-	pagewidth_in = 6.85
-	font_size = 8
-	dpi = 120
+    pagewidth_in = 6.85
+    font_size = 8
+    dpi = 120
 
-	figsize = np.asarray([page_width_frac, 0.33 * rows]) * pagewidth_in # in inches
-	
-	# Set default font size and LaTeX usage
-	matplotlib.rcParams.update({'font.size': font_size})
-	plt.rc('text', usetex = True)
+    figsize = np.asarray([page_width_frac, 0.33 * rows]
+                         ) * pagewidth_in  # in inches
 
-	# Create and return figure handle
-	fig = plt.figure(num)
-	fig.clf()
+    # Set default font size and LaTeX usage
+    matplotlib.rcParams.update({'font.size': font_size})
+    plt.rc('text', usetex=True)
 
-	# Set figure size and dpi
-	fig.set_dpi(dpi)
-	fig.set_figwidth(figsize[0])
-	fig.set_figheight(figsize[1])
+    # Create and return figure handle
+    fig = plt.figure(num)
+    fig.clf()
 
-	# fig.tight_layout()
+    # Set figure size and dpi
+    fig.set_dpi(dpi)
+    fig.set_figwidth(figsize[0])
+    fig.set_figheight(figsize[1])
 
-	# Return figure handle
-	return (fig)
+    # fig.tight_layout()
+
+    # Return figure handle
+    return (fig)
