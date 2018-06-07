@@ -10,6 +10,7 @@ def find_marginalized_zeta_t_roots(zeta_sp, n, n_pi, B, u, dim, zeta_t_perp):
     """
     Find marginalized roots zeta_t under condition that zeta_sp != 0 (to check?).
     I have proven that the min B for the marginalized inference is achieved at zeta_t = zeta_sp/2.
+    This calculation is correct as long as zeta_sp is supposed to be aligned along x.
     """
 
     # Constants

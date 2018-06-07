@@ -1,28 +1,30 @@
 
 
+from convenience_functions import n_pi_func, p
 from log_C import log_C
 import numpy as np
 from scipy.special import gammaln  # for gammaln
 
 
-def calculate_zeta_t_roots(zeta_sp, lamb, n, n_pi, B, dim, zeta_t_perp, u):
+def calculate_zeta_t_roots(zeta_sp, lamb, n, B, dim, zeta_t_perp, u):
     """
-    Calculate zeta_t roots for the given parameters.
+    Calculate zeta_t roots for the given parameters for fixed-lambda methods.
     All inputs should be scalar.
     Output: [zeta_t-, zeta_t+]
     """
 
+    n_pi = n_pi_func(dim)
     eta = np.sqrt(n_pi / (n + n_pi))
-    p = dim * (n + n_pi - 1.0) / 2.0 - 1.0
+    # p = dim * (n + n_pi - 1.0) / 2.0 - 1.0
 
     # Define v function
     def v(s):
         return(1.0 + n_pi / n * u + (dim - 1.0) * s * zeta_t_perp ** 2)
 
-    upstairs = (np.log(B) - dim * np.log(eta)) / p
+    upstairs = (np.log(B) - dim * np.log(eta)) / p(n, dim)
     upstairs = v(1.0) - v(eta ** 2.0) * np.exp(upstairs)
 
-    downstairs = (np.log(B) - dim * np.log(eta)) / p
+    downstairs = (np.log(B) - dim * np.log(eta)) / p(n, dim)
     downstairs += 2.0 * np.log(eta)
     downstairs = np.exp(downstairs) - 1.0
 

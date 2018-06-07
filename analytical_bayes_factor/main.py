@@ -1,14 +1,13 @@
 # %% Magic functions
-%matplotlib
-%load_ext autoreload
-%autoreload 2
-#
+try:
+    has_run
+except NameError:
+    %matplotlib
+    %load_ext autoreload
+    %autoreload 2
 
-# # %%
-# %%javascript
-# IPython.OutputArea.prototype._should_scroll = function(lines) {
-#     return false;
-# }
+    has_run = True
+#
 
 # %% imports
 from calculate_zeta_t_lims import calculate_zeta_t_lims
@@ -22,6 +21,7 @@ from plot_K_L import plot_K_L
 from plot_K_L_2D import plot_K_L_2D
 from plot_zeta_t_perp import plot_zeta_t_perp
 import sys
+from tqdm import tqdm, trange
 
 
 # %% Main calculations
@@ -96,7 +96,7 @@ for n_ind in range(ns_count):
 
             # Check if the requested Bayes factor can be reached
             log10_B_lims = calculate_bayes_factor_limits(
-                ns=ns, n_pi=n_pi, dim=dim, zeta_t_perp=ztper, u=u)
+                ns=ns, dim=dim, zeta_t_perp=ztper, u=u)
             bl_reachable = log10_B >= log10_B_lims[n_ind,
                                                    0] and log10_B <= log10_B_lims[n_ind, 1]
 
@@ -105,7 +105,7 @@ for n_ind in range(ns_count):
                       % (10 ** log10_B, 10 ** log10_B_lims[n_ind, 0], 10 ** log10_B_lims[n_ind, 1]))
                 continue
 
-            for zeta_ind in range(zeta_sp_steps):
+            for zeta_ind in trange(zeta_sp_steps):
                 zeta_sp = zeta_sps[zeta_ind]
 
                 # Fixed-lambda
@@ -113,7 +113,7 @@ for n_ind in range(ns_count):
                     lamb = lambs[lamb_ind]
 
                     cur_roots = calculate_zeta_t_roots(
-                        zeta_sp=zeta_sp, lamb=lamb, n=n, n_pi=n_pi, B=B, dim=dim, zeta_t_perp=ztper, u=u)
+                        zeta_sp=zeta_sp, lamb=lamb, n=n, B=B, dim=dim, zeta_t_perp=ztper, u=u)
 
                     # Save
                     if dim == 1:
