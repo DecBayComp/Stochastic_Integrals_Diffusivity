@@ -12,17 +12,17 @@ import os.path
 import numpy as np
 import pandas as pd
 import matplotlib
-# matplotlib.use('Agg') # enable for console runs with no displays
+matplotlib.use('Agg')  # enable for console runs with no displays
 import matplotlib.pyplot as plt
 
 from bayes_factors.calculate_bayes_factors import calculate_bayes_factors
-from constants import abs_tol, data_folder, CSV_DELIMITER
+from constants import abs_tol, CSV_DELIMITER
 
 # for theoretical checks
 from constants import D_0, k
 
 
-def calculate(csv_file, results_folder, bl_output_map, dt, snr_label):
+def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label):
     # # all the following examples are 2D
     # precomputed_meshes = [
     # 	# standard example where nothing special happens
@@ -261,15 +261,23 @@ def calculate(csv_file, results_folder, bl_output_map, dt, snr_label):
         # print(output_df)
         # print(output_df.dtypes)
 
+        # Check that the output folder exists
+        if not os.path.isdir(results_folder):
+            # Recreate the folder
+            try:
+                os.makedirs(results_folder)
+            except Exception as e:
+                print(e)
+
         # Save the file
-        dat_file = results_folder + filename + "_" + mesh + '.dat'
+        dat_file = os.path.join(results_folder, filename + "_" + mesh + '.dat')
         output_df.to_csv(dat_file)
         # with open(dat_file, 'w') as f:
         # 	csv_writer = csv.writer(f, delimiter = CSV_DELIMITER, lineterminator = '\n')
         # 	csv_writer.writerows(output.tolist())
 
         # Plot
-        if bl_output_map:
+        if bl_produce_maps:
             cells = analysis_tree[mesh].data  # `cells` contains the mesh
 
             def png_name(str):

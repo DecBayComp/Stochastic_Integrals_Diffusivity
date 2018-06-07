@@ -11,7 +11,7 @@ import numpy as np
 def set_figure_size(num, rows, page_width_frac):
     pagewidth_in = 6.85
     font_size = 8
-    dpi = 120
+    dpi = 100
 
     figsize = np.asarray([page_width_frac, 0.33 * rows]
                          ) * pagewidth_in  # in inches

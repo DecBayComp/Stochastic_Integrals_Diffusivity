@@ -30,7 +30,12 @@ def calculate_marginalized_integral(zeta_t, zeta_sp, p, v, E):
         return (result)
 
     # Check if break points need to be added
-    lambda_breaks_candidates = np.divide(zeta_t, zeta_sp)
+    # lambda_breaks_candidates = []
+    # ignore if 0 is divided by 0
+    with np.errstate(invalid='ignore', divide='ignore'):
+        # print(zeta_t, zeta_sp)
+        lambda_breaks_candidates = np.divide(zeta_t, zeta_sp)
+        # print(lambda_breaks_candidates)
     lambda_breaks = []
     for lb in lambda_breaks_candidates:
         if lb >= 0.0 and lb <= 1.0:
