@@ -22,7 +22,7 @@ gamma_drag = 400.0  # viscous drag, in fN * s / um
 # >> saw - tooth case for main check <<
 D_case = 1
 D_ratio = 2.0  # Ratio between max and min of the diffusivity
-trials = 100  # 1000
+trials = 10  # 1000
 N = int(1.0e4)  # 10^4 used in the article
 
 # # >> round-well case for gradient jump check <<
@@ -34,7 +34,7 @@ N = int(1.0e4)  # 10^4 used in the article
 
 # the orthogonal force component IF the boolean flag is passed True to the program
 bl_orthogonal_force = True
-zeta_t_y = 0.1
+zeta_t_y_over_zeta_sp_abs = 2.0
 
 # if bl_orthogonal_force:
 #     ksi_range = (-10.0, 10.0)  # range of ratios of the total force to diffusivity gradient

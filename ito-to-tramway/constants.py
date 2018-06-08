@@ -22,10 +22,10 @@ bl_produce_maps = False
 
 # if sys ==
 
-# data_folder_lin = '/mnt/d/calculated_data/sim_performance_2D_no_perp'
-# data_folder_win = r'd:\calculated_data\sim_performance_2D_no_perp'
-data_folder_lin = '/mnt/d/calculated_data/sim_performance_2D_with_perp'
-data_folder_win = r'd:\calculated_data\sim_performance_2D_with_perp'
+data_folder_lin = '/mnt/d/calculated_data/sim_performance_2D_no_perp'
+data_folder_win = r'd:\calculated_data\sim_performance_2D_no_perp'
+# data_folder_lin = '/mnt/d/calculated_data/sim_performance_2D_with_perp'
+# data_folder_win = r'd:\calculated_data\sim_performance_2D_with_perp'
 
 args_file = "./arguments.dat"
 args_lock = "./arguments.lock"

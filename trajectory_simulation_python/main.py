@@ -9,7 +9,7 @@ import random
 import time 			# to measure elapsed time
 
 from D_func import D_func
-from constants import version, max_D_case, N as N_def, progress_update_interval, output_folder, str_mode, t_step, internal_steps_number, CSV_DELIMITER, L, x_max, x_min, dim, D_grad_abs, bl_orthogonal_force, zeta_t_y
+from constants import version, max_D_case, N as N_def, progress_update_interval, output_folder, str_mode, t_step, internal_steps_number, CSV_DELIMITER, L, x_max, x_min, dim, D_grad_abs, bl_orthogonal_force, zeta_t_y_over_zeta_sp_abs
 
 
 def main(arg_str):
@@ -104,7 +104,8 @@ def main(arg_str):
             [D_i, b_prime_b_i] = D_func(D_case, r_i[0], r_i[1], L)  # [D] = um^2/s, [D'] = [um/s]
 
             # The force may have an orthogonal y component if required
-            alpha_i = np.asarray([ksi * D_grad_abs, bl_orthogonal_force * zeta_t_y])
+            alpha_i = np.asarray(
+                [ksi, bl_orthogonal_force * zeta_t_y_over_zeta_sp_abs]) * D_grad_abs
             # print(alpha_i)
             # time.sleep(1)
 

@@ -40,7 +40,7 @@ def combine_results(bl_force_reload=False):
         stats_file = os.path.join(folder, combined_data_filename)
         print("\nProcessing folder: ", folder)
         files_count = len(results_files)
-        # files_count = 202
+        files_count = 101 * 100  # just take 100 trials
 
         # Load data
         if bl_force_reload or not os.path.exists(stats_file):
