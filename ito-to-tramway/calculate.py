@@ -22,7 +22,7 @@ from constants import abs_tol, CSV_DELIMITER
 from constants import D_0, k
 
 
-def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label):
+def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localization_error):
     # # all the following examples are 2D
     # precomputed_meshes = [
     # 	# standard example where nothing special happens
@@ -100,7 +100,7 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label):
         if snr_label not in analysis_tree[mesh]:
             # `infer` adds a subtree identified by `snr_label`
             infer(analysis_tree, 'snr', input_label=mesh, output_label=snr_label,
-                  max_iter=50)
+                  max_iter=50, localization_error=localization_error)
             anything_new = True
             save_rwa(rwa_file, analysis_tree, force=True)
 

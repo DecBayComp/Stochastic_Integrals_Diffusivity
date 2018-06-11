@@ -7,7 +7,7 @@ import argparse			# for command-line arguments
 from tesselate_and_infer import tesselate_and_infer
 from calculate import calculate
 
-from constants import version, folders, bl_produce_maps, dt
+from constants import version, folders, bl_produce_maps, dt, localization_error
 
 
 def main(arg_str):
@@ -35,4 +35,5 @@ def main(arg_str):
 
     # Calculate Bayes factors and output results
     _, output_folder = folders()
-    calculate(file, output_folder, bl_produce_maps=False, dt=dt, snr_label='snr')
+    calculate(file, output_folder, bl_produce_maps=False, dt=dt,
+              snr_label='snr', localization_error=localization_error)
