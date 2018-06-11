@@ -1,4 +1,8 @@
-
+"""
+Plot statistical data together with theoretical predictions.
+Since the horizontal axis features the abs. value of zeta_sp, the regions are duplicated for the opposite signs.
+Maybe I should simplify the presentation, recalculate and show the signed values? This would reduce the number of peaks and simplify presentation.
+"""
 
 from constants import *
 import matplotlib
@@ -56,6 +60,9 @@ def plot_for_article(ksis_unique, avg_data, exp_zeta_ts_over_zeta_sps, expext_me
         ax.set_ylim(ylims)
         avg_zt_y = np.mean(avg_data[i]["zeta_t_y_mean"])
         avg_abs_zsp = np.mean(avg_data[i]["zeta_sp_abs_mean"])
+        print("Now zt_per/zsp is %.3f" % (avg_zt_y / avg_abs_zsp))
+        print("Advice: set your zt_par/zsp ratio to %.3f if you wish to get zt_per = 0.1" %
+              (0.1 / avg_abs_zsp))
 
         # Add a label to each plot
         str_label = chr(ord('a') + count)
@@ -68,7 +75,7 @@ def plot_for_article(ksis_unique, avg_data, exp_zeta_ts_over_zeta_sps, expext_me
             avg_zt_y = 0
 
         if i == rows - 1:
-            ax.set_xlabel("$\zeta_{t\parallel} / \zeta_{sp}$")
+            ax.set_xlabel("$\zeta_{t\parallel} / |\zeta_{sp}|$")
         ax.set_ylabel("Fraction of bins")
         ax.set_title("$\zeta_{t\perp} = %.2f$, $|\zeta_{sp}| = %.2f$, $\\bar{n} = %i$, trials = %i" %
                      (avg_zt_y, avg_abs_zsp, round(expext_mean_n[i]), trials_number[i]))

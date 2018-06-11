@@ -18,14 +18,16 @@ k = 2.0  # um^{-1}
 # ksi = -10.0
 abs_tol = 1.0e-8
 bl_produce_maps = False
+# remember to change the value for the analyzed data. For theory use a value much smaller than the jump
+localization_error = abs_tol
 
 
 # if sys ==
 
-data_folder_lin = '/mnt/d/calculated_data/sim_performance_2D_no_perp'
-data_folder_win = r'd:\calculated_data\sim_performance_2D_no_perp'
-# data_folder_lin = '/mnt/d/calculated_data/sim_performance_2D_with_perp'
-# data_folder_win = r'd:\calculated_data\sim_performance_2D_with_perp'
+# data_folder_lin = '/mnt/d/calculated_data/sim_performance_2D_no_perp'
+# data_folder_win = r'd:\calculated_data\sim_performance_2D_no_perp'
+data_folder_lin = '/mnt/d/calculated_data/sim_performance_2D_with_perp'
+data_folder_win = r'd:\calculated_data\sim_performance_2D_with_perp'
 
 args_file = "./arguments.dat"
 args_lock = "./arguments.lock"
@@ -54,7 +56,7 @@ lock_timeout = 300
 
 jobs_count_tars = 1  # 132+12
 jobs_count_t_bayes = 132
-jobs_count_onsager = 11
+jobs_count_onsager = 10
 manager_script = "job_manager.py"
 DETACHED_PROCESS = 0x00000008
 
