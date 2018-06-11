@@ -105,19 +105,30 @@ else:
 # Launch job managers
 if script_name == 'job_manager.py':
     cmd_str = 'python3 %s' % (script_name)
-    popens = []
+    child_list = []
     pids = []
     for j in range(1, jobs_count + 1):
-        cur_popen = subprocess.Popen(["python3", script_name])
-        popens.append(cur_popen)
+        cur_popen = subprocess.Popen(["python3", script_name], stdin=subprocess.PIPE)
+        child_list.append(cur_popen)
         pids.append(cur_popen.pid)
-    print("Launched %i local job managers" % (jobs_count))
+    print("Launched %i local job managers." % (jobs_count))
     print("PIDs: ")
     print(pids)
 
-    # Collect exit codes
+    timeout = 10    # ms
+
+    # def not_finished():
     for j in range(jobs_count):
-        popens[j].wait()
+        child_list[j].wait()
+
+    # # Wait for user input or for children finishing
+    # while not_finished():
+    #     read_list, _, _ = select([sys.stdin], [], [], timeout)
+    #     if read_list:
+    #         str = sys.stdin.readline()
+    #         print("You typed % s, str)
+    #         continue
+
     print("All job managers finished successfully")
 
 else:
