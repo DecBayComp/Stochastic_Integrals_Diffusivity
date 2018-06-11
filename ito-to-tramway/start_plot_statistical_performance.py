@@ -24,9 +24,8 @@ from plot_for_article import plot_for_article
 data, ksis_unique, avg_data, expect_mean_n, trials_number = combine_results(
     bl_force_reload=True)
 
-
 # %% >>> Theoretical estimates <<<
-exp_zeta_ts_over_zeta_sps = estimate_theoretical_performance(data, expect_mean_n)
+exp_zeta_ts_over_zeta_sps = estimate_theoretical_performance(expect_mean_n)
 
 # %% >> > Plot << <
 # print(exp_zeta_ts_over_zeta_sps)

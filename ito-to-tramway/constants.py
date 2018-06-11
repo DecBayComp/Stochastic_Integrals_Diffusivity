@@ -56,7 +56,7 @@ lock_timeout = 300
 
 jobs_count_tars = 1  # 132+12
 jobs_count_t_bayes = 132
-jobs_count_onsager = 10
+jobs_count_onsager = 10  # 10
 manager_script = "job_manager.py"
 DETACHED_PROCESS = 0x00000008
 

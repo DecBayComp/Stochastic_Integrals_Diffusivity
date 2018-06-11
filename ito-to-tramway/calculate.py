@@ -6,6 +6,7 @@ Plots figures.
 """
 
 import csv
+import time
 from tramway.core import *
 from tramway.helper import *
 import os.path
@@ -106,13 +107,17 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
 
         snr = analysis_tree[mesh][snr_label].data
 
+        # get cell centers
+        cell_centers = analysis_tree[mesh].data.tessellation.cell_centers[snr.maps.index]
+
         # individualize the various intermediate maps, namely:
         # - jump count `n`,
         # - variance `V_prior` of all the jumps but those in the cell,
         # - total snr `zeta_total`,
         # - spurious snr `zeta_spurious`.
 
-        # print(type(snr))
+        # print("Hello, \n", cell_centers.shape)
+        # time.sleep(30)
         n = snr['n']
         D = snr['diffusivity']
         # print(np.asarray(D))
@@ -244,8 +249,9 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
         # print(output)
         # print(ns)
         # print(np.log10(Bs))
-        output_df = pd.DataFrame(columns=["ksi", "log10_B", "force_evidence", "zeta_t_x", "zeta_t_y",
-                                          "zeta_sp_x", "zeta_sp_y", "n_mean", "min_n"], dtype=np.float16)
+        output_df = pd.DataFrame(columns=["ksi", "x_center", "y_center", "log10_B", "force_evidence", "zeta_t_x",
+                                          "zeta_t_y", "zeta_sp_x", "zeta_sp_y", "n_mean", "min_n"], dtype=np.float16)
+
         output_df["log10_B"] = np.log10(Bs)[:, 0]
         output_df["force_evidence"] = forces[:, 0]
         output_df["n_mean"] = ns[:, 0]
@@ -255,6 +261,9 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
         output_df["zeta_t_y"] = zeta_ts[:, 1]
         output_df["zeta_sp_x"] = zeta_sps[:, 0]
         output_df["zeta_sp_y"] = zeta_sps[:, 1]
+        output_df["x_center"] = cell_centers[:, 0]
+        output_df["y_center"] = cell_centers[:, 1]
+
         # output_df = pd.DataFrame(data = {"log10_B": np.log10(Bs)[:, 0],
         # 	"n_mean": ns[:, 0]})
         # output_df.assign(ksi = np.nan)
@@ -285,23 +294,23 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
 
             # Detected forces
             my_map = pd.DataFrame(forces, index=n.index, columns=[
-                                  'Evidence for models'])
+                'Evidence for models'])
             map_plot(my_map, cells=cells,
                      output_file=png_name("_forces"), clip=False)
 
             my_map = pd.DataFrame(forces_grad_only, index=n.index, columns=[
-                                  'Evidence for models | alpha = 0'])
+                'Evidence for models | alpha = 0'])
             map_plot(my_map, cells=cells, output_file=png_name(
                 "_forces_grad_only"), clip=False)
 
             my_map = pd.DataFrame(forces_drift_only, index=n.index, columns=[
-                                  'Evidence for models | g = 0'])
+                'Evidence for models | g = 0'])
             map_plot(my_map, cells=cells, output_file=png_name(
                 "_forces_drift_only"), clip=False)
 
             # Log10(B)
             my_map = pd.DataFrame(np.log10(Bs), index=n.index, columns=[
-                                  'log10(B) clipped'])
+                'log10(B) clipped'])
             map_plot(my_map, cells=cells,
                      output_file=png_name("_log_B"), clip=True)
 
@@ -312,13 +321,13 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
 
             # Alpha dt
             my_map = pd.DataFrame(alpha_dt_inf, index=n.index, columns=[
-                                  '$alpha dt$ x', '$alpha dt$ y'])
+                '$alpha dt$ x', '$alpha dt$ y'])
             map_plot(my_map, cells=cells, output_file=png_name(
                 "_alpha_dt"), clip=False)
 
             # g dt
             my_map = pd.DataFrame(gdt_inf, index=n.index, columns=[
-                                  '$g dt$ x', '$g dt$ y'])
+                '$g dt$ x', '$g dt$ y'])
             map_plot(my_map, cells=cells,
                      output_file=png_name("_g_dt"), clip=False)
 

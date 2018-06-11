@@ -7,7 +7,7 @@ from bayes_factors.find_marginalized_zeta_t_roots import find_marginalized_zeta_
 import numpy as np
 
 
-def estimate_theoretical_performance(data, expect_mean_n):
+def estimate_theoretical_performance(expect_mean_n):
     dim = 2
     n_pi = 5 - dim
     u = 1.0
