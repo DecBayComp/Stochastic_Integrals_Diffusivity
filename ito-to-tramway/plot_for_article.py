@@ -77,7 +77,7 @@ def plot_for_article(ksis_unique, avg_data, exp_zeta_ts_over_zeta_sps, expext_me
         if i == rows - 1:
             ax.set_xlabel("$\zeta_{t\parallel} / \zeta_{sp}$")
         ax.set_ylabel("Fraction of bins")
-        ax.set_title("$\zeta_{t\perp} = %.2f$, $|\zeta_{sp}| = %.2f$, $\\bar{n} = %i$, trials = %i" %
+        ax.set_title("$\zeta_{t\perp} = %.2f$, $|\zeta_{sp}| = %.2f$, $n = %i$, trials = %i" %
                      (avg_zt_y, avg_abs_zsp_x, round(expext_mean_n[i]), trials_number[i]))
         ax.legend(loc="lower right")
     plt.ion()

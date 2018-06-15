@@ -2,7 +2,7 @@
 Estimate expected statistical performance of the active force detection criterion
 """
 
-from constants import D_0, D_ratio, k, dt
+from constants import D_0, D_ratio, dt, L
 from bayes_factors.find_marginalized_zeta_t_roots import find_marginalized_zeta_t_roots
 import numpy as np
 
@@ -14,7 +14,8 @@ def estimate_theoretical_performance(expect_mean_n):
     sim_zeta_t_y_over_zeta_sp = 6.25
     theor_Bs = [0.1, 10.0]
     D_max = D_0 * D_ratio
-    sim_zeta_sp_par = k * D_0 * np.sqrt(dt) / (np.sqrt(D_0) + np.sqrt(D_max))
+    # sim_zeta_sp_par = k * D_0 * np.sqrt(dt) / (np.sqrt(D_0) + np.sqrt(D_max))
+    sim_zeta_sp_par = 2 / L * np.sqrt(dt) * (np.sqrt(D_max) - np.sqrt(D_0))
     print(sim_zeta_sp_par)
 
     # Zeta_t roots calculation (probably needs some testing)

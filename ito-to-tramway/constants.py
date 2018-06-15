@@ -10,11 +10,12 @@ version = 20180416
 
 # Time step for inference
 dt = 0.04  # s
+L = 1  # um
 
 # Simulation parameters for comparison
 D_0 = 0.01  # um^2/s
 D_ratio = 2.0
-k = 2.0  # um^{-1}
+k = 2.0  # um^{-1}, D'/D_0
 # ksi = -10.0
 abs_tol = 1.0e-8
 bl_produce_maps = False
