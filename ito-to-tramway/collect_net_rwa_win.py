@@ -3,14 +3,19 @@ This script collects .rwa files in subfolders on the network and creates an argu
 The goal is to analyze J-B's simulated trajectories
 """
 
+%load_ext autoreload
+%autoreload 2
+
 from calculate import calculate
 import glob
 import os
 
-# %% Constants
+# % Constants
 dt = 0.05
 snr_label = 'snr(mu=0)'
 snr_label = 'snr'
+results_folder = "bayes_factors"
+localization_error = 0.01
 
 
 # root_path = r"\\157.99.40.171\@Dbc\LAB_shared_stuff\Francois_Laurent\tests_tramway\numerical_trajectories_no_box\snr"
@@ -32,3 +37,6 @@ for i in range(len(file_list)):
     folder = folder + "\\"
     print("Processing file: %s" % file)
     # calculate(file, folder, True, dt, snr_label)
+    results_path = os.path.join(folder, results_folder)
+    calculate(csv_file=file, results_folder=results_path, bl_produce_maps=True,
+              dt=dt, snr_label=snr_label, localization_error=localization_error)

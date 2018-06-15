@@ -106,6 +106,7 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
             save_rwa(rwa_file, analysis_tree, force=True)
 
         snr = analysis_tree[mesh][snr_label].data
+        # print(snr.variables)
 
         # get cell centers
         cell_centers = analysis_tree[mesh].data.tessellation.cell_centers[snr.maps.index]
@@ -290,23 +291,22 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
             cells = analysis_tree[mesh].data  # `cells` contains the mesh
 
             def png_name(str):
-                return results_folder + filename + "_" + mesh + str + '.png'
+                return os.path.join(results_folder, filename + "_" + mesh + str + '.png')
 
             # Detected forces
-            my_map = pd.DataFrame(forces, index=n.index, columns=[
-                'Evidence for models'])
+            my_map = pd.DataFrame(forces, index=n.index, columns=['Evidence for models'])
             map_plot(my_map, cells=cells,
                      output_file=png_name("_forces"), clip=False)
 
-            my_map = pd.DataFrame(forces_grad_only, index=n.index, columns=[
-                'Evidence for models | alpha = 0'])
-            map_plot(my_map, cells=cells, output_file=png_name(
-                "_forces_grad_only"), clip=False)
-
-            my_map = pd.DataFrame(forces_drift_only, index=n.index, columns=[
-                'Evidence for models | g = 0'])
-            map_plot(my_map, cells=cells, output_file=png_name(
-                "_forces_drift_only"), clip=False)
+            # my_map = pd.DataFrame(forces_grad_only, index=n.index, columns=[
+            #     'Evidence for models | alpha = 0'])
+            # map_plot(my_map, cells=cells, output_file=png_name(
+            #     "_forces_grad_only"), clip=False)
+            #
+            # my_map = pd.DataFrame(forces_drift_only, index=n.index, columns=[
+            #     'Evidence for models | g = 0'])
+            # map_plot(my_map, cells=cells, output_file=png_name(
+            #     "_forces_drift_only"), clip=False)
 
             # Log10(B)
             my_map = pd.DataFrame(np.log10(Bs), index=n.index, columns=[
@@ -314,10 +314,10 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
             map_plot(my_map, cells=cells,
                      output_file=png_name("_log_B"), clip=True)
 
-            # D
-            my_map = pd.DataFrame(D.T[0], index=n.index, columns=['D'])
-            map_plot(my_map, cells=cells,
-                     output_file=png_name("_D"), clip=False)
+            # # D
+            # my_map = pd.DataFrame(D.T[0], index=n.index, columns=['D'])
+            # map_plot(my_map, cells=cells,
+            #          output_file=png_name("_D"), clip=False)
 
             # Alpha dt
             my_map = pd.DataFrame(alpha_dt_inf, index=n.index, columns=[
