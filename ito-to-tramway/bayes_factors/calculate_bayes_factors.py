@@ -5,6 +5,7 @@ from .calculate_marginalized_integral import calculate_marginalized_integral
 from .calculate_minimal_n import calculate_minimal_n
 from .convenience_functions import *
 import numpy as np
+from tqdm import *  # for graphical estimate of the progress
 
 
 def calculate_bayes_factors(zeta_ts, zeta_sps, ns, Vs, Vs_pi):
@@ -58,7 +59,7 @@ def calculate_bayes_factors(zeta_ts, zeta_sps, ns, Vs, Vs_pi):
     # Calculate
     lg_Bs = np.zeros((M, 1)) * np.nan
     min_ns = np.zeros((M, 1), dtype=int) * np.nan
-    for i in range(M):
+    for i in trange(M):
         try:
             upstairs = calculate_marginalized_integral(zeta_t=zeta_ts[i, :], zeta_sp=zeta_sps[i, :], p=pows[i],
                                                        v=v0s[i], E=etas[i]**2.0)

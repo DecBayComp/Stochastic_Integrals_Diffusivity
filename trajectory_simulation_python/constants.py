@@ -22,7 +22,7 @@ gamma_drag = 400.0  # viscous drag, in fN * s / um
 # >> saw - tooth case for main check <<
 D_case = 1
 D_ratio = 2.0  # Ratio between max and min of the diffusivity
-trials = 100  # 1000
+trials = 1000  # 1000
 N = int(1.0e4)  # 10^4 used in the article
 
 # # >> round-well case for gradient jump check <<

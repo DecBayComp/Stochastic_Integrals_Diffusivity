@@ -32,4 +32,4 @@ def set_figure_size(num, rows, page_width_frac):
     # fig.tight_layout()
 
     # Return figure handle
-    return (fig)
+    return (fig, figsize)

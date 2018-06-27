@@ -14,7 +14,6 @@ from set_figure_size import set_figure_size
 def plot_for_article(ksis_unique, avg_data, exp_zeta_ts_over_zeta_sps, expext_mean_n, trials_number):
 
     # Constants
-    alpha = 0.25
     label_location = [0.025, 0.9]
     font_size = 8
     fill_color_sequence = [green, yellow, red, yellow, green]
