@@ -8,6 +8,7 @@ Plots figures.
 import csv
 import time
 from tramway.core import *
+from tramway.plot.mesh import plot_voronoi
 from tramway.helper import *
 import os.path
 import numpy as np
@@ -15,15 +16,27 @@ import pandas as pd
 import matplotlib
 matplotlib.use('Agg')  # enable for console runs with no displays
 import matplotlib.pyplot as plt
+from set_figure_size import set_figure_size
 
 from bayes_factors.calculate_bayes_factors import calculate_bayes_factors
-from constants import abs_tol, CSV_DELIMITER
+from constants import *
 
 # for theoretical checks
 from constants import D_0, k
 
 
 def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localization_error):
+    # Define the discrete colormap for the Bayes factor
+    alpha = 1.0
+    col_yes = np.asarray([194,    216, 52]) / 255.0
+    col_no = np.asarray([141,  24, 26]) / 255.0
+    col_idk = np.asarray([255,   255,    255]) / 255.0
+    # colors = np.transpose(np.stack([np.append(red, alpha), np.append(
+    #     yellow, alpha), np.append(green, alpha)], axis=1))
+    colors = np.transpose(np.stack([col_no, col_idk, col_yes], axis=1))
+    # print(colors)
+    cmap_bayes_factor = matplotlib.colors.ListedColormap(colors, "bayes_factor")
+
     # # all the following examples are 2D
     # precomputed_meshes = [
     # 	# standard example where nothing special happens
@@ -89,12 +102,15 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
 
     # load the .rwa file
     analysis_tree = load_rwa(rwa_file)
+    print(analysis_tree)
 
     # loop over the available meshes
     anything_new = False
     # `mesh` is a label (a key in dict-like `analysis_tree`)
-    for mesh in analysis_tree:
+    for mesh in ['kmeans_20']:  # analysis_tree:
         print("Using ", rwa_file)
+        # print("Meshes found: ", analysis_tree[mesh])
+        # return
 
         # infer snr-related maps with the 'snr' plugin
         # (will skip to the next step for precomputed maps)
@@ -106,7 +122,7 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
             save_rwa(rwa_file, analysis_tree, force=True)
 
         snr = analysis_tree[mesh][snr_label].data
-        # print(snr.variables)
+        print(snr.variables)
 
         # get cell centers
         cell_centers = analysis_tree[mesh].data.tessellation.cell_centers[snr.maps.index]
@@ -173,10 +189,10 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
         # print("Vs_prior: %s" % Vs_prior)
         Bs, forces, min_ns = calculate_bayes_factors(
             zeta_ts=zeta_ts, zeta_sps=zeta_sps, ns=ns, Vs=Vs, Vs_pi=Vs_prior)
-        _, forces_grad_only, _ = calculate_bayes_factors(
-            zeta_ts=zeta_ts * 0.0, zeta_sps=zeta_sps, ns=ns, Vs=Vs, Vs_pi=Vs_prior)
-        _, forces_drift_only, _ = calculate_bayes_factors(
-            zeta_ts=zeta_ts, zeta_sps=zeta_sps * 0.0, ns=ns, Vs=Vs, Vs_pi=Vs_prior)
+        # _, forces_grad_only, _ = calculate_bayes_factors(
+        #     zeta_ts=zeta_ts * 0.0, zeta_sps=zeta_sps, ns=ns, Vs=Vs, Vs_pi=Vs_prior)
+        # _, forces_drift_only, _ = calculate_bayes_factors(
+        #     zeta_ts=zeta_ts, zeta_sps=zeta_sps * 0.0, ns=ns, Vs=Vs, Vs_pi=Vs_prior)
 
         # # Calculate the Bs that we would get with sufficient n
         # suf_Bs, _, _ = calculate_bayes_factors(zeta_ts = zeta_ts, zeta_sps = zeta_sps, ns = min_ns, Vs = Vs, Vs_pi = Vs_prior)
@@ -189,11 +205,14 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
         # print(zeta_sps)
         gdt_inf = zeta_sps * vec_to_2D(np.sqrt(Vs))
         median_gdt_inf = np.nanmedian(np.abs(gdt_inf), axis=0)
+        gdt_abs = np.sqrt(sum_dims(gdt_inf**2))
         gdt_sim = np.asarray([D_0 * k, 0]) * dt
 
-        # Check total force
+        # Check total force (why inf?)
         alpha_dt_inf = zeta_ts * vec_to_2D(np.sqrt(Vs))
         mean_alpha_dt_inf = np.median(alpha_dt_inf, axis=0)
+        # Absolute values
+        alpha_dt_abs = np.sqrt(sum_dims(alpha_dt_inf**2))
 
         # Simulated SNRs
         # alpha_dt_sim = np.asarray([ksi * D_0 * k , 0]) * dt
@@ -290,51 +309,146 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
         if bl_produce_maps:
             cells = analysis_tree[mesh].data  # `cells` contains the mesh
 
-            def png_name(str):
-                return os.path.join(results_folder, filename + "_" + mesh + str + '.png')
+            def png_name(name):
 
-            # Detected forces
-            my_map = pd.DataFrame(forces, index=n.index, columns=['Evidence for models'])
-            map_plot(my_map, cells=cells,
-                     output_file=png_name("_forces"), clip=False)
+                return os.path.join(results_folder, filename + "_" + mesh + "_" + name + '.png')
 
-            # my_map = pd.DataFrame(forces_grad_only, index=n.index, columns=[
-            #     'Evidence for models | alpha = 0'])
-            # map_plot(my_map, cells=cells, output_file=png_name(
-            #     "_forces_grad_only"), clip=False)
-            #
-            # my_map = pd.DataFrame(forces_drift_only, index=n.index, columns=[
-            #     'Evidence for models | g = 0'])
-            # map_plot(my_map, cells=cells, output_file=png_name(
-            #     "_forces_drift_only"), clip=False)
+            def pdf_name(name):
+                return os.path.join(results_folder, filename + "_" + mesh + "_" + name + '.pdf')
+
+            def plot_me(map, name, colormap='inferno', alpha=1.0, bl_plot_mesh=False, colorbar='nice', ticks=False, letter_label=False, colorbar_legend=False):
+                linewidth = 0.1
+                page_width_frac = 1/3.0
+                pagewidth_in = 6.85
+                font_size = 8
+                dpi = 100
+                alpha_mesh = 0.15
+
+                # the height will be adjusted later
+                figsize = np.asarray([3.0, 1.0]) * page_width_frac * pagewidth_in  # in inches
+                axis_height = figsize[1]
+
+                figsize = tuple(figsize)
+
+                # Set default figure font size and LaTeX usage
+                matplotlib.rcParams.update({'font.size': font_size})
+
+                map_plot(map, cells=cells,
+                         show=False, clip=False, colormap=colormap, alpha=alpha, linewidth=linewidth, figsize=figsize, dpi=dpi, labelsize=font_size, aspect='equal', colorbar=colorbar)
+                if bl_plot_mesh:
+                    plot_voronoi(cells=cells, color=(0, 0, 0, alpha_mesh),
+                                 centroid_style=None, linewidth=linewidth)
+
+                # Manual figure adjustments
+                fig = plt.gcf()
+                fig.set_dpi(dpi)
+                fig.set_figwidth(figsize[0])
+                fig.set_figheight(figsize[1])
+
+                # # Enforce a certain axis height
+                # ax = fig.axes[0]
+                # axis_size = ax.get_position()
+                # ax.set_position([axis_size.x0, axis_size.y0, axis_size.width, axis_height])
+
+
+                # Remove ticks
+                if not ticks:
+                    plt.tick_params(
+                        axis='x',          # changes apply to the x-axis
+                        which='both',      # both major and minor ticks are affected
+                        bottom=False,      # ticks along the bottom edge are off
+                        top=False,         # ticks along the top edge are off
+                        labelbottom=False)  # labels along the bottom edge are off
+                    plt.tick_params(
+                        axis='y',          # changes apply to the x-axis
+                        which='both',      # both major and minor ticks are affected
+                        left=False,      # ticks along the bottom edge are off
+                        right=False,         # ticks along the top edge are off
+                        labelleft=False)  # labels along the bottom edge are off
+
+                # add label
+                if letter_label:
+                    label_location = [0.025, 1.03]
+                    # str_label = chr(ord('a') + plot_me.count)
+                    # plot_me.count += 1
+                    ax = fig.gca()
+                    ax.text(label_location[0], label_location[1],
+                            letter_label, transform=ax.transAxes, fontsize=font_size)
+
+                # Colorbar legend
+                if colorbar_legend:
+                    ax = fig.axes[1].set_ylabel(colorbar_legend, rotation=90)
+
+                # fig.tight_layout()
+                plt.savefig(png_name(name), bbox_inches ='tight', pad_inches=0)
+                plt.savefig(pdf_name(name), bbox_inches ='tight', pad_inches=0)
+                fig.clf()
+
+                # map_plot(map, cells=cells,
+                #          output_file=pdf_name(name), clip=False, colormap=colormap, alpha=alpha, linewidth=linewidth)
+                # colormap = 'inferno'
+                # map_plot(map, cells=cells,
+                #          output_file=png_name(name), clip=False, colormap='viridis')
+                # map_plot(map, cells=cells,
+                #          output_file=png_name(name), clip=False, colormap='plasma')
+                # map_plot(map, cells=cells,
+                #          output_file=png_name(name), clip=False, colormap='inferno')
+                # map_plot(map, cells=cells,
+                #          output_file=png_name(name), clip=False, colormap='magma')
+                # map_plot(map, cells=cells,
+                #          output_file=png_name(name), clip=False, colormap='summer')
+                # map_plot(map, cells=cells,
+                #          output_file=png_name(name), clip=False, colormap='cool')
+                # map_plot(map, cells=cells,
+                #          output_file=png_name(name), clip=False, colormap='Wistia')
+                # map_plot(map, cells=cells,
+                #          output_file=png_name(name), clip=False, colormap='jet')
+                # map_plot(map, cells=cells,
+                #          output_file=png_name(name), clip=False, colormap='Spectral')
+                # map_plot(map, cells=cells,
+                #          output_file=png_name(name), clip=False, colormap='bwr')
+                # map_plot(map, cells=cells,
+                #          output_file=png_name(name), clip=False, colormap='rainbow')
+
+            # plot_me.count = 0
+
+            # Alpha dt absolute values
+            my_map = pd.DataFrame(alpha_dt_abs, index=n.index, columns=['$\\alpha \Delta t$'])
+            plot_me(my_map, "alpha_dt", letter_label='a', colorbar_legend='$\\mu \\mathrm{m}$')
 
             # Log10(B)
             my_map = pd.DataFrame(np.log10(Bs), index=n.index, columns=[
-                'log10(B) clipped'])
-            map_plot(my_map, cells=cells,
-                     output_file=png_name("_log_B"), clip=True)
+                '$\log_{10}(B)$'])
+            plot_me(my_map, "log_B", letter_label='b')
 
-            # # D
-            # my_map = pd.DataFrame(D.T[0], index=n.index, columns=['D'])
-            # map_plot(my_map, cells=cells,
-            #          output_file=png_name("_D"), clip=False)
-
-            # Alpha dt
-            my_map = pd.DataFrame(alpha_dt_inf, index=n.index, columns=[
-                '$alpha dt$ x', '$alpha dt$ y'])
-            map_plot(my_map, cells=cells, output_file=png_name(
-                "_alpha_dt"), clip=False)
+            # # Detected forces
+            # my_map = pd.DataFrame(forces, index=n.index, columns=['Active force'])
+            # plot_me(my_map, "bayes_factor", colormap=cmap_bayes_factor,
+            #         alpha=alpha, bl_plot_mesh=True, colorbar = False, letter_label='c')
 
             # g dt
-            my_map = pd.DataFrame(gdt_inf, index=n.index, columns=[
-                '$g dt$ x', '$g dt$ y'])
-            map_plot(my_map, cells=cells,
-                     output_file=png_name("_g_dt"), clip=False)
+            my_map = pd.DataFrame(gdt_abs, index=n.index, columns=['$g \Delta t$'])
+            plot_me(my_map, "g_dt", letter_label='d', colorbar_legend='$\\mu \\mathrm{m}$')
 
             # n
-            my_map = pd.DataFrame(ns, index=n.index, columns=['n'])
-            map_plot(my_map, cells=cells,
-                     output_file=png_name("_n"), clip=False)
+            my_map = pd.DataFrame(ns, index=n.index, columns=['$n$'])
+            plot_me(my_map, "n", letter_label='e')
+
+            # # Alpha dt
+            # my_map = pd.DataFrame(alpha_dt_inf, index=n.index, columns=[
+            #     '$\\alpha \Delta t$ x', '$\\alpha \Delta t$ y'])
+            # plot_me(my_map, "alpha_dt")
+
+            #
+            # # D
+            # my_map = pd.DataFrame(D.T[0], index=n.index, columns=['D'])
+            # plot_me(my_map, "D")
+            #
+
+            #
+
+            #
+
 
             #
             # my_map = pd.DataFrame(D.T[0], index = n.index, columns = ['D'])

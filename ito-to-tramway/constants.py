@@ -25,10 +25,10 @@ localization_error = abs_tol
 
 # if sys ==
 
-# data_folder_lin = '/mnt/d/calculated_data/sim_performance_2D_no_perp'
-# data_folder_win = r'd:\calculated_data\sim_performance_2D_no_perp'
-data_folder_lin = '/mnt/d/calculated_data/sim_performance_2D_with_perp'
-data_folder_win = r'd:\calculated_data\sim_performance_2D_with_perp'
+data_folder_lin = '/mnt/d/calculated_data/sim_performance_2D_no_perp'
+data_folder_win = r'd:\calculated_data\sim_performance_2D_no_perp'
+# data_folder_lin = '/mnt/d/calculated_data/sim_performance_2D_with_perp'
+# data_folder_win = r'd:\calculated_data\sim_performance_2D_with_perp'
 
 args_file = "./arguments.dat"
 args_lock = "./arguments.lock"
@@ -57,7 +57,7 @@ lock_timeout = 300
 
 jobs_count_tars = 1  # 132+12
 jobs_count_t_bayes = 132
-jobs_count_onsager = 10  # 10
+jobs_count_onsager = 2  # 10
 manager_script = "job_manager.py"
 DETACHED_PROCESS = 0x00000008
 
@@ -68,6 +68,7 @@ DETACHED_PROCESS = 0x00000008
 # args_lock = "./arguments_2.lock"
 
 # color sequence
+alpha = 0.25
 green = [0.4353,    0.5804,         0]
 red = np.asarray([191,    32,    37]) / 255.0
 yellow = np.asarray([252.91, 191.76, 16.47]) / 255.0
