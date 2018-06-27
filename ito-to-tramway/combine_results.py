@@ -32,7 +32,6 @@ def combine_results(bl_force_reload=False):
     # data_no_perp = pd.DataFrame()
     data = []
     for f_ind in range(len(folders)):
-        # for folder in folders:
         folder = folders[f_ind]
 
         # Get a list of results files
@@ -40,52 +39,56 @@ def combine_results(bl_force_reload=False):
         stats_file = os.path.join(folder, combined_data_filename)
         print("\nProcessing folder: ", folder)
         files_count = len(results_files)
-        files_count = np.min([files_count, 101 * 100])  # take max 100 trials
+        files_count = np.min([files_count, 101 * 1000])  # take max trials
+
+        # Initialize
+        left_ksis = np.zeros(files_count, dtype=np.float32) * np.nan
+        true_ksis = np.zeros((files_count, 2), dtype=np.float32) * np.nan
+        mean_ns = np.zeros((files_count, 2), dtype=np.float32) * np.nan
+        zsp_x_mean = np.zeros((files_count, 2), dtype=np.float32) * np.nan
+        zt_y_mean = np.zeros((files_count, 2), dtype=np.float32) * np.nan
+
+        # Dimensions of tr_B: file, cell half, B region
+        tr_Bs = np.zeros((files_count, 2, 3), dtype=np.float32) * np.nan
 
         # Load data
         if bl_force_reload or not os.path.exists(stats_file):
-            left_ksis = np.zeros(files_count, dtype=np.float32)
-            true_ksis = np.zeros((files_count, 2), dtype=np.float32)
-            mean_ns = np.zeros((files_count, 2), dtype=np.float32)
-            zsp_x_mean = np.zeros((files_count, 2), dtype=np.float32)
-            zt_y_mean = np.zeros((files_count, 2), dtype=np.float32)
-            # Dimensions: file, cell half, B region
-            tr_Bs = np.zeros((files_count, 2, 3), dtype=np.float32)
-            # i=10
-            progress = 0
-            # progress_bar = FloatProgress(min=0, max=100, description="Calculating:")
-            # display(progress_bar)
+
             for i in trange(files_count):
                 file = results_files[i]
                 df = pd.read_csv(file)
 
-                # calculate separately for the left and right half
-                x_centers = df["x_center"]
-                left_ksis[i] = df["ksi"].loc[0]
-                true_ksis[i, :] = np.asarray([1, -1]) * left_ksis[i]
-                # halves indicator has True in column 0 if the bin is in the left half
-                halves_indicators = np.transpose(np.stack((np.asarray(
-                    x_centers) <= 0.5, np.asarray(x_centers) > 0.5)))
-                for half in range(2):
-                    half_cells = df.loc[halves_indicators[:, half]]
+                try:
+                    # calculate separately for the left and right half
+                    x_centers = df["x_center"]
+                    left_ksis[i] = df["ksi"].loc[0]
+                    true_ksis[i, :] = np.asarray([1, -1]) * left_ksis[i]
+                    # halves indicator has True in column 0 if the bin is in the left half
+                    halves_indicators = np.transpose(np.stack((np.asarray(
+                        x_centers) <= 0.5, np.asarray(x_centers) > 0.5)))
+                    for half in range(2):
+                        half_cells = df.loc[halves_indicators[:, half]]
 
-                    cells_count = len(half_cells.index)
+                        # Calculate
+                        # ksis in the left half of the box. In the right half they have an opposite sign
+                        mean_ns[i, half] = np.nanmean(half_cells["n_mean"])
+                        zt_y_mean[i, half] = np.nanmean(half_cells["zeta_t_y"])
+                        zsp_x_mean[i, half] = np.nanmean(half_cells["zeta_sp_x"])
 
-                    # Calculate
-                    # ksis in the left half of the box. In the right half they have an opposite sign
-                    mean_ns[i, half] = np.nanmean(half_cells["n_mean"])
-                    zt_y_mean[i, half] = np.nanmean(half_cells["zeta_t_y"])
-                    zsp_x_mean[i, half] = np.nanmean(half_cells["zeta_sp_x"])
+                        # Get the fraction of active force detection
+                        cur_lg_Bs = np.asarray(half_cells["log10_B"])
+                        cells_count = np.sum(~np.isnan(half_cells["log10_B"]))
+                        # print(cells_count)
 
-                    # Get the fraction of active force detection
-                    cur_lg_Bs = np.asarray(half_cells["log10_B"])
-
-                    # calculate half fractions
-                    tr_Bs[i, half, 2] = np.sum(
-                        (cur_lg_Bs >= lg_B_abs_treshold) * 1.0) / cells_count
-                    tr_Bs[i, half, 0] = np.sum(
-                        (cur_lg_Bs <= -lg_B_abs_treshold) * 1.0) / cells_count
-                    tr_Bs[i, half, 1] = 1 - tr_Bs[i, half, 0] - tr_Bs[i, half, 2]
+                        # calculate half fractions
+                        tr_Bs[i, half, 2] = np.sum(
+                            (cur_lg_Bs >= lg_B_abs_treshold) * 1.0) / cells_count
+                        tr_Bs[i, half, 0] = np.sum(
+                            (cur_lg_Bs <= -lg_B_abs_treshold) * 1.0) / cells_count
+                        tr_Bs[i, half, 1] = 1 - tr_Bs[i, half, 0] - tr_Bs[i, half, 2]
+                except Exception as e:
+                    print("Warning: encountered error while processing file %s. Skipping.\n\n" % (file))
+                    print(e)
 
             # Convert to an appropriate data frame
             # ksi_rounded is a rounded value of ksi in these simulations
