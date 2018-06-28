@@ -23,7 +23,7 @@ def plot_for_article(ksis_unique, avg_data, exp_zeta_ts_over_zeta_sps, expext_me
     xlims = np.asarray([-1, 1]) * 25.5
     # xlims = [[-25, 25], [-5, 5]]
 
-    fig = set_figure_size(num=1, rows=rows, page_width_frac=0.5)
+    fig, _ = set_figure_size(num=1, rows=rows, page_width_frac=0.5)
     _, ax_arr = plt.subplots(rows, cols, num=1, sharex=False)
 
     count = 0

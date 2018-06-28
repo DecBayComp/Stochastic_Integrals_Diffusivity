@@ -107,7 +107,7 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
     # loop over the available meshes
     anything_new = False
     # `mesh` is a label (a key in dict-like `analysis_tree`)
-    for mesh in ['kmeans_20']:  # analysis_tree:
+    for mesh in analysis_tree: # ['kmeans_20']: - shortcut for the vlp plots
         print("Using ", rwa_file)
         # print("Meshes found: ", analysis_tree[mesh])
         # return

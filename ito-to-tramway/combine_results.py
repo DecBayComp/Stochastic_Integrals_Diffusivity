@@ -39,7 +39,7 @@ def combine_results(bl_force_reload=False):
         stats_file = os.path.join(folder, combined_data_filename)
         print("\nProcessing folder: ", folder)
         files_count = len(results_files)
-        files_count = np.min([files_count, 101 * 1000])  # take max trials
+        files_count = np.min([files_count, 101 * 10])  # take max trials
 
         # Initialize
         left_ksis = np.zeros(files_count, dtype=np.float32) * np.nan
@@ -108,12 +108,16 @@ def combine_results(bl_force_reload=False):
                     "frac_uncert": tr_Bs[:, half, 1],
                     "frac_spur": tr_Bs[:, half, 0]},
                 )
-                data[f_ind] = data[f_ind].append(add_data)
 
-                # count the number of trials in one half
+                # count the number of trials from 1 half (otherwise they double)
                 if half == 0:
-                    trials = data[f_ind].groupby(by="ksi_rounded").count().iloc[0]
+                    trials = add_data.groupby(by="ksi_rounded").count().mean().iloc[0]
+                    # print(trials)
+                    # add_data['trials'] = np.nan
+                    add_data.loc[0, 'trials'] = trials
                     trials_number.append(np.mean(trials))
+
+                data[f_ind] = data[f_ind].append(add_data)
 
             # reset row counter
             data[f_ind] = data[f_ind].reset_index(drop=True)
@@ -127,7 +131,10 @@ def combine_results(bl_force_reload=False):
             cells_count = []
             tr_Bs = []
         else:
-            data.append(pd.read_csv(stats_file))
+            cur_data = pd.read_csv(stats_file)
+            data.append(cur_data)
+            trials_number.append(cur_data.loc[0, 'trials'])
+            cur_data = []
             print("Warning: trajectories not reloaded")
 
         # Average over trials now treating the halves independently
