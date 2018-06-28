@@ -419,12 +419,12 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
             # Log10(B)
             my_map = pd.DataFrame(np.log10(Bs), index=n.index, columns=[
                 '$\log_{10}(B)$'])
-            plot_me(my_map, "log_B", letter_label='b')
+            plot_me(my_map, "log_B", letter_label='e')
 
-            # # Detected forces
-            # my_map = pd.DataFrame(forces, index=n.index, columns=['Active force'])
-            # plot_me(my_map, "bayes_factor", colormap=cmap_bayes_factor,
-            #         alpha=alpha, bl_plot_mesh=True, colorbar = False, letter_label='c')
+            # Detected forces
+            my_map = pd.DataFrame(forces, index=n.index, columns=['Active force'])
+            plot_me(my_map, "bayes_factor", colormap=cmap_bayes_factor,
+                    alpha=alpha, bl_plot_mesh=True, colorbar = False, letter_label='f')
 
             # g dt
             my_map = pd.DataFrame(gdt_abs, index=n.index, columns=['$g \Delta t$'])
@@ -432,7 +432,13 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
 
             # n
             my_map = pd.DataFrame(ns, index=n.index, columns=['$n$'])
-            plot_me(my_map, "n", letter_label='e')
+            plot_me(my_map, "n", letter_label='b')
+
+            # D
+            my_map = pd.DataFrame(D.T[0], index=n.index, columns=['$D$'])
+            plot_me(my_map, "D", letter_label='c', colorbar_legend='$\\mu \\mathrm{m^2/s}$')
+
+
 
             # # Alpha dt
             # my_map = pd.DataFrame(alpha_dt_inf, index=n.index, columns=[
@@ -440,9 +446,7 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
             # plot_me(my_map, "alpha_dt")
 
             #
-            # # D
-            # my_map = pd.DataFrame(D.T[0], index=n.index, columns=['D'])
-            # plot_me(my_map, "D")
+
             #
 
             #
