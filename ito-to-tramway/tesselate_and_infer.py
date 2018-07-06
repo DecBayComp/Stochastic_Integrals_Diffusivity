@@ -14,7 +14,7 @@ from snr import infer_snr
 from constants import dt
 
 
-def tesselate_and_infer(csv_file, bl_dr=True):
+def tesselate_and_infer(csv_file, bl_dr=True, localization_error=1e-3):
     rwa_file, _ = os.path.splitext(csv_file)
     rwa_file = '{}.rwa'.format(rwa_file)
 
@@ -51,6 +51,6 @@ def tesselate_and_infer(csv_file, bl_dr=True):
         cell_types = Translocations
     d = distributed(a['gwr'].data, new_cell=cell_types)
     # , diffusivity_prior = 0.001, min_diffusivity = 0.001)
-    x = d.run(infer_snr, max_iter=50, localization_error=1e-3)
+    x = d.run(infer_snr, max_iter=50, localization_error=localization_error)
     a['gwr'].add(Maps(x, mode='snr'), label='snr')
     save_rwa(rwa_file, a, verbose=True, force=True)

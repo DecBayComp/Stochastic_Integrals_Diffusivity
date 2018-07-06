@@ -31,7 +31,7 @@ def main(arg_str):
 
     print(file)
     # Tesselate and perform inference
-    tesselate_and_infer(file)
+    tesselate_and_infer(file, localization_error=localization_error)
 
     # Calculate Bayes factors and output results
     _, output_folder = folders()

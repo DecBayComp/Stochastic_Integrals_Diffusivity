@@ -39,7 +39,7 @@ def combine_results(bl_force_reload=False):
         stats_file = os.path.join(folder, combined_data_filename)
         print("\nProcessing folder: ", folder)
         files_count = len(results_files)
-        files_count = np.min([files_count, 101 * 10])  # take max trials
+        files_count = np.min([files_count, 101 * 1000])  # take max trials
 
         # Initialize
         left_ksis = np.zeros(files_count, dtype=np.float32) * np.nan

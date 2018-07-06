@@ -74,7 +74,7 @@ def plot_K_L_2D(zeta_sps, zeta_t_roots, ns, us, dim, ztpers):
                 ax.set_title("n = %i" % (n))
 
             # Add a label to each plot
-            str_label = chr(ord('a') + count)
+            str_label = chr(ord('e') + count)
             ax.text(label_location[0], label_location[1],
                     str_label, transform=ax.transAxes, fontsize=font_size)
             count += 1
