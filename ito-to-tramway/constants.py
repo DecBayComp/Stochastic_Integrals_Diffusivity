@@ -35,6 +35,7 @@ args_lock = "./arguments.lock"
 
 optical_traps_data_folder = r'\\157.99.40.171\@Dbc\LAB_shared_stuff\Francois_Laurent\tests_tramway\optical_tweezers'
 optical_data_sets = ['P1', 'P4', 'P5']
+optical_power_mW = [500, 251, 138]
 optical_traps_points_per_bin = 400
 optical_traps_dt = 1.0 / 65536
 

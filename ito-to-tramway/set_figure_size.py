@@ -1,6 +1,3 @@
-"""
-A copy of my universal function to keep figures the same size
-"""
 
 
 import matplotlib
@@ -8,17 +5,26 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def set_figure_size(num, rows, page_width_frac):
+def set_figure_size(num, rows, page_width_frac, height_factor=1.0):
     pagewidth_in = 6.85
     font_size = 8
     dpi = 100
 
-    figsize = np.asarray([page_width_frac, 0.33 * rows]
-                         ) * pagewidth_in  # in inches
+    figsize = np.asarray([1.0, 0.33 * rows *
+                          height_factor]) * page_width_frac * pagewidth_in  # in inches
 
-    # Set default font size and LaTeX usage
+    # Set default font size
     matplotlib.rcParams.update({'font.size': font_size})
+
+    # Enable LaTeX and set font to Helvetica
     plt.rc('text', usetex=True)
+    plt.rcParams['text.latex.preamble'] = [
+        r'\usepackage{tgheros}',    # helvetica font
+        r'\usepackage{sansmath}',   # math-font matching  helvetica
+        r'\sansmath'                # actually tell tex to use it!
+        r'\usepackage{siunitx}',    # micro symbols
+        r'\sisetup{detect-all}',    # force siunitx to use the fonts
+    ]
 
     # Create and return figure handle
     fig = plt.figure(num)
