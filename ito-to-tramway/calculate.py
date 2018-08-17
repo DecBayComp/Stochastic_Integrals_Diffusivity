@@ -14,7 +14,7 @@ import os.path
 import numpy as np
 import pandas as pd
 import matplotlib
-matplotlib.use('Agg')  # enable for console runs with no displays
+# matplotlib.use('Agg')  # enable for console runs with no displays
 import matplotlib.pyplot as plt
 from set_figure_size import set_figure_size
 
@@ -283,6 +283,10 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
         output_df["zeta_sp_y"] = zeta_sps[:, 1]
         output_df["x_center"] = cell_centers[:, 0]
         output_df["y_center"] = cell_centers[:, 1]
+        
+        # Add the frame also to the .rwa file
+        analysis_tree[mesh][snr_label].add(output_df, label='bayes_factors')
+        anything_new = True
 
         # output_df = pd.DataFrame(data = {"log10_B": np.log10(Bs)[:, 0],
         # 	"n_mean": ns[:, 0]})
@@ -468,3 +472,4 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
         # save the intermediate snr-related maps
         if anything_new:
             save_rwa(rwa_file, analysis_tree, force=True)
+            print(analysis_tree)

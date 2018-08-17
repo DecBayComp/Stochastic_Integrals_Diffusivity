@@ -33,6 +33,11 @@ data_folder_win = r'd:\calculated_data\sim_performance_2D_no_perp'
 args_file = "./arguments.dat"
 args_lock = "./arguments.lock"
 
+optical_traps_data_folder = r'\\157.99.40.171\@Dbc\LAB_shared_stuff\Francois_Laurent\tests_tramway\optical_tweezers'
+optical_data_sets = ['P1', 'P4', 'P5']
+optical_traps_points_per_bin = 400
+optical_traps_dt = 1.0 / 65536
+
 
 def folders():
     sys = platform.system()
@@ -72,3 +77,5 @@ alpha = 0.25
 green = [0.4353,    0.5804,         0]
 red = np.asarray([191,    32,    37]) / 255.0
 yellow = np.asarray([252.91, 191.76, 16.47]) / 255.0
+
+MACHINE_PRECISION = 1e-16
