@@ -1,0 +1,1 @@
+This folder contains code to plot a comparison of Bayes factor levels for different experimental optical traps. The idea is to demonstrate that the level of evidence one is looking for in any particular data set depends on the data set. It is important that in any case, the interpretation of the Bayes factor is clear as a ratio of probabilities.
