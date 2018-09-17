@@ -12,6 +12,7 @@ except:
 
 from calculate import calculate
 import glob
+import matplotlib
 import os
 
 # % Constants
@@ -50,7 +51,6 @@ dt = 0.02  # s
 snr_label = 'snr'
 localization_error = 0.03
 bl_recursive = False
-
 
 # root_path = r"D:\\git\Stochastic_Integrals_Diffusivity\ito-to-tramway"
 

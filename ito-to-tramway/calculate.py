@@ -101,13 +101,14 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
     # 	tessellate(example+'.txt', 'gwr', strict_min_location_count=10, label='gwr')
 
     # load the .rwa file
-    analysis_tree = load_rwa(rwa_file)
+    # analysis_tree = load_rwa(rwa_file)
+    analysis_tree = RWAStore(rwa_file, 'r').peek('analyses')
     print(analysis_tree)
 
     # loop over the available meshes
     anything_new = False
     # `mesh` is a label (a key in dict-like `analysis_tree`)
-    for mesh in analysis_tree: # ['kmeans_20']: - shortcut for the vlp plots
+    for mesh in analysis_tree:  # ['kmeans_20']: - shortcut for the vlp plots
         print("Using ", rwa_file)
         # print("Meshes found: ", analysis_tree[mesh])
         # return
@@ -208,7 +209,7 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
         gdt_abs = np.sqrt(sum_dims(gdt_inf**2))
         gdt_sim = np.asarray([D_0 * k, 0]) * dt
 
-        # Check total force (why inf?)
+        # Check total force (why inf? why?)
         alpha_dt_inf = zeta_ts * vec_to_2D(np.sqrt(Vs))
         mean_alpha_dt_inf = np.median(alpha_dt_inf, axis=0)
         # Absolute values
@@ -283,7 +284,7 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
         output_df["zeta_sp_y"] = zeta_sps[:, 1]
         output_df["x_center"] = cell_centers[:, 0]
         output_df["y_center"] = cell_centers[:, 1]
-        
+
         # Add the frame also to the .rwa file
         analysis_tree[mesh][snr_label].add(output_df, label='bayes_factors')
         anything_new = True
@@ -320,9 +321,9 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
             def pdf_name(name):
                 return os.path.join(results_folder, filename + "_" + mesh + "_" + name + '.pdf')
 
-            def plot_me(map, name, colormap='inferno', alpha=1.0, bl_plot_mesh=False, colorbar='nice', ticks=False, letter_label=False, colorbar_legend=False):
+            def plot_me(map, name, colormap='inferno', alpha=1.0, bl_plot_mesh=False, mesh_color=[0, 0, 0], colorbar='nice', ticks=False, letter_label=False, colorbar_legend=False, vector=False):
                 linewidth = 0.1
-                page_width_frac = 1/3.0
+                page_width_frac = 1 / 3.0
                 pagewidth_in = 6.85
                 font_size = 8
                 dpi = 100
@@ -337,10 +338,17 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
                 # Set default figure font size and LaTeX usage
                 matplotlib.rcParams.update({'font.size': font_size})
 
-                map_plot(map, cells=cells,
-                         show=False, clip=False, colormap=colormap, alpha=alpha, linewidth=linewidth, figsize=figsize, dpi=dpi, labelsize=font_size, aspect='equal', colorbar=colorbar)
+                if not vector:
+                    map_plot(map, cells=cells,
+                             show=False, clip=False, colormap=colormap, alpha=alpha, linewidth=linewidth, figsize=figsize, dpi=dpi, aspect='equal', colorbar=colorbar)
+                else:
+                    # linewidth = 0
+                    map_plot(map, cells=cells,
+                             show=False, clip=False, colormap=colormap, alpha=alpha, markerlinewidth=linewidth, figsize=figsize, dpi=dpi, aspect='equal', colorbar=colorbar, transform=None)
+
                 if bl_plot_mesh:
-                    plot_voronoi(cells=cells, color=(0, 0, 0, alpha_mesh),
+                    color = tuple(mesh_color + [alpha_mesh])
+                    plot_voronoi(cells=cells, color=color,
                                  centroid_style=None, linewidth=linewidth)
 
                 # Manual figure adjustments
@@ -353,7 +361,6 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
                 # ax = fig.axes[0]
                 # axis_size = ax.get_position()
                 # ax.set_position([axis_size.x0, axis_size.y0, axis_size.width, axis_height])
-
 
                 # Remove ticks
                 if not ticks:
@@ -381,11 +388,12 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
 
                 # Colorbar legend
                 if colorbar_legend:
+                    print(fig.axes)
                     ax = fig.axes[1].set_ylabel(colorbar_legend, rotation=90)
 
                 # fig.tight_layout()
-                plt.savefig(png_name(name), bbox_inches ='tight', pad_inches=0)
-                plt.savefig(pdf_name(name), bbox_inches ='tight', pad_inches=0)
+                plt.savefig(pdf_name(name), bbox_inches='tight', pad_inches=0)
+                plt.savefig(png_name(name), bbox_inches='tight', pad_inches=0)
                 fig.clf()
 
                 # map_plot(map, cells=cells,
@@ -393,32 +401,18 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
                 # colormap = 'inferno'
                 # map_plot(map, cells=cells,
                 #          output_file=png_name(name), clip=False, colormap='viridis')
-                # map_plot(map, cells=cells,
-                #          output_file=png_name(name), clip=False, colormap='plasma')
-                # map_plot(map, cells=cells,
-                #          output_file=png_name(name), clip=False, colormap='inferno')
-                # map_plot(map, cells=cells,
-                #          output_file=png_name(name), clip=False, colormap='magma')
-                # map_plot(map, cells=cells,
-                #          output_file=png_name(name), clip=False, colormap='summer')
-                # map_plot(map, cells=cells,
-                #          output_file=png_name(name), clip=False, colormap='cool')
-                # map_plot(map, cells=cells,
-                #          output_file=png_name(name), clip=False, colormap='Wistia')
-                # map_plot(map, cells=cells,
-                #          output_file=png_name(name), clip=False, colormap='jet')
-                # map_plot(map, cells=cells,
-                #          output_file=png_name(name), clip=False, colormap='Spectral')
-                # map_plot(map, cells=cells,
-                #          output_file=png_name(name), clip=False, colormap='bwr')
-                # map_plot(map, cells=cells,
-                #          output_file=png_name(name), clip=False, colormap='rainbow')
 
             # plot_me.count = 0
 
             # Alpha dt absolute values
             my_map = pd.DataFrame(alpha_dt_abs, index=n.index, columns=['$\\alpha \Delta t$'])
             plot_me(my_map, "alpha_dt", letter_label='a', colorbar_legend='$\\mu \\mathrm{m}$')
+
+            # Alpha dt vector
+            my_map = pd.DataFrame(alpha_dt_inf, index=n.index,  columns=[
+                '$\\alpha \Delta t$ x', '$\\alpha \Delta t$ y'])
+            plot_me(my_map, "alpha_dt_vec", colormap='inferno', ticks=False,
+                    vector=True, colorbar_legend='$\\mu \\mathrm{m}$', bl_plot_mesh=True, mesh_color=[1, 1, 1])
 
             # Log10(B)
             my_map = pd.DataFrame(np.log10(Bs), index=n.index, columns=[
@@ -428,7 +422,7 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
             # Detected forces
             my_map = pd.DataFrame(forces, index=n.index, columns=['Active force'])
             plot_me(my_map, "bayes_factor", colormap=cmap_bayes_factor,
-                    alpha=alpha, bl_plot_mesh=True, colorbar = False, letter_label='f')
+                    alpha=alpha, bl_plot_mesh=True, colorbar=False, letter_label='f')
 
             # g dt
             my_map = pd.DataFrame(gdt_abs, index=n.index, columns=['$g \Delta t$'])
@@ -442,13 +436,6 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
             my_map = pd.DataFrame(D.T[0], index=n.index, columns=['$D$'])
             plot_me(my_map, "D", letter_label='c', colorbar_legend='$\\mu \\mathrm{m^2/s}$')
 
-
-
-            # # Alpha dt
-            # my_map = pd.DataFrame(alpha_dt_inf, index=n.index, columns=[
-            #     '$\\alpha \Delta t$ x', '$\\alpha \Delta t$ y'])
-            # plot_me(my_map, "alpha_dt")
-
             #
 
             #
@@ -456,7 +443,6 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
             #
 
             #
-
 
             #
             # my_map = pd.DataFrame(D.T[0], index = n.index, columns = ['D'])
