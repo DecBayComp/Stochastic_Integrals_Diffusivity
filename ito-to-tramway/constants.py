@@ -33,7 +33,7 @@ data_folder_win = r'd:\calculated_data\sim_performance_2D_no_perp'
 args_file = "./arguments.dat"
 args_lock = "./arguments.lock"
 
-optical_traps_data_folder = r'\\157.99.40.171\@Dbc\LAB_shared_stuff\Francois_Laurent\tests_tramway\optical_tweezers'
+optical_traps_data_folder = r'\\atlas.pasteur.fr\@Dbc\LAB_shared_stuff\Francois_Laurent\tests_tramway\optical_tweezers'
 optical_data_sets = ['P1', 'P4', 'P5']
 optical_power_mW = [500, 251, 138]
 optical_traps_points_per_bin = 400

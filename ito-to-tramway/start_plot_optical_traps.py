@@ -38,6 +38,7 @@ dpi = 100
 # %%
 cells_combined = []
 log10_Bs_combined = []
+
 for file_ind in trange(len(optical_data_sets)):
     file = optical_data_sets[file_ind]
 
