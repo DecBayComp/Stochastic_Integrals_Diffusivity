@@ -83,7 +83,6 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
     # load the .rwa file
     # analysis_tree = load_rwa(rwa_file)
     analysis_tree = RWAStore(rwa_file, 'r').peek('analyses')
-    print(analysis_tree)
 
     # loop over the available meshes
     anything_new = False
@@ -284,167 +283,169 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
         # print(output_df)
         # print(output_df.dtypes)
 
-        # Check that the output folder exists
-        if not os.path.isdir(results_folder):
-            # Recreate the folder
-            try:
-                os.makedirs(results_folder)
-            except Exception as e:
-                print(e)
+        if results_folder:
 
-        # Save the file
-        dat_file = os.path.join(results_folder, filename + "_" + mesh + '.dat')
-        output_df.to_csv(dat_file)
-        # with open(dat_file, 'w') as f:
-        # 	csv_writer = csv.writer(f, delimiter = CSV_DELIMITER, lineterminator = '\n')
-        # 	csv_writer.writerows(output.tolist())
+            # Check that the output folder exists
+            if not os.path.isdir(results_folder):
+                # Recreate the folder
+                try:
+                    os.makedirs(results_folder)
+                except Exception as e:
+                    print(e)
 
-        # Plot
-        if bl_produce_maps:
-            cells = analysis_tree[mesh].data  # `cells` contains the mesh
+            # Save the file
+            dat_file = os.path.join(results_folder, filename + "_" + mesh + '.dat')
+            output_df.to_csv(dat_file)
+            # with open(dat_file, 'w') as f:
+            # 	csv_writer = csv.writer(f, delimiter = CSV_DELIMITER, lineterminator = '\n')
+            # 	csv_writer.writerows(output.tolist())
 
-            def png_name(name):
+            # Plot
+            if bl_produce_maps:
+                cells = analysis_tree[mesh].data  # `cells` contains the mesh
 
-                return os.path.join(results_folder, filename + "_" + mesh + "_" + name + '.png')
+                def png_name(name):
 
-            def pdf_name(name):
-                return os.path.join(results_folder, filename + "_" + mesh + "_" + name + '.pdf')
+                    return os.path.join(results_folder, filename + "_" + mesh + "_" + name + '.png')
 
-            def plot_me(map, name, colormap='inferno', alpha=1.0, bl_plot_mesh=False, mesh_color=[0, 0, 0], colorbar='nice', ticks=False, letter_label=False, colorbar_legend=False, vector=False):
-                linewidth = 0.1
-                page_width_frac = 1 / 3.0
-                pagewidth_in = 6.85
-                font_size = 8
-                dpi = 100
-                alpha_mesh = 0.15
+                def pdf_name(name):
+                    return os.path.join(results_folder, filename + "_" + mesh + "_" + name + '.pdf')
 
-                # the height will be adjusted later
-                figsize = np.asarray([3.0, 1.0]) * page_width_frac * pagewidth_in  # in inches
-                axis_height = figsize[1]
+                def plot_me(map, name, colormap='inferno', alpha=1.0, bl_plot_mesh=False, mesh_color=[0, 0, 0], colorbar='nice', ticks=False, letter_label=False, colorbar_legend=False, vector=False):
+                    linewidth = 0.1
+                    page_width_frac = 1 / 3.0
+                    pagewidth_in = 6.85
+                    font_size = 8
+                    dpi = 100
+                    alpha_mesh = 0.15
 
-                figsize = tuple(figsize)
+                    # the height will be adjusted later
+                    figsize = np.asarray([3.0, 1.0]) * page_width_frac * pagewidth_in  # in inches
+                    axis_height = figsize[1]
 
-                # Set default figure font size and LaTeX usage
-                matplotlib.rcParams.update({'font.size': font_size})
+                    figsize = tuple(figsize)
 
-                if not vector:
-                    map_plot(map, cells=cells,
-                             show=False, clip=False, colormap=colormap, alpha=alpha, linewidth=linewidth, figsize=figsize, dpi=dpi, aspect='equal', colorbar=colorbar)
-                else:
-                    # linewidth = 0
-                    map_plot(map, cells=cells,
-                             show=False, clip=False, colormap=colormap, alpha=alpha, markerlinewidth=linewidth, figsize=figsize, dpi=dpi, aspect='equal', colorbar=colorbar, transform=None)
+                    # Set default figure font size and LaTeX usage
+                    matplotlib.rcParams.update({'font.size': font_size})
 
-                if bl_plot_mesh:
-                    color = tuple(mesh_color + [alpha_mesh])
-                    plot_voronoi(cells=cells, color=color,
-                                 centroid_style=None, linewidth=linewidth)
+                    if not vector:
+                        map_plot(map, cells=cells,
+                                 show=False, clip=False, colormap=colormap, alpha=alpha, linewidth=linewidth, figsize=figsize, dpi=dpi, aspect='equal', colorbar=colorbar)
+                    else:
+                        # linewidth = 0
+                        map_plot(map, cells=cells,
+                                 show=False, clip=False, colormap=colormap, alpha=alpha, markerlinewidth=linewidth, figsize=figsize, dpi=dpi, aspect='equal', colorbar=colorbar, transform=None)
 
-                # Manual figure adjustments
-                fig = plt.gcf()
-                fig.set_dpi(dpi)
-                fig.set_figwidth(figsize[0])
-                fig.set_figheight(figsize[1])
+                    if bl_plot_mesh:
+                        color = tuple(mesh_color + [alpha_mesh])
+                        plot_voronoi(cells=cells, color=color,
+                                     centroid_style=None, linewidth=linewidth)
 
-                # # Enforce a certain axis height
-                # ax = fig.axes[0]
-                # axis_size = ax.get_position()
-                # ax.set_position([axis_size.x0, axis_size.y0, axis_size.width, axis_height])
+                    # Manual figure adjustments
+                    fig = plt.gcf()
+                    fig.set_dpi(dpi)
+                    fig.set_figwidth(figsize[0])
+                    fig.set_figheight(figsize[1])
 
-                # Remove ticks
-                if not ticks:
-                    plt.tick_params(
-                        axis='x',          # changes apply to the x-axis
-                        which='both',      # both major and minor ticks are affected
-                        bottom=False,      # ticks along the bottom edge are off
-                        top=False,         # ticks along the top edge are off
-                        labelbottom=False)  # labels along the bottom edge are off
-                    plt.tick_params(
-                        axis='y',          # changes apply to the x-axis
-                        which='both',      # both major and minor ticks are affected
-                        left=False,      # ticks along the bottom edge are off
-                        right=False,         # ticks along the top edge are off
-                        labelleft=False)  # labels along the bottom edge are off
+                    # # Enforce a certain axis height
+                    # ax = fig.axes[0]
+                    # axis_size = ax.get_position()
+                    # ax.set_position([axis_size.x0, axis_size.y0, axis_size.width, axis_height])
 
-                # add label
-                if letter_label:
-                    label_location = [0.025, 1.03]
-                    # str_label = chr(ord('a') + plot_me.count)
-                    # plot_me.count += 1
-                    ax = fig.gca()
-                    ax.text(label_location[0], label_location[1],
-                            letter_label, transform=ax.transAxes, fontsize=font_size)
+                    # Remove ticks
+                    if not ticks:
+                        plt.tick_params(
+                            axis='x',          # changes apply to the x-axis
+                            which='both',      # both major and minor ticks are affected
+                            bottom=False,      # ticks along the bottom edge are off
+                            top=False,         # ticks along the top edge are off
+                            labelbottom=False)  # labels along the bottom edge are off
+                        plt.tick_params(
+                            axis='y',          # changes apply to the x-axis
+                            which='both',      # both major and minor ticks are affected
+                            left=False,      # ticks along the bottom edge are off
+                            right=False,         # ticks along the top edge are off
+                            labelleft=False)  # labels along the bottom edge are off
 
-                # Colorbar legend
-                if colorbar_legend:
-                    print(fig.axes)
-                    ax = fig.axes[1].set_ylabel(colorbar_legend, rotation=90)
+                    # add label
+                    if letter_label:
+                        label_location = [0.025, 1.03]
+                        # str_label = chr(ord('a') + plot_me.count)
+                        # plot_me.count += 1
+                        ax = fig.gca()
+                        ax.text(label_location[0], label_location[1],
+                                letter_label, transform=ax.transAxes, fontsize=font_size)
 
-                # fig.tight_layout()
-                plt.savefig(pdf_name(name), bbox_inches='tight', pad_inches=0)
-                plt.savefig(png_name(name), bbox_inches='tight', pad_inches=0)
-                fig.clf()
+                    # Colorbar legend
+                    if colorbar_legend:
+                        print(fig.axes)
+                        ax = fig.axes[1].set_ylabel(colorbar_legend, rotation=90)
 
-                # map_plot(map, cells=cells,
-                #          output_file=pdf_name(name), clip=False, colormap=colormap, alpha=alpha, linewidth=linewidth)
-                # colormap = 'inferno'
-                # map_plot(map, cells=cells,
-                #          output_file=png_name(name), clip=False, colormap='viridis')
+                    # fig.tight_layout()
+                    plt.savefig(pdf_name(name), bbox_inches='tight', pad_inches=0)
+                    plt.savefig(png_name(name), bbox_inches='tight', pad_inches=0)
+                    fig.clf()
 
-            # plot_me.count = 0
+                    # map_plot(map, cells=cells,
+                    #          output_file=pdf_name(name), clip=False, colormap=colormap, alpha=alpha, linewidth=linewidth)
+                    # colormap = 'inferno'
+                    # map_plot(map, cells=cells,
+                    #          output_file=png_name(name), clip=False, colormap='viridis')
 
-            # Alpha dt absolute values
-            my_map = pd.DataFrame(alpha_dt_abs, index=n.index, columns=['$\\alpha \Delta t$'])
-            plot_me(my_map, "alpha_dt", letter_label='a', colorbar_legend='$\\mu \\mathrm{m}$')
+                # plot_me.count = 0
 
-            # Alpha dt vector
-            my_map = pd.DataFrame(alpha_dt_inf, index=n.index,  columns=[
-                '$\\alpha \Delta t$ x', '$\\alpha \Delta t$ y'])
-            plot_me(my_map, "alpha_dt_vec", colormap='inferno', ticks=False,
-                    vector=True, colorbar_legend='$\\mu \\mathrm{m}$', bl_plot_mesh=True, mesh_color=[1, 1, 1])
+                # Alpha dt absolute values
+                my_map = pd.DataFrame(alpha_dt_abs, index=n.index, columns=['$\\alpha \Delta t$'])
+                plot_me(my_map, "alpha_dt", letter_label='a', colorbar_legend='$\\mu \\mathrm{m}$')
 
-            # Log10(B)
-            my_map = pd.DataFrame(np.log10(Bs), index=n.index, columns=[
-                '$\log_{10}(B)$'])
-            plot_me(my_map, "log_B", letter_label='e')
+                # Alpha dt vector
+                my_map = pd.DataFrame(alpha_dt_inf, index=n.index,  columns=[
+                    '$\\alpha \Delta t$ x', '$\\alpha \Delta t$ y'])
+                plot_me(my_map, "alpha_dt_vec", colormap='inferno', ticks=False,
+                        vector=True, colorbar_legend='$\\mu \\mathrm{m}$', bl_plot_mesh=True, mesh_color=[1, 1, 1])
 
-            # Detected forces
-            my_map = pd.DataFrame(forces, index=n.index, columns=['Active force'])
-            plot_me(my_map, "bayes_factor", colormap=cmap_bayes_factor,
-                    alpha=alpha, bl_plot_mesh=True, colorbar=False, letter_label='f')
+                # Log10(B)
+                my_map = pd.DataFrame(np.log10(Bs), index=n.index, columns=[
+                    '$\log_{10}(B)$'])
+                plot_me(my_map, "log_B", letter_label='e')
 
-            # g dt
-            my_map = pd.DataFrame(gdt_abs, index=n.index, columns=['$g \Delta t$'])
-            plot_me(my_map, "g_dt", letter_label='d', colorbar_legend='$\\mu \\mathrm{m}$')
+                # Detected forces
+                my_map = pd.DataFrame(forces, index=n.index, columns=['Active force'])
+                plot_me(my_map, "bayes_factor", colormap=cmap_bayes_factor,
+                        alpha=alpha, bl_plot_mesh=True, colorbar=False, letter_label='f')
 
-            # n
-            my_map = pd.DataFrame(ns, index=n.index, columns=['$n$'])
-            plot_me(my_map, "n", letter_label='b')
+                # g dt
+                my_map = pd.DataFrame(gdt_abs, index=n.index, columns=['$g \Delta t$'])
+                plot_me(my_map, "g_dt", letter_label='d', colorbar_legend='$\\mu \\mathrm{m}$')
 
-            # D
-            my_map = pd.DataFrame(D.T[0], index=n.index, columns=['$D$'])
-            plot_me(my_map, "D", letter_label='c', colorbar_legend='$\\mu \\mathrm{m^2/s}$')
+                # n
+                my_map = pd.DataFrame(ns, index=n.index, columns=['$n$'])
+                plot_me(my_map, "n", letter_label='b')
 
+                # D
+                my_map = pd.DataFrame(D.T[0], index=n.index, columns=['$D$'])
+                plot_me(my_map, "D", letter_label='c', colorbar_legend='$\\mu \\mathrm{m^2/s}$')
+
+                #
+
+                #
+
+                #
+
+                #
+
+                #
+                # my_map = pd.DataFrame(D.T[0], index = n.index, columns = ['D'])
+                # my_map = pd.DataFrame(alpha_dt_inf, index = n.index, columns = ['$alpha dt$ x', '$alpha dt$ y'])
+                #
+
+            # # map_plot(my_map, cells=cells, show=False)
+            # # ...
+            # # plt.show() # waits for the user to close the resulting window
+            # ## ... or alternatively plot in a file
             #
-
-            #
-
-            #
-
-            #
-
-            #
-            # my_map = pd.DataFrame(D.T[0], index = n.index, columns = ['D'])
-            # my_map = pd.DataFrame(alpha_dt_inf, index = n.index, columns = ['$alpha dt$ x', '$alpha dt$ y'])
-            #
-
-        # # map_plot(my_map, cells=cells, show=False)
-        # # ...
-        # # plt.show() # waits for the user to close the resulting window
-        # ## ... or alternatively plot in a file
-        #
 
         # save the intermediate snr-related maps
         if anything_new:
             save_rwa(rwa_file, analysis_tree, force=True)
-            print(analysis_tree)
+            # print(analysis_tree)

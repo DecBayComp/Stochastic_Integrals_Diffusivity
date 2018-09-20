@@ -93,3 +93,4 @@ red = np.asarray([191,    32,    37]) / 255.0
 yellow = np.asarray([252.91, 191.76, 16.47]) / 255.0
 
 MACHINE_PRECISION = 1e-16
+pagewidth_in = 6.85
