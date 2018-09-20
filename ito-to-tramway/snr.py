@@ -37,7 +37,7 @@ def infer_snr(cells, localization_error=0.03, jeffreys_prior=None,
                           jeffreys_prior=jeffreys_prior)
     # infer diffusivity D (defined at cells `index`)
     results = infer_D(cells, localization_error, jeffreys_prior, min_diffusivity)
-    D = results['diffusivity'].values
+    D = results['diffusivity'].values[index]
     # compute diffusivity gradient g (defined at cells `g_index`)
     g_index, g = [], []
     g_defined = np.zeros(len(index), dtype=bool)
@@ -76,6 +76,7 @@ def infer_snr(cells, localization_error=0.03, jeffreys_prior=None,
     dt = np.median(dts)
     zeta_spurious = g * dt / sd[g_defined]
     # format the output
+    # print((n.shape, dr.shape, dr2.shape, D.shape, zeta_total.shape))
     result = pd.DataFrame(
         np.concatenate((n, dr, dr2, D[:, np.newaxis], zeta_total), axis=1),
         index=index,
