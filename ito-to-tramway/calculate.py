@@ -3,6 +3,7 @@
 """
 Calculate Bayes factors after TRamWAY basic inference if finished.
 Plots figures.
+Special care is taken of empty cells that disappear from the output of the `infer` procedure.
 """
 
 import csv
@@ -25,7 +26,7 @@ from constants import *
 from constants import D_0, k
 
 
-def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localization_error):
+def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localization_error, verbose=False):
     # Define the discrete colormap for the Bayes factor
     alpha = 1.0
     col_yes = np.asarray([194,    216, 52]) / 255.0
@@ -36,27 +37,6 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
     colors = np.transpose(np.stack([col_no, col_idk, col_yes], axis=1))
     # print(colors)
     cmap_bayes_factor = matplotlib.colors.ListedColormap(colors, "bayes_factor")
-
-    # # all the following examples are 2D
-    # precomputed_meshes = [
-    # 	# standard example where nothing special happens
-    # 	'glycine_receptor',
-    # 	# lipid raft example from lipid_platform/wild/folder_2008-07-04-lamella1_NP-PTE_20mW-50ms_Series14_T27/2103.txt
-    # 	'lipid_2103',
-    # 	# lipid raft example from lipid_platform/wild/folder_2012-02-29_CS1_20mW_50ms_Series07/3952.txt
-    # 	'lipid_3952',
-    # 	# lipid raft example from lipid_platform/transferin/folder_2014-12-17_30mW_50ms_SilvanNP_CS1_Series06/4305.txt
-    # 	'lipid_4305',
-    # 	# VLP example from VLP/WT/2/trajectories_2.txt
-    # 	'VLP_WT_2_2',
-    # 	]
-
-    # # my advice: start with a single mesh
-    # precomputed_meshes = [ data_folder + filename ]
-
-    # # lipid_* and VLP_* files contain several kmeans and gwr meshes of varying spatial resolution;
-    # # label `mesh` is either 'kmeans' or 'gwr' followed by a number that approximates the average
-    # # location count per cell (20, 40 or 60)
 
     # Replace .csv extension by .rwa
     input_file_no_ext, _ = os.path.splitext(csv_file)
@@ -83,9 +63,9 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
         a = a.values
         return a if a.shape[1:] else a[:, np.newaxis]
 
-    def sum_cells(a): return np.sum(a, axis=0, keepdims=True)
+    def sum_cells(a): return np.nansum(a, axis=0, keepdims=True)
 
-    def sum_dims(a): return np.sum(a, axis=1, keepdims=True)
+    def sum_dims(a): return np.nansum(a, axis=1, keepdims=True)
 
     def vec_to_2D(a): return (np.asarray(a) @ (np.asarray([[1, 1]])))
 
@@ -123,35 +103,39 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
             save_rwa(rwa_file, analysis_tree, force=True)
 
         snr = analysis_tree[mesh][snr_label].data
-        print(snr.variables)
 
         # get cell centers
-        cell_centers = analysis_tree[mesh].data.tessellation.cell_centers[snr.maps.index]
+        cell_centers = analysis_tree[mesh].data.tessellation.cell_centers  # [snr.maps.index]
 
-        # individualize the various intermediate maps, namely:
-        # - jump count `n`,
-        # - variance `V_prior` of all the jumps but those in the cell,
-        # - total snr `zeta_total`,
-        # - spurious snr `zeta_spurious`.
+        cells_total_len = analysis_tree[mesh].data.location_count.size
+        cells_calculated = np.asarray(snr['n'].index)
 
-        # print("Hello, \n", cell_centers.shape)
-        # time.sleep(30)
-        n = snr['n']
-        D = snr['diffusivity']
-        # print(np.asarray(D))
-        zeta_total = snr['zeta_total']
-        zeta_spurious = snr['zeta_spurious']
+        # Restore the size of the variables to the original cells number
+        n = np.ones([cells_total_len, 1]) * np.nan
+        D = np.ones([cells_total_len, 1]) * np.nan
+        zeta_total = np.ones([cells_total_len, 2]) * np.nan
+        zeta_spurious = np.ones([cells_total_len, 2]) * np.nan
+        dr = np.ones([cells_total_len, 2]) * np.nan
+        dr2 = np.ones([cells_total_len, 2]) * np.nan
+
+        n[cells_calculated, :] = snr['n'].values
+        D[cells_calculated, :] = snr['diffusivity'].values
+        zeta_total[cells_calculated, :] = snr['zeta_total'].values
+        zeta_spurious[cells_calculated, :] = snr['zeta_spurious'].values
+        dr[cells_calculated, :] = snr['dr'].values
+        dr2[cells_calculated, :] = snr['dr2'].values
+
+        # print(dr2)
         if True:  # Vpi_name not in snr.variables:
             # `V_prior` is not computed directly by the 'snr' plugin
             # because the plugin's main routine may be independently applied to
             # subsets of cells instead of all the cells at a time
-            dr, dr2 = to_array(snr['dr']), to_array(snr['dr2'])
-            n_prior = np.sum(to_array(n)) - to_array(n)
+            n_prior = np.nansum(n) - n
             dr_prior = sum_cells(dr) - dr
             dr2_prior = sum_cells(dr2) - dr2
 
             # calculate biased varaince in current bin
-            dr_mean = dr / vec_to_2D(n)
+            dr_mean = dr / n
             dr_mean2 = sum_dims(dr_mean ** 2)
             dr2_mean = sum_dims(dr2) / n
             # print(np.mean(dr_mean2))
@@ -184,6 +168,10 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
         zeta_sps = np.asarray(zeta_spurious)
         ns = np.asarray(n)
         D = np.asarray(D)
+
+        # print(zeta_ts)
+        # print(zeta_sps)
+        # print(zeta_ts / zeta_sps)
         # Vs =
 
         # print("Vs: %s" % Vs)
@@ -211,7 +199,7 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
 
         # Check total force (why inf? why?)
         alpha_dt_inf = zeta_ts * vec_to_2D(np.sqrt(Vs))
-        mean_alpha_dt_inf = np.median(alpha_dt_inf, axis=0)
+        mean_alpha_dt_inf = np.nanmedian(alpha_dt_inf, axis=0)
         # Absolute values
         alpha_dt_abs = np.sqrt(sum_dims(alpha_dt_inf**2))
 
@@ -233,33 +221,34 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
         # print(min_ns - ns)
         # print((min_ns - ns).astype(int))
         # print(forces)
-        print("\n\nMean jump along x: <dx>=\t%.2g um" %
-              (np.mean(dr_mean, axis=0)[0]))
-        # print ("Expected mean jump along x: <dx>=\t%.2g um" % (ksi * D_0 * k * dt))
+        if verbose:
+            print("\n\nMean jump along x: <dx>=\t%.2g um" %
+                  (np.nanmean(dr_mean, axis=0)[0]))
+            # print ("Expected mean jump along x: <dx>=\t%.2g um" % (ksi * D_0 * k * dt))
 
-        print("\n\nMedian D:\t%.2g um^2/s" % (median_D_est))
-        print("Measured range of D:\t[%.2g; %.2g] um^2/s" %
-              (np.min(D_est), np.max(D_est)))
-        # print ("Expected D range:\t[%.2g; %.2g] um^2/s" % (D_0, D_0 * D_ratio))
+            print("\n\nMedian D:\t%.2g um^2/s" % (median_D_est))
+            print("Measured range of D:\t[%.2g; %.2g] um^2/s" %
+                  (np.nanmin(D_est), np.nanmax(D_est)))
+            # print ("Expected D range:\t[%.2g; %.2g] um^2/s" % (D_0, D_0 * D_ratio))
 
-        # Inferred gradient
-        print("\n\nInferred <|D'|>:\t%s um/s" % (median_gdt_inf / dt))
-        # print("Simulated <|D'|>:\t%s um/s" % (gdt_sim / dt))
+            # Inferred gradient
+            print("\n\nInferred <|D'|>:\t%s um/s" % (median_gdt_inf / dt))
+            # print("Simulated <|D'|>:\t%s um/s" % (gdt_sim / dt))
 
-        print("\n\nMedian zeta_ts:\t%s" % (np.median(zeta_ts, axis=0)))
-        # print ("Expected zeta_ts:\t%s" % (np.median(zeta_ts_exp, axis = 0)))
-        print("Median abs(zeta_sps):\t%s" %
-              (np.nanmedian(np.abs(zeta_sps), axis=0)))
-        print("Expected zeta_sps:\t%s" % (np.median(zeta_sps_exp, axis=0)))
-        print("Median n:\t%i" % np.median(ns, axis=0))
-        print("Median min_n:\t%i" % np.median(min_ns, axis=0))
-        print("max(min_n):\t%i" % np.max(min_ns, axis=0))
+            print("\n\nMedian zeta_ts:\t%s" % (np.nanmedian(zeta_ts, axis=0)))
+            # print ("Expected zeta_ts:\t%s" % (np.median(zeta_ts_exp, axis = 0)))
+            print("Median abs(zeta_sps):\t%s" %
+                  (np.nanmedian(np.abs(zeta_sps), axis=0)))
+            print("Expected zeta_sps:\t%s" % (np.nanmedian(zeta_sps_exp, axis=0)))
+            print("Median n:\t%i" % np.nanmedian(ns, axis=0))
+            print("Median min_n:\t%i" % np.nanmedian(min_ns, axis=0))
+            print("max(min_n):\t%i" % np.nanmax(min_ns, axis=0))
 
-        # Check total force
-        print("\n\nInferred <alpha dt>:\t%s um" % (mean_alpha_dt_inf))
-        # print("Simulated <alpha dt>:\t%s um" % (alpha_dt_sim))
+            # Check total force
+            print("\n\nInferred <alpha dt>:\t%s um" % (mean_alpha_dt_inf))
+            # print("Simulated <alpha dt>:\t%s um" % (alpha_dt_sim))
 
-        print("\n\n")
+            print("\n\n")
 
         # Prepare to output into a file
         # Output: ksi - first line and next all log10(Bs)
