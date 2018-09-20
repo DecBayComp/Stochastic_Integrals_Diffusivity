@@ -33,7 +33,8 @@ data_folder_win = r'd:\calculated_data\sim_performance_2D_no_perp'
 args_file = "./arguments.dat"
 args_lock = "./arguments.lock"
 
-optical_traps_data_folder = r'\\atlas.pasteur.fr\@Dbc\LAB_shared_stuff\Francois_Laurent\tests_tramway\optical_tweezers'
+optical_traps_data_folder_win = r'D:\Experimental_Data\optical_tweezers'
+optical_traps_data_folder_lin = '/mnt/d/Experimental_Data/optical_tweezers'
 optical_data_sets = ['P1', 'P4', 'P5']
 optical_power_mW = [500, 251, 138]
 optical_traps_points_per_bin = 400
@@ -44,13 +45,25 @@ def folders():
     sys = platform.system()
     if sys == "Windows":
         data_folder = data_folder_win
+        optical_traps_data_folder = optical_traps_data_folder_win
     elif sys == "Linux" or sys == "Darwin":
         data_folder = data_folder_lin
+        optical_traps_data_folder = optical_traps_data_folder_lin
     else:
         print("Error: unknown OS (%i)" % sys)
     output_folder = os.path.join(data_folder, "dat")
 
     return data_folder, output_folder
+
+
+# Identify the optical data traps folder
+sys = platform.system()
+if sys == "Windows":
+    optical_traps_data_folder = optical_traps_data_folder_win
+elif sys == "Linux" or sys == "Darwin":
+    optical_traps_data_folder = optical_traps_data_folder_lin
+else:
+    print("Error: unknown OS (%i)" % sys)
 
 
 CSV_DELIMITER = ';'
