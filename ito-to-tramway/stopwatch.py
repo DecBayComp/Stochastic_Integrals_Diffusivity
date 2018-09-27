@@ -1,0 +1,29 @@
+
+import time
+
+
+class stopwatch:
+    """A class for measuring execution time."""
+
+    def __init__(self, name):
+        self.name = name
+
+    def __enter__(self):
+        self.start = time.time()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.end = time.time()
+        delta = self.end - self.start
+        print(f'\n{self.name} completed in {round(delta, 1)} s.\n')
+
+
+def stopwatch_dec(func):
+    """An alternative decorator for measuring the elapsed time."""
+
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        results = func(*args, **kwargs)
+        delta = time.time() - start
+        print(f'\n{self.name} completed in {round(delta, 1)} s.\n')
+        return results
+    return wrapper

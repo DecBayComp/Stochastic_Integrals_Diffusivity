@@ -27,6 +27,7 @@ import os
 import pandas as pd
 from set_figure_size import set_figure_size
 from snr import infer_snr
+from stopwatch import stopwatch
 from tqdm import trange
 from tramway.helper import *
 from tramway.plot.mesh import *
@@ -96,8 +97,9 @@ for file_ind in trange(len(optical_data_sets)):
     save_rwa(rwa_fullpath, rwa_data, force=True)
 
     # Calculate the Bayes factors
-    calculate(rwa_fullpath, results_folder=None, bl_produce_maps=False, dt=optical_traps_dt,
-              snr_label='snr', localization_error=localization_error)
+    with stopwatch('Bayes factor calculations'):
+        calculate(rwa_fullpath, results_folder=None, bl_produce_maps=False, dt=optical_traps_dt,
+                  snr_label='snr', localization_error=localization_error)
 
     # Get the calculated Bayes factors
     rwa_data = load_rwa(rwa_fullpath)
