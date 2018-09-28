@@ -8,7 +8,7 @@ import numpy as np
 from tqdm import *  # for graphical estimate of the progress
 
 
-def calculate_bayes_factors(zeta_ts, zeta_sps, ns, Vs, Vs_pi):
+def calculate_bayes_factors(zeta_ts, zeta_sps, ns, Vs, Vs_pi, loc_error, dim=2):
     """
     Calculate the marginalized Bayes factor for the presence of the conservative force in a set of bins.
 
@@ -17,7 +17,9 @@ def calculate_bayes_factors(zeta_ts, zeta_sps, ns, Vs, Vs_pi):
     zeta_sps --- signal-to-noise ratios for the spurious force = grad(D) / sqrt(var(dx)) in bins. Size: M x 2,
     ns --- number of jumps in each bin. Size: M x 1,
     Vs --- jump variance in bins = E((dx - dx_mean) ** 2). Size: M x 1,
-    Vs_pi --- jump variance in all other bins relative to the current bin. Size: M x 1.
+    Vs_pi --- jump variance in all other bins relative to the current bin. Size: M x 1,
+    loc_error --- localization error. Same units as variance,
+    dim --- dimensionality of the problem.
 
     Output:
     Bs, forcess
@@ -32,7 +34,6 @@ def calculate_bayes_factors(zeta_ts, zeta_sps, ns, Vs, Vs_pi):
     """
 
     # Constants
-    dim = 2
     n_pi = n_pi_func(dim)
     B_threshold = 10  # corresponds to strong evidence for the conservative force
 
@@ -53,28 +54,32 @@ def calculate_bayes_factors(zeta_ts, zeta_sps, ns, Vs, Vs_pi):
     etas = np.sqrt(n_pi / (ns + n_pi))
     us = np.divide(Vs_pi, Vs)
     v0s = 1.0 + np.multiply(n_pi / ns, us)
-    # pows = dim * (ns + n_pi + 1.0) / 2.0 - 2.0
     pows = p(ns, dim)
+
+    if loc_error > 0:
+        rel_loc_errors = ns * Vs / (2 * dim * loc_error)
+    else:
+        rel_loc_errors = ns * np.inf
 
     # Calculate
     lg_Bs = np.zeros((M, 1)) * np.nan
     min_ns = np.zeros((M, 1), dtype=int) * np.nan
     for i in trange(M):
-        try:
-            upstairs = calculate_marginalized_integral(zeta_t=zeta_ts[i, :], zeta_sp=zeta_sps[i, :], p=pows[i],
-                                                       v=v0s[i], E=etas[i]**2.0)
-            # print(upstairs)
-            downstairs = calculate_marginalized_integral(zeta_t=zeta_ts[i, :], zeta_sp=zeta_sps[i, :], p=pows[i],
-                                                         v=v0s[i], E=1.0)
-            # print(downstairs)
-            lg_Bs[i] = dim * np.log10(etas[i]) + \
-                np.log10(upstairs) - np.log10(downstairs)
-            # print(lg_Bs)
-            min_ns[i] = calculate_minimal_n(zeta_ts[i, :], zeta_sp=zeta_sps[i, :], n0=ns[i], V=Vs[i],
-                                            V_pi=Vs_pi[i])
-            # print(min_ns)
-        except:
-            print("Warning: Detected data error in bin %i. Skipping bin." % i)
+        # try:
+        upstairs = calculate_marginalized_integral(zeta_t=zeta_ts[i, :], zeta_sp=zeta_sps[i, :],
+                                                   p=pows[i], v=v0s[i], E=etas[i]**2.0, rel_loc_error=rel_loc_errors[i])
+        # print(upstairs)
+        downstairs = calculate_marginalized_integral(zeta_t=zeta_ts[i, :], zeta_sp=zeta_sps[i, :], p=pows[i],
+                                                     v=v0s[i], E=1.0, rel_loc_error=rel_loc_errors[i])
+        # print(downstairs)
+        lg_Bs[i] = dim * np.log10(etas[i]) + \
+            np.log10(upstairs) - np.log10(downstairs)
+        # print(lg_Bs)
+        min_ns[i] = calculate_minimal_n(zeta_ts[i, :], zeta_sp=zeta_sps[i, :], n0=ns[i], V=Vs[i],
+                                        V_pi=Vs_pi[i], loc_error=loc_error)
+        # print(min_ns)
+        # except:
+        #     print("Warning: Detected data error in bin %i. Skipping bin." % i)
 
     # Threshold into 3 categories: strong evidence for either of the models and insufficient evidence
     forces = 1 * (lg_Bs >= np.log10(B_threshold)) - \
