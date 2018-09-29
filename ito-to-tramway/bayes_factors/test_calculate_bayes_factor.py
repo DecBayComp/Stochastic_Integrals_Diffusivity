@@ -1,13 +1,16 @@
 # Copyright © 2018, Alexander Serov
 
 
+import math
+import unittest
+from multiprocessing import freeze_support
+
+import numpy as np
+
 from .calculate_bayes_factors import calculate_bayes_factors
 from .calculate_marginalized_integral import calculate_marginalized_integral
 from .calculate_minimal_n import calculate_minimal_n
 from .convenience_functions import *
-import math
-import numpy as np
-import unittest
 
 
 class bayes_test(unittest.TestCase):
@@ -188,4 +191,7 @@ class bayes_test(unittest.TestCase):
         # print(Bs)
 
 
-unittest.main()
+# # A dirty fix for a weird bug in unittest
+# if __name__ == '__main__':
+#     freeze_support()
+#     unittest.main()
