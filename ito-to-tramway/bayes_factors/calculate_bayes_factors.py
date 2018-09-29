@@ -17,37 +17,7 @@ from .convenience_functions import n_pi_func
 from .convenience_functions import p as pow
 
 
-def _calculate_one_bayes_factor(zeta_t, zeta_sp, n, V, V_pi, loc_error, dim, bl_need_min_n=True):
-    """Calculate the Bayes factor for one bin."""
-
-    # Parameter combinations
-    n_pi = n_pi_func(dim)
-    p = pow(n, dim)
-    u = V_pi / V
-    v = 1.0 + n_pi / n * u
-    eta = np.sqrt(n_pi / (n + n_pi))
-
-    if loc_error > 0:
-        rel_loc_error = n * V / (2 * dim * loc_error)
-    else:
-        rel_loc_error = np.ones_like(ns) * np.inf
-
-    upstairs = calculate_marginalized_integral(zeta_t=zeta_t, zeta_sp=zeta_sp,
-                                               p=p, v=v, E=eta**2, rel_loc_error=rel_loc_error)
-    downstairs = calculate_marginalized_integral(zeta_t=zeta_t, zeta_sp=zeta_sp,
-                                                 p=p, v=v, E=1.0, rel_loc_error=rel_loc_error)
-    lg_B = (dim * np.log10(eta) + np.log10(upstairs) - np.log10(downstairs))
-
-    if bl_need_min_n:
-        min_n = calculate_minimal_n(
-            zeta_t=zeta_t, zeta_sp=zeta_sp, n0=n, V=V, V_pi=V_pi, loc_error=loc_error)
-    else:
-        min_n = None
-
-    return [lg_B, min_n]
-
-
-def calculate_bayes_factors(zeta_ts, zeta_sps, ns, Vs, Vs_pi, loc_error, dim=2, B_threshold=10):
+def calculate_bayes_factors(zeta_ts, zeta_sps, ns, Vs, Vs_pi, loc_error, dim=2, B_threshold=10, verbose=True):
     """
     Calculate the Bayes factor for a set of bins given a uniform localization error.
 
@@ -57,7 +27,7 @@ def calculate_bayes_factors(zeta_ts, zeta_sps, ns, Vs, Vs_pi, loc_error, dim=2, 
     ns --- number of jumps in each bin. Size: M x 1,
     Vs --- jump variance in bins = E((dx - dx_mean) ** 2). Size: M x 1,
     Vs_pi --- jump variance in all other bins relative to the current bin. Size: M x 1,
-    loc_error --- localization error. Same units as variance,
+    loc_error --- localization error. Same units as variance. Set to 0 if localization error can be ignored;
     dim --- dimensionality of the problem;
     B_threshold --- the values of Bayes factor for thresholding.
 
@@ -89,7 +59,7 @@ def calculate_bayes_factors(zeta_ts, zeta_sps, ns, Vs, Vs_pi, loc_error, dim=2, 
     # Calculate
     lg_Bs = np.zeros_like(ns) * np.nan
     min_ns = np.zeros_like(ns, dtype=int) * np.nan
-    with stopwatch("Bayes factor calculation"):
+    with stopwatch("Bayes factor calculation", verbose):
         for i in trange(M):
             lg_Bs[i], min_ns[i] = _calculate_one_bayes_factor(
                 zeta_ts[i, :], zeta_sps[i, :], ns[i], Vs[i], Vs_pi[i], loc_error, dim)
@@ -98,6 +68,36 @@ def calculate_bayes_factors(zeta_ts, zeta_sps, ns, Vs, Vs_pi, loc_error, dim=2, 
     forces = 1 * (lg_Bs >= np.log10(B_threshold)) - 1 * (lg_Bs <= -np.log10(B_threshold))
 
     return (10.0 ** lg_Bs, forces, min_ns)
+
+
+def _calculate_one_bayes_factor(zeta_t, zeta_sp, n, V, V_pi, loc_error, dim, bl_need_min_n=True):
+    """Calculate the Bayes factor for one bin."""
+
+    # Parameter combinations
+    n_pi = n_pi_func(dim)
+    p = pow(n, dim)
+    u = V_pi / V
+    v = 1.0 + n_pi / n * u
+    eta = np.sqrt(n_pi / (n + n_pi))
+
+    if loc_error > 0:
+        rel_loc_error = n * V / (2 * dim * loc_error)
+    else:
+        rel_loc_error = np.inf
+
+    upstairs = calculate_marginalized_integral(zeta_t=zeta_t, zeta_sp=zeta_sp,
+                                               p=p, v=v, E=eta**2, rel_loc_error=rel_loc_error)
+    downstairs = calculate_marginalized_integral(zeta_t=zeta_t, zeta_sp=zeta_sp,
+                                                 p=p, v=v, E=1.0, rel_loc_error=rel_loc_error)
+    lg_B = (dim * np.log10(eta) + np.log10(upstairs) - np.log10(downstairs))
+
+    if bl_need_min_n:
+        min_n = calculate_minimal_n(
+            zeta_t=zeta_t, zeta_sp=zeta_sp, n0=n, V=V, V_pi=V_pi, loc_error=loc_error)
+    else:
+        min_n = None
+
+    return [lg_B, min_n]
 
 
 def calculate_minimal_n(zeta_t, zeta_sp, n0, V, V_pi, loc_error, dim=2, B_threshold=10.0):

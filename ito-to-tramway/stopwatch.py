@@ -5,8 +5,9 @@ import time
 class stopwatch:
     """A class for measuring execution time."""
 
-    def __init__(self, name):
+    def __init__(self, name, verbose=True):
         self.name = name
+        self.verbose = verbose
 
     def __enter__(self):
         self.start = time.time()
@@ -14,7 +15,8 @@ class stopwatch:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.end = time.time()
         delta = self.end - self.start
-        print(f'\n{self.name} completed in {round(delta, 1)} s.\n')
+        if self.verbose:
+            print(f'\n{self.name} completed in {round(delta, 1)} s.\n')
 
 
 def stopwatch_dec(func):

@@ -37,9 +37,20 @@ def calculate_marginalized_integral(zeta_t, zeta_sp, p, v, E, rel_loc_error):
         diff = l * zeta_sp - zeta_t
         return v + E * (diff @ diff.T)
 
-    def integrate_me(l):
-        """Function to integrate."""
-        return gammainc(p, arg(l) * rel_loc_error) * arg(l) ** (-p)
+    def get_integrate_me():
+        """Function to integrate with and without localization error."""
+        def no_error(l):
+            return arg(l) ** (-p)
+
+        def with_error(l):
+            return gammainc(p, arg(l) * rel_loc_error) * arg(l) ** (-p)
+
+        if rel_loc_error == np.inf:
+            return no_error
+        else:
+            return with_error
+
+    integrate_me = get_integrate_me()
 
     # Skip integration if zeta_sp is close to 0
     if np.isclose(np.linalg.norm(zeta_sp), 0, atol=atol):

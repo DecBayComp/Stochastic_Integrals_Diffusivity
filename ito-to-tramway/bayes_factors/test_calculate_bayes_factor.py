@@ -7,10 +7,10 @@ from multiprocessing import freeze_support
 
 import numpy as np
 
-from .calculate_bayes_factors import calculate_bayes_factors
+from .calculate_bayes_factors import (calculate_bayes_factors,
+                                      calculate_minimal_n)
 from .calculate_marginalized_integral import calculate_marginalized_integral
-from .calculate_minimal_n import calculate_minimal_n
-from .convenience_functions import *
+from .convenience_functions import n_pi_func, p
 
 
 class bayes_test(unittest.TestCase):
@@ -131,6 +131,25 @@ class bayes_test(unittest.TestCase):
         self.assertTrue((true_B >= self.B_threshold) ==
                         forces[0], "Boolean conservative force return incorrect for the case of one bin")
 
+        # >> Test zero localization error <<
+        zeta_ts = np.asarray([[0.7, 0.4]])
+        zeta_sps = np.asarray([[0.8, 0.6]])
+        ns = np.asarray([[20]])
+        Vs = np.asarray([[0.8 ** 2.0]])
+        us = np.asarray([[0.95]])
+        loc_error = 0
+        Vs_pi = us * Vs
+        Bs, forces, _ = calculate_bayes_factors(
+            zeta_ts=zeta_ts, zeta_sps=zeta_sps, ns=ns, Vs=Vs, Vs_pi=Vs_pi, loc_error=loc_error)
+        true_B = 0.2974282533
+
+        # Check value
+        self.assertTrue(math.isclose(Bs[0], true_B, rel_tol=self.rel_tol, abs_tol=self.tol),
+                        "Bayes factor calculation failed for one bin. The obtained B = %.8g does not match the expected B = %.8g" % (Bs[0, 0], true_B))
+        # Check force presence
+        self.assertTrue((true_B >= self.B_threshold) ==
+                        forces[0], "Boolean conservative force return incorrect for the case of one bin")
+
         # >> Test three input bins <<
         zeta_ts = np.asarray([[0.4, 0.3], [-1.0, 2.3], [-1.1, -0.33]])
         zeta_sps = np.asarray([[0.8, 0.6], [-0.45, 0.67], [6.32, 0.115]])
@@ -194,4 +213,4 @@ class bayes_test(unittest.TestCase):
 # # A dirty fix for a weird bug in unittest
 # if __name__ == '__main__':
 #     freeze_support()
-#     unittest.main()
+unittest.main()
