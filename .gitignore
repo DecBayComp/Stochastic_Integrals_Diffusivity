@@ -111,3 +111,5 @@ temp.py
 ./temp/Brownien_P5_kohonen-400.dat
 ./temp/Brownien_P5_kohonen.dat
 overlap.png
+input/
+bayes_factors.7z

@@ -7,23 +7,23 @@ Special care is taken of empty cells that disappear from the output of the `infe
 """
 
 import csv
-import time
-from tramway.core import *
-from tramway.plot.mesh import plot_voronoi
-from tramway.helper import *
 import os.path
-import numpy as np
-import pandas as pd
+import time
+
 import matplotlib
 # matplotlib.use('Agg')  # enable for console runs with no displays
 import matplotlib.pyplot as plt
-from set_figure_size import set_figure_size
+import numpy as np
+import pandas as pd
 
 from bayes_factors.calculate_bayes_factors import calculate_bayes_factors
 from constants import *
-
 # for theoretical checks
 from constants import D_0, k
+from set_figure_size import set_figure_size
+from tramway.core import *
+from tramway.helper import *
+from tramway.plot.mesh import plot_voronoi
 
 
 def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localization_error, verbose=False):
@@ -125,42 +125,26 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
         dr2[cells_calculated, :] = snr['dr2'].values
 
         # print(dr2)
-        if True:  # Vpi_name not in snr.variables:
-            # `V_prior` is not computed directly by the 'snr' plugin
-            # because the plugin's main routine may be independently applied to
-            # subsets of cells instead of all the cells at a time
-            n_prior = np.nansum(n) - n
-            dr_prior = sum_cells(dr) - dr
-            dr2_prior = sum_cells(dr2) - dr2
+        # if True:  # Vpi_name not in snr.variables:
+        # `V_prior` is not computed directly by the 'snr' plugin
+        # because the plugin's main routine may be independently applied to
+        # subsets of cells instead of all the cells at a time
+        n_prior = np.nansum(n) - n
+        dr_prior = sum_cells(dr) - dr
+        dr2_prior = sum_cells(dr2) - dr2
 
-            # calculate biased varaince in current bin
-            dr_mean = dr / n
-            dr_mean2 = sum_dims(dr_mean ** 2)
-            dr2_mean = sum_dims(dr2) / n
-            # print(np.mean(dr_mean2))
-            Vs = np.asarray(dr2_mean - dr_mean2)
+        # calculate biased varaince in current bin
+        dr_mean = dr / n
+        dr_mean2 = sum_dims(dr_mean ** 2)
+        dr2_mean = sum_dims(dr2) / n
+        # print(np.mean(dr_mean2))
+        Vs = np.asarray(dr2_mean - dr_mean2)
 
-            # calculate prior variance
-            dr_prior_mean = dr_prior / n_prior
-            dr_prior_mean2 = sum_dims(dr_prior_mean ** 2)
-            dr2_prior_mean = sum_dims(dr2_prior) / n_prior
-            Vs_prior = np.asarray(dr2_prior_mean - dr_prior_mean2)
-
-            # print(Vs_prior / Vs)
-
-            # V =
-
-            # V_prior   = sum_dims(dr2_prior - dr_prior * dr_prior / n_prior) / (n_prior - 1)
-            # add `V_prior` to the analysis tree before the latter is saved
-            # snr.maps  = snr.maps.join(pd.DataFrame(
-            # 	data    = V_prior,
-            # 	index   = n.index,
-            # 	columns = [Vpi_name],
-            # 	))
-            # anything_new = True
-        # V_prior = snr[Vpi_name]
-
-        # TODO: generate final maps, say the `my_map` map
+        # calculate prior variance
+        dr_prior_mean = dr_prior / n_prior
+        dr_prior_mean2 = sum_dims(dr_prior_mean ** 2)
+        dr2_prior_mean = sum_dims(dr2_prior) / n_prior
+        Vs_prior = np.asarray(dr2_prior_mean - dr_prior_mean2)
 
         # Prepare numpy arrays for Bayes factor calculation
         zeta_ts = np.asarray(zeta_total)
@@ -168,13 +152,6 @@ def calculate(csv_file, results_folder, bl_produce_maps, dt, snr_label, localiza
         ns = np.asarray(n)
         D = np.asarray(D)
 
-        # print(zeta_ts)
-        # print(zeta_sps)
-        # print(zeta_ts / zeta_sps)
-        # Vs =
-
-        # print("Vs: %s" % Vs)
-        # print("Vs_prior: %s" % Vs_prior)
         Bs, forces, min_ns = calculate_bayes_factors(
             zeta_ts=zeta_ts, zeta_sps=zeta_sps, ns=ns, Vs=Vs, Vs_pi=Vs_prior)
         # _, forces_grad_only, _ = calculate_bayes_factors(
