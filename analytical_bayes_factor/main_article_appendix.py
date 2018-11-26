@@ -9,20 +9,22 @@ except NameError:
     has_run = True
 #
 
+import importlib
+import sys
+
+import numpy as np
+from tqdm import tqdm, trange
+
+from calculate_bayes_factor_limits import calculate_bayes_factor_limits
 # %% imports
 from calculate_zeta_t_lims import calculate_zeta_t_lims
 from calculate_zeta_t_roots import calculate_zeta_t_roots
 from find_marginalized_zeta_t_roots import find_marginalized_zeta_t_roots
-from calculate_bayes_factor_limits import calculate_bayes_factor_limits
-import importlib
 from log_C import log_C as log_C_func
-import numpy as np
 from plot_K_L import plot_K_L
 from plot_K_L_2D import plot_K_L_2D
+from plot_K_L_main_text import plot_K_L_main_text
 from plot_zeta_t_perp import plot_zeta_t_perp
-import sys
-from tqdm import tqdm, trange
-
 
 # %% Main calculations
 
@@ -30,7 +32,7 @@ from tqdm import tqdm, trange
 lambs = (0, 0.5, 1.0)
 zeta_sp_abs_lim = 1.00  # 0.02
 zeta_sp_steps = 100
-dim = 2
+dim = 1
 n_pi = 5 - dim  # minimum number of jumps is different for priors in 1D and 2D
 B = 10  # at least strong evidence against H0
 log10_B = np.log10(B)
@@ -39,7 +41,7 @@ lambs_count = len(lambs)
 
 # Define dimension-specific parameters
 # Relative prior uncertainties (u = Vp/V)
-us_1D = [0.1, 10.0]
+us_1D = [0.1, 1.0, 10.0]
 us_2D = [1.0]
 
 # total force component orthogonal to the diffusivity gradient
@@ -143,7 +145,7 @@ for n_ind in range(ns_count):
                     zeta_t_roots[ztper_ind, n_ind, lambs_count,
                                  1, zeta_ind] = cur_roots[1]
 
-print("Calculation terminated")
+print("Calculation finished")
 # print(zeta_t_roots)
 
 # print(zeta_t_roots)
@@ -151,10 +153,15 @@ print("Calculation terminated")
 # %% plot
 if dim == 1:
     plot_K_L(zeta_sps=zeta_sps, zeta_t_roots=zeta_t_roots,
-             ns=ns, us=us, dim=dim, zeta_t_perp=ztpers)
+             ns=ns, us=us, dim=1, zeta_t_perp=ztpers)
+    zeta_t_roots_cut = zeta_t_roots[None, None, 1, 1, :, :, :]
+    plot_K_L(zeta_sps=zeta_sps, zeta_t_roots=zeta_t_roots_cut,
+             ns=[ns[1]], us=[us[1]], dim=1, zeta_t_perp=ztpers, height_factor=2, labels=False, num=2)
 else:
-    plot_K_L_2D(zeta_sps=zeta_sps, zeta_t_roots=zeta_t_roots,
-                ns=ns, us=us, dim=dim, ztpers=ztpers)
+    plot_K_L(zeta_sps=zeta_sps, zeta_t_roots=zeta_t_roots,
+             ns=ns, us=us, dim=2, zeta_t_perp=ztpers)
+    plot_K_L(zeta_sps=zeta_sps, zeta_t_roots=zeta_t_roots,
+             ns=[ns[1]], us=us, dim=2, zeta_t_perp=[ztpers[1]], height_factor=2, labels=False, num=2)
 
 
 #
