@@ -4,85 +4,88 @@ Since the horizontal axis features the abs. value of zeta_sp, the regions are du
 Maybe I should simplify the presentation, recalculate and show the signed values? This would reduce the number of peaks and simplify presentation.
 """
 
-from constants import *
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+
+from constants import *
 from set_figure_size import set_figure_size
 
 
-def plot_for_article(ksis_unique, avg_data, exp_zeta_ts_over_zeta_sps, expext_mean_n, trials_number):
+def plot_for_article(ksis_unique, avg_data, data_lgB, expext_mean_n, trials_number):
 
     # Constants
     label_location = [0.025, 0.9]
     font_size = 8
-    fill_color_sequence = [green, yellow, red, yellow, green]
     rows = 2
     cols = 1
-    ylims = [-0.02, 1.02]
-    xlims = np.asarray([-1, 1]) * 25.5
-    # xlims = [[-25, 25], [-5, 5]]
+    dot_color = [0.1008,    0.4407,    0.7238]
+    line_color = 'k'  # np.asarray([141,  24, 26]) / 255.0
+    markersize = 2
+    linewidth = 1
+    alpha = 0.6
+    xlims = [-2, 10]
+    K_max = 10
+    max_points = int(1e4)
 
-    fig, _ = set_figure_size(num=1, rows=rows, page_width_frac=0.5)
-    _, ax_arr = plt.subplots(rows, cols, num=1, sharex=False)
+    fig, _ = set_figure_size(num=1, rows=rows, page_width_frac=0.5, height_factor=2.1)
+    _, ax_arr = plt.subplots(rows, cols, num=1, sharex=False, sharey=True)
+    np.random.seed(0)
 
-    count = 0
-    for i in range(rows):
-        # print(ax_arr[0])
-        ax = ax_arr[i]
-        ax.plot(ksis_unique[i].tolist(),
-                avg_data[i]["frac_spur"].tolist(), color=red, label="sp")
-        ax.plot(ksis_unique[i].tolist(),
-                avg_data[i]["frac_uncert"].tolist(), color=yellow, label="insf")
-        ax.plot(ksis_unique[i].tolist(),
-                avg_data[i]["frac_cons"].tolist(), color=green, label="act")
+    for i, ax in enumerate(ax_arr):
 
-        # Prepare rectangles to fill in the format x, y, width, height
-        ax.set_xlim(xlims)
-        # print(xlims)
-        # ylims = ax.get_ylim()
+        lgB_inferred = data_lgB[i].lg_B
+        lgB_expected = data_lgB[i].lg_B_expected
+        M = len(lgB_inferred)
 
-        # print(np.shape(exp_zeta_ts_over_zeta_sps))
-        # print(np.shape([[0], [0]]))
-        regions_x_coords = np.concatenate(
-            (np.asarray([[1], [1]]) * xlims[0], exp_zeta_ts_over_zeta_sps, np.asarray([[1], [1]]) * xlims[1]), axis=1)
+        # Choose random indices if more than max and reduce the number of points
+        indices = np.arange(M)
+        if M > max_points:
+            np.random.shuffle(indices)
+            indices = indices[:max_points]
 
-        # Add fill
-        for j in range(5):
-            ax.add_patch(matplotlib.patches.Rectangle(xy=(regions_x_coords[i, j], ylims[0]), width=regions_x_coords[i, j + 1] - regions_x_coords[i, j],
-                                                      height=ylims[1] - ylims[0], facecolor=fill_color_sequence[j], edgecolor="none", fill=True, alpha=alpha))
+        lgB_inferred = lgB_inferred[indices]
+        lgB_expected = lgB_expected[indices]
 
-        # Adjust
-        # Mean over ksi values
-        # print(len(avg_data))
-        # print(avg_data[i])
-        ax.set_ylim(ylims)
-        avg_zt_y = np.mean(avg_data[i]["zeta_t_y_mean"])
-        avg_abs_zsp_x = np.mean(avg_data[i]["zeta_sp_x_abs_mean"])
-        print("Now zt_per/zsp is %.3f" % (avg_zt_y / avg_abs_zsp_x))
-        print("Advice: set your zt_par/|zsp| ratio to %.3f if you wish to get zt_per = 0.1" %
-              (0.1 / avg_abs_zsp_x))
+        plot_lims = [min(np.min(lgB_inferred), np.min(lgB_expected)),
+                     max(np.max(lgB_inferred), np.max(lgB_expected))]
 
-        # Add a label to each plot
-        str_label = chr(ord('a') + count)
-        ax.text(label_location[0], label_location[1],
-                str_label, transform=ax.transAxes, fontsize=font_size)
-        count += 1
+        # Make a linear data fit
+        p = np.polyfit(lgB_expected, lgB_inferred, 1)
+        y_fit = p[0] * np.array(plot_lims) + p[1]
 
-        # round zt_y
+        avg_zt_y = np.mean(avg_data[i].zeta_t_y_mean)
         if np.abs(avg_zt_y) < 1e-3:
             avg_zt_y = 0
 
-        if i == rows - 1:
-            ax.set_xlabel("$\zeta_{t\parallel} / \zeta_{sp}$")
-        ax.set_ylabel("Fraction of bins")
-        ax.set_title("$\zeta_{t\perp} = %.2f$, $|\zeta_{sp}| = %.2f$, $n = %i$, trials = %i" %
-                     (avg_zt_y, avg_abs_zsp_x, round(expext_mean_n[i]), trials_number[i]))
-        ax.legend(loc="lower right")
+        # % Plot
+        # Fit
+        l_fit = ax.plot(plot_lims, y_fit, '--', linewidth=linewidth,
+                        color=line_color, label='fit')[0]
+        # Identity
+        l_idnt = ax.plot(plot_lims, plot_lims, color=line_color,
+                         linewidth=linewidth, label='theory')[0]
+        # Data
+        ax.scatter(lgB_expected, lgB_inferred, marker='.',
+                   s=markersize, alpha=alpha, c=dot_color)
+
+        # Add a label to each plot
+        str_label = chr(ord('a') + i)
+        ax.text(label_location[0], label_location[1],
+                str_label, transform=ax.transAxes, fontsize=font_size)
+
+        ax.set_xlabel("expected $\log_{10}K^M$")
+        ax.set_ylabel("inferred $\log_{10}\hat K^M$")
+        ax.set_title('2D, $\zeta_{{t\perp}} = {ztper:.2f}$, bins = {M:d}'.format(
+            ztper=avg_zt_y, M=max_points))
+
+        ax.set_xlim(xlims)
+        ax.set_ylim(xlims)
+        ax.legend(handles=(l_idnt, l_fit), loc="lower right")
+
     plt.ion()
 
     fig.tight_layout()
-    # fig.subplots_adjust(hspace=0.25)
     plt.show()
 
     plt_basename = "sim_performance"
