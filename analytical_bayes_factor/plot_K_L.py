@@ -24,19 +24,19 @@ def plot_K_L(zeta_sps, zeta_t_roots, ns, us, dim, zeta_t_perp, height_factor=1.0
     lambs_count = np.size(zeta_t_roots, 2)
     ns_count = len(ns)
     us_count = len(us)
-    if dim == 1:
-        rows = us_count
-        ind_ys = range(us_count)
-        ys_count = us_count
+    # if dim == 1:
+    rows = us_count
+    ind_ys = range(us_count)
+    ys_count = us_count
 
-        def y_val(i): return us[i]
-    elif dim == 2:
-        ztpers_count = len(zeta_t_perp)
-        rows = ztpers_count
-        ind_ys = range(ztpers_count)
-        ys_count = ztpers_count
-
-        def y_val(i): return zeta_t_perp[i]
+    def y_val(i): return us[i]
+    # elif dim == 2:
+    #     ztpers_count = len(zeta_t_perp)
+    #     rows = ztpers_count
+    #     ind_ys = range(ztpers_count)
+    #     ys_count = ztpers_count
+    #
+    #     def y_val(i): return zeta_t_perp[i]
     dim_str = "%iD" % (dim)
 
     fig = set_figure_size(
@@ -55,12 +55,12 @@ def plot_K_L(zeta_sps, zeta_t_roots, ns, us, dim, zeta_t_perp, height_factor=1.0
     for ind_y in ind_ys:
 
         # y title
-        if dim == 1:
-            y_str = '$\zeta_\mathrm{t}$'
-            info_str = '$u='
-        elif dim == 2:
-            y_str = '$\zeta_{\mathrm{t}\parallel}$'
-            info_str = '$|\zeta_{t\perp}|='
+        # if dim == 1:
+        y_str = '$\zeta_\mathrm{t}$'
+        info_str = '$u='
+        # elif dim == 2:
+        #     y_str = '$\zeta_{\mathrm{t}\parallel}$'
+        #     info_str = '$|\zeta_{t\perp}|='
         info_str += '%.1f$' % (y_val(ind_y))
 
         if not one_figure:
@@ -109,7 +109,7 @@ def plot_K_L(zeta_sps, zeta_t_roots, ns, us, dim, zeta_t_perp, height_factor=1.0
     # Title
     if not one_figure:
         # dim_str += " ($\zeta_{t\perp}=%.2f$)" % (zeta_t_perp)
-        fig.suptitle(dim_str, fontsize=font_size + 2)
+        fig.suptitle(dim_str, fontsize=font_size + 2, y=0.98, x=0.055)
 
     # plt.axis('square')
     fig.tight_layout()
