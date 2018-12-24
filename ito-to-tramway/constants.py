@@ -2,9 +2,10 @@
 Parameters for batch trajectories analysis with TRamWAy and Bayes factor plots
 """
 
-import numpy as np
-import os   # the right way to join paths
+import os  # the right way to join paths
 import platform
+
+import numpy as np
 
 version = 20180416
 
@@ -15,6 +16,7 @@ L = 1  # um
 # Simulation parameters for comparison
 D_0 = 0.01  # um^2/s
 D_ratio = 2.0
+zeta_t_y_over_zeta_sp_abs = 6.25
 k = 2.0  # um^{-1}, D'/D_0
 # ksi = -10.0
 abs_tol = 1.0e-8
@@ -92,5 +94,16 @@ green = [0.4353,    0.5804,         0]
 red = np.asarray([191,    32,    37]) / 255.0
 yellow = np.asarray([252.91, 191.76, 16.47]) / 255.0
 
+col_yes = np.asarray([194,    216, 52]) / 255.0
+col_no = np.asarray([141,  24, 26]) / 255.0
+col_idk = np.asarray([255,   255,    255]) / 255.0
+colors = np.transpose(np.stack([col_no, col_idk, col_yes], axis=1))
+
 MACHINE_PRECISION = 1e-16
 pagewidth_in = 6.85
+
+color_sequence = 	[[0.1008,    0.4407,    0.7238],
+    				[0.4353,    0.5804,         0],
+    				[0.9498,    0.4075,    0.1317],
+    				[0.4364,    0.2238,    0.5872],
+    				[0.5860,    0.4228,    0.2649]]

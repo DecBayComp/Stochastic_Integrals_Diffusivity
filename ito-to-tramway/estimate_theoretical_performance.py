@@ -2,9 +2,11 @@
 Estimate expected statistical performance of the active force detection criterion
 """
 
-from constants import D_0, D_ratio, dt, L
-from bayes_factors.find_marginalized_zeta_t_roots import find_marginalized_zeta_t_roots
 import numpy as np
+
+from constants import D_0, D_ratio, L, dt
+from tramway.inference.bayes_factors.find_marginalized_zeta_t_roots import \
+    find_marginalized_zeta_t_roots
 
 
 def estimate_theoretical_performance(expect_mean_n):
@@ -30,9 +32,9 @@ def estimate_theoretical_performance(expect_mean_n):
         # print(zeta_t_perp)
 
         exp_zeta_ts[f_ind, [1, 2]] = find_marginalized_zeta_t_roots(zeta_sp_par=sim_zeta_sp_par,
-                                                                    n=expect_mean_n[f_ind], n_pi=n_pi, B=theor_Bs[0], u=u, dim=dim, zeta_t_perp=zeta_t_perp)
+                                                                    n=expect_mean_n[f_ind], n_pi=n_pi, B=theor_Bs[0], u=u, dim=dim, zeta_t_perp=zeta_t_perp, loc_error=0)
         exp_zeta_ts[f_ind, [0, 3]] = find_marginalized_zeta_t_roots(zeta_sp_par=sim_zeta_sp_par,
-                                                                    n=expect_mean_n[f_ind], n_pi=n_pi, B=theor_Bs[1], u=u, dim=dim, zeta_t_perp=zeta_t_perp)
+                                                                    n=expect_mean_n[f_ind], n_pi=n_pi, B=theor_Bs[1], u=u, dim=dim, zeta_t_perp=zeta_t_perp, loc_error=0)
 
     exp_zeta_ts_over_zeta_sps = exp_zeta_ts / sim_zeta_sp_par
     print("Finished!\nzt_par / zsp roots found:")

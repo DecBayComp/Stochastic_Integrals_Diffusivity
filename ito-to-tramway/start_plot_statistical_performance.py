@@ -15,19 +15,21 @@ else:
     print("Graphic interface NOT re-initialized")
 
 
+import numpy as np
+
 from combine_results import combine_results
 from estimate_theoretical_performance import estimate_theoretical_performance
-import numpy as np
+from get_expected_B import get_expected_B
 from plot_for_article import plot_for_article
 
 # %% combine results
-data, ksis_unique, avg_data, expect_mean_n, trials_number = combine_results(
-    bl_force_reload=False)
+data, data_lgB, ksis_unique, avg_data, expect_mean_n, trials_number = combine_results(
+    bl_force_reload=0)
 
 # %% >>> Theoretical estimates <<<
-exp_zeta_ts_over_zeta_sps = estimate_theoretical_performance(expect_mean_n)
 
 # %% >> > Plot << <
 # print(exp_zeta_ts_over_zeta_sps)
 plot_for_article(ksis_unique, avg_data,
-                 exp_zeta_ts_over_zeta_sps, expect_mean_n, trials_number)
+                 data_lgB, expect_mean_n, trials_number)
+
