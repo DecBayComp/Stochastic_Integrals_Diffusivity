@@ -5,7 +5,7 @@ import time
 class stopwatch:
     """A class for measuring execution time."""
 
-    def __init__(self, name, verbose=True):
+    def __init__(self, name='Calculation', verbose=True):
         self.name = name
         self.verbose = verbose
 

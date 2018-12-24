@@ -1,22 +1,24 @@
 
 theory/b bias analysis_old \(copy\)\.nb
-**/.pdf
-**/.csv
-**/.dat
+*.pdf
+*.csv
+*.dat
+*.png
+*.7z
+*.rwa
+*.eps
+*.log
 
 theory/b bias analysis_old\.nb
 *.pyc
 trajectory_simulation_python/output/
 trajectory_simulation_python/logs/
-main_calculations/figures_for_article/results_with_force.dat
 
 trajectory_simulation_python/DBC Tars nodes\.txt
 
-trajectory_simulation_python/arguments\.dat
 
 main_calculations/figures_for_article/K_G_data_no_force\.txt
 
-main_calculations/figures_for_article/results_no_force\.dat
 trajectory_simulation_python/arguments.lock
 main_calculations/test.py
 main_calculations/processed_data/stat_struct.mat
@@ -25,42 +27,20 @@ main_calculations/processed_data/stat_struct_wrong_D.mat
 analytical_bayes_factor/\.ipynb_checkpoints/
 
 main_calculations/figures_for_article/
-marginal_fun.png
-marginal_fun_low_K.png
-final_results_1D.pdf
-final_results_2D.pdf
-new_prior_results_1D.pdf
-new_prior_results.png
-old_prior_results.png
-results.png
-results.pdf
 data
-000000001.rwa
-arguments.dat
 arguments.lock
 ../ito-to-tramway - Copy/
 .ipynb_checkpoints/
-arguments - Copy.dat
-arguments_2.dat
 arguments_2.lock
 results/
-results.7z
-conservative_forces.png
-combined_data.csv
 ../ito-to-tramway - Copy/__pycache__
 ../ito-to-tramway - Copy/__pycache__ - Copy
-../ito-to-tramway - Copy/000000001.rwa
-../ito-to-tramway - Copy/arguments - Copy.dat
-../ito-to-tramway - Copy/arguments.dat
 ../ito-to-tramway - Copy/arguments.lock
-../ito-to-tramway - Copy/arguments_2.dat
 ../ito-to-tramway - Copy/arguments_2.lock
 ../ito-to-tramway - Copy/bayes_factors
 ../ito-to-tramway - Copy/calculate.py
 ../ito-to-tramway - Copy/collect_net_rwa_win.py
 ../ito-to-tramway - Copy/combine_results.ipynb
-../ito-to-tramway - Copy/combined_data.csv
-../ito-to-tramway - Copy/conservative_forces.png
 ../ito-to-tramway - Copy/constants.py
 ../ito-to-tramway - Copy/copy_to_tars.sh
 ../ito-to-tramway - Copy/data
@@ -72,47 +52,17 @@ combined_data.csv
 ../ito-to-tramway - Copy/output
 ../ito-to-tramway - Copy/prepare_arguments.py
 ../ito-to-tramway - Copy/results
-../ito-to-tramway - Copy/results.7z
 ../ito-to-tramway - Copy/run_bayes.py
 ../ito-to-tramway - Copy/sbatch_tars.sh
 ../ito-to-tramway - Copy/set_figure_size.py
-../ito-to-tramway - Copy/simulation_results.pdf
-../ito-to-tramway - Copy/simulation_results.png
 ../ito-to-tramway - Copy/snr.py
 ../ito-to-tramway - Copy/start_me.py
 ../ito-to-tramway - Copy/tesselate_and_infer.py
 ../ito-to-tramway - Copy/TRamWAy
 ../ito-to-tramway - Copy
-simulation_results.pdf
-simulation_results.png
-results_1D.pdf
-results_1D.png
-results_2D.pdf
-results_2D.png
-sim_performance.pdf
-sim_performance.png
-arguments - Copy (2).dat
-combined_data_old.csv
-ito-to-tramway.7z
 output
-optical_traps_bayes_factors.pdf
-optical_traps_bayes_factors.png
 temp
 temp.py
 ./temp
-./temp/Brownien_P1_equal.dat
-./temp/Brownien_P1_kohonen-200.dat
-./temp/Brownien_P1_kohonen-400.dat
-./temp/Brownien_P1_kohonen-500.dat
-./temp/Brownien_P1_kohonen.dat
-./temp/Brownien_P4_equal.dat
-./temp/Brownien_P4_kohonen-200.dat
-./temp/Brownien_P4_kohonen-400.dat
-./temp/Brownien_P4_kohonen.dat
-./temp/Brownien_P5_equal.dat
-./temp/Brownien_P5_kohonen-200.dat
-./temp/Brownien_P5_kohonen-400.dat
-./temp/Brownien_P5_kohonen.dat
-overlap.png
 input/
 bayes_factors.7z

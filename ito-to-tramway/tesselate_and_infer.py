@@ -4,14 +4,17 @@
 This function may be outdated
 """
 
+import os.path
+
+import numpy as np
+import pandas as pd
+
+from constants import dt
+from Sashas import Sashas
+from snr import infer_snr
 from tramway.core import *
 from tramway.helper import *
 from tramway.inference import *
-import numpy as np
-import pandas as pd
-import os.path
-from snr import infer_snr
-from constants import dt
 
 
 def tesselate_and_infer(csv_file, bl_dr=True, localization_error=1e-3):
@@ -29,18 +32,6 @@ def tesselate_and_infer(csv_file, bl_dr=True, localization_error=1e-3):
         # cell_plot(rwa_file, output_file = traj+'_mesh.png')
     else:
         print("Warning: trajectories not reloaded! Meshes not recalculated.")
-
-    class Sashas(Translocations):
-        def _extract_space(self):
-            return np.asarray(self.origins[['dx', 'dy']])
-
-        @property
-        def space_cols(self):
-            return ['x', 'y']
-
-        @space_cols.setter
-        def space_cols(self, cs):
-            pass
 
     print("\nMesh constructed. Starting inference\n")
     # rwa_file = '.\\results\\{}.rwa'.format(traj)
