@@ -14,27 +14,28 @@ except NameError:
 else:
     print("Graphic interface NOT re-initialized")
 
-import tables
+import os
+import time
+
 # from rwa import HDF5Store
 import matplotlib
 # matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from calculate import calculate
-from constants import optical_traps_data_folder, optical_data_sets, optical_traps_points_per_bin, MACHINE_PRECISION, optical_traps_dt, optical_power_mW, pagewidth_in
-from bayes_comparison_optical_traps.load_trajectory import load_trajectory
-from get_exterior_cells import get_exterior_cells
-import os
 import pandas as pd
+from tqdm import trange
+
+from bayes_comparison_optical_traps.load_trajectory import load_trajectory
+from calculate import calculate
+from constants import (MACHINE_PRECISION, optical_data_sets, optical_power_mW,
+                       optical_traps_data_folder, optical_traps_dt,
+                       optical_traps_points_per_bin, pagewidth_in)
+from get_exterior_cells import get_exterior_cells
 from set_figure_size import set_figure_size
 from snr import infer_snr
 from stopwatch import stopwatch
-from tqdm import trange
 from tramway.helper import *
-from tramway.plot.mesh import *
 from tramway.plot.map import scalar_map_2d
-
-import time
-
+from tramway.plot.mesh import *
 
 # %% Constants
 localization_error = 1.0e-8  # um
@@ -89,22 +90,15 @@ for file_ind in trange(len(optical_data_sets)):
     cells = rwa_data[label].data
     cells_len = cells.location_count.size
 
-    # Calculate the Bayes factors in each bin
-    # --> Check the value of the localization error
-    inference_result = equal_tree_distr.run(
-        infer_snr, max_iter=50, localization_error=localization_error)
-    equal_tree.add(Maps(inference_result, mode='snr'), label='snr')
-    save_rwa(rwa_fullpath, rwa_data, force=True)
 
     # Calculate the Bayes factors
     with stopwatch('Bayes factor calculations'):
-        calculate(rwa_fullpath, results_folder=None, bl_produce_maps=False, dt=optical_traps_dt,
+        calculate(rwa_fullpath, results_folder=None, bl_produce_maps=False,
                   snr_label='snr', localization_error=localization_error)
 
     # Get the calculated Bayes factors
     rwa_data = load_rwa(rwa_fullpath)
-    ns = rwa_data[label]['snr'].data['n']['n'].copy()
-    log10_Bs = rwa_data[label]['snr']['bayes_factors'].data.loc[:, 'log10_B'].copy()
+    log10_Bs = rwa_data[label]['snr']['bayes_factor'].data['lg_B']['lg_B'].copy()
 
     # Mark surface cells, where the results may not be accurate
     surface_cells = get_exterior_cells(cells)
@@ -115,7 +109,6 @@ for file_ind in trange(len(optical_data_sets)):
     # Save to structures
     log10_Bs_combined.append(log10_Bs)
     cells_combined.append(cells)
-    ns_combined.append(ns)
 
 
 # %% Plot the Bayes factors together
@@ -123,7 +116,7 @@ num = 1
 rows = 1
 cols = 3
 page_width_frac = 1.0
-height_factor = 0.9
+height_factor = 1.1
 aspect = None
 xlim = np.asarray([-1, 1]) * 9
 ylim = xlim
@@ -171,7 +164,7 @@ for file_ind in range(len(optical_data_sets)):
             transform=ax.transAxes, fontsize=font_size)
 
 # Colorbar title
-colorbar_title = '$\log_{10} (B)$'
+colorbar_title = '$\log_{10} K$'
 ax = fig.axes[rows * cols].set_ylabel(colorbar_title, rotation=90)
 
 # # Plot the number of particles per bin
