@@ -5,20 +5,31 @@ The goal is to analyze J-B's simulated trajectories
 
 try:
     bl_has_run
-except:
+
+except Exception:
+    import matplotlib
+    matplotlib.use('Agg')  # enable for console runs with no displays
+    %matplotlib
     %load_ext autoreload
     %autoreload 2
     bl_has_run = True
 
-from calculate import calculate
+import copy
 import glob
-import matplotlib
+import logging
 import os
 
+# %%
+import numpy as np
+from tqdm import tqdm
+
+from calculate import calculate
+from load_trajectory import load_trajectory
+from reinit_folder import reinit_folder
+from tramway.core.analyses.lazy import Analyses
+from tramway.helper import RWAStore
+
 # % Constants
-# dt = 0.05
-# snr_label = 'snr(mu=0)'
-# snr_label = 'snr'
 results_folder = "bayes_factors"
 
 
@@ -33,46 +44,52 @@ results_folder = "bayes_factors"
 # bl_recursive = False
 
 # # optical tweezers
-# root_path = r"\\157.99.40.171\@Dbc\LAB_shared_stuff\Francois_Laurent\tests_tramway\optical_tweezers"
+# root_path = r"\\atlas.pasteur.fr\@Dbc\LAB_shared_stuff\Francois_Laurent\tests_tramway\optical_tweezers"
 # dt = 1 / 65636  # s
 # snr_label = 'snr(mu=0)'
-# localization_error = 0.01
+# localization_error = 0.0
+
+# # optical tweezers local
+# root_path = r'./input/optical_tweezers'
+# snr_label = 'snr'
+# localization_error = 0.0
+
 
 # # Full viral capside
-# root_path = r"\\157.99.40.171\@Dbc\LAB_shared_stuff\Francois_Laurent\tests_tramway\misc_experiments\full"
-# dt = 0.02  # s
+# # root_path = r"\\157.99.40.171\@Dbc\LAB_shared_stuff\Francois_Laurent\tests_tramway\misc_experiments\full"
+# root_path = r'./input/vlp_full_francois'
+# # root_path = r'./input/vlp_full'
 # snr_label = 'snr'
-# localization_error = 0.03
-# bl_recursive = False
+# localization_error = 0.03**2
+
 
 # VLP region
-root_path = r"\\157.99.40.171\@Dbc\LAB_shared_stuff\Francois_Laurent\tests_tramway\misc_experiments\vlp_2_2"
-dt = 0.02  # s
+# root_path = r"\\atlas.pasteur.fr\@Dbc\LAB_shared_stuff\Francois_Laurent\tests_tramway\misc_experiments\vlp_2_2"
+root_path = r"./input/vlp_2_2"
 snr_label = 'snr'
-localization_error = 0.03
-bl_recursive = False
+sigma = 0.03    # um
 
-# root_path = r"D:\\git\Stochastic_Integrals_Diffusivity\ito-to-tramway"
+# %%
+bl_recursive = False
+recalculate = False
 
 
 # %% Parse all subdirectories to extract .rwa files and store
-# print(os.path.exists(root_path))
-# print(root_path + r"\**\*.rwa")
 
 if bl_recursive:
-    file_list = [f for f in glob.iglob(root_path + r"\**\*.rwa", recursive=True)]
+    file_list = [f for f in glob.iglob(os.path.join(root_path, "/**/*.txt"), recursive=True)]
 else:
-    file_list = [f for f in glob.iglob(root_path + r"\*.rwa", recursive=False)]
+    file_list = [f for f in glob.iglob(os.path.join(root_path, r"*.txt"), recursive=False)]
 
-# print("Found files: \n", file_list)
-# print(file_list)
+folder, _ = os.path.split(file_list[0])
+results_path = os.path.join(folder, results_folder)
+reinit_folder(results_path)
 
-for i in range(len(file_list)):
-    file = file_list[i]
+# %%
+for file in tqdm(file_list):
     folder, _ = os.path.split(file)
-    folder = folder + "\\"
     print("Processing file: %s" % file)
-    # calculate(file, folder, True, dt, snr_label)
-    results_path = os.path.join(folder, results_folder)
+    analysis_tree = load_trajectory(file)
+    print(analysis_tree)
     calculate(csv_file=file, results_folder=results_path, bl_produce_maps=True,
-              dt=dt, snr_label=snr_label, localization_error=localization_error)
+              snr_label=snr_label, sigma=sigma, recalculate=recalculate, ticks=True)
