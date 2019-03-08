@@ -38,7 +38,7 @@ from tramway.plot.map import scalar_map_2d
 from tramway.plot.mesh import *
 
 # %% Constants
-localization_error = 1.0e-8  # um
+sigma = 1.0e-8  # um
 font_size = 8
 alpha = 1.0
 linewidth = 0.1
@@ -90,11 +90,10 @@ for file_ind in trange(len(optical_data_sets)):
     cells = rwa_data[label].data
     cells_len = cells.location_count.size
 
-
     # Calculate the Bayes factors
     with stopwatch('Bayes factor calculations'):
         calculate(rwa_fullpath, results_folder=None, bl_produce_maps=False,
-                  snr_label='snr', localization_error=localization_error)
+                  snr_label='snr', sigma=sigma)
 
     # Get the calculated Bayes factors
     rwa_data = load_rwa(rwa_fullpath)
@@ -114,17 +113,17 @@ for file_ind in trange(len(optical_data_sets)):
 # %% Plot the Bayes factors together
 num = 1
 rows = 1
-cols = 3
-page_width_frac = 1.0
-height_factor = 1.1
-aspect = None
+cols = 1
+page_width_frac = 0.5
+height_factor = 0.75
+aspect = 'equal'
 xlim = np.asarray([-1, 1]) * 9
 ylim = xlim
 
 fig, figsize = set_figure_size(
     num=num, rows=rows, page_width_frac=page_width_frac, height_factor=height_factor)
-fig.clf()
-_, axes = plt.subplots(nrows=rows, ncols=cols, num=num, sharex=True, sharey=True)
+
+_, ax = plt.subplots(nrows=rows, ncols=cols, num=num, aspect=aspect)
 
 # Determine the colorbar scale
 min_lg_B = np.nanmin([np.nanmin(vals) for vals in log10_Bs_combined])
@@ -132,16 +131,12 @@ max_lg_B = 3  # np.nanmax([np.max(vals) for vals in log10_Bs_combined])
 
 # % Plot a map of the Bayes factors
 row = 0
-for file_ind in range(len(optical_data_sets)):
-    ax = axes[file_ind]
-    plt.sca(ax)
+for file_ind in trange(len(optical_data_sets)):
+    ax.clear()
 
     cells = cells_combined[file_ind]
     log10_Bs = log10_Bs_combined[file_ind]
-    if file_ind == len(optical_data_sets) - 1:
-        bl_colorbar = 'nice'
-    else:
-        bl_colorbar = None
+    bl_colorbar = 'nice'
 
     scalar_map_2d(cells=cells, values=log10_Bs, axes=ax, colormap='inferno',
                   alpha=alpha, linewidth=linewidth, aspect=aspect, clim=[min_lg_B, max_lg_B], colorbar=bl_colorbar)
@@ -151,65 +146,28 @@ for file_ind in range(len(optical_data_sets)):
     ax.set_title(str_title)
 
     ax.set_xlabel('$x$, $\mu$m')
-    if file_ind == 0:
-        ax.set_ylabel('$y$, $\mu$m')
+    ax.set_ylabel('$y$, $\mu$m')
 
     plt.xlim(xlim)
     plt.ylim(ylim)
+    ticks = [-5, 0, 5]
+    plt.xticks(ticks)
+    plt.yticks(ticks)
 
-    # Add letter label
-    label_location = [0.025, 1.03]
-    str_label = chr(ord('a') + file_ind)
-    ax.text(label_location[0], label_location[1], str_label,
-            transform=ax.transAxes, fontsize=font_size)
+    # # Add letter label
+    # label_location = [0.025, 1.03]
+    # str_label = chr(ord('a') + file_ind)
+    # ax.text(label_location[0], label_location[1], str_label,
+    #         transform=ax.transAxes, fontsize=font_size)
 
-# Colorbar title
-colorbar_title = '$\log_{10} K$'
-ax = fig.axes[rows * cols].set_ylabel(colorbar_title, rotation=90)
+    # Colorbar title
+    colorbar_title = '$\log_{10} K$'
+    fig.axes[rows * cols].set_ylabel(colorbar_title, rotation=90)
 
-# # Plot the number of particles per bin
-# print(type(ns))
-# min_n = np.nanmin([np.nanmin(vals) for vals in ns])
-# max_n = np.nanmax([np.nanmin(vals) for vals in ns])
-# row = 1
-# for file_ind in range(len(optical_data_sets)):
-#     ax = axes[row, file_ind]
-#     plt.sca(ax)
-#     cells = cells_combined[file_ind]
-#     ns = ns_combined[file_ind]
-#     bl_colorbar = None
-#     if file_ind == len(optical_data_sets) - 1:
-#         bl_colorbar = 'nice'
-#
-#     scalar_map_2d(cells=cells, values=ns, axes=ax, colormap='inferno',
-#                   alpha=alpha, linewidth=linewidth, aspect='equal', clim=[min_n, max_n], colorbar=bl_colorbar)
-#
-#     # str_title = '$n$'
-#     # ax.set_title(str_title)
-#     ax.set_xlabel('$x$, $\mu$m')
-#     if file_ind == 0:
-#         ax.set_ylabel('$y$, $\mu$m')
-#
-#     plt.xlim(xlim)
-#     plt.ylim(ylim)
-#
-#     # add label
-#     label_location = [0.025, 1.03]
-#     str_label = chr(ord('d') + file_ind)
-#     # plot_me.count += 1
-#     ax = fig.gca()
-#     ax.text(label_location[0], label_location[1],
-#             str_label, transform=ax.transAxes, fontsize=font_size)
-#
-#     # Colorbar legend
-#     colorbar_legend = '$n$'
-#     if file_ind == len(optical_data_sets) - 1:
-#         ax = fig.axes[rows * cols + 1].set_ylabel(colorbar_legend, rotation=90)
+    fig.tight_layout()
+    fig.show()
 
-
-fig.tight_layout()
-fig.show()
-
-# Save
-fig.savefig(fig_basename + ".pdf")
-fig.savefig(fig_basename + ".png")
+    # Save
+    figname = f'{fig_basename}_{optical_power_mW[file_ind]:d}'
+    fig.savefig(figname + ".pdf", bbox_inches='tight', pad_inches=0)
+    fig.savefig(figname + ".png", bbox_inches='tight', pad_inches=0)
