@@ -10,7 +10,7 @@ def set_figure_size(num, rows, page_width_frac, height_factor=1.0):
     font_size = 8
     dpi = 100
 
-    figsize = np.asarray([1.0, 0.33 * rows *
+    figsize = np.asarray([1.0, rows *
                           height_factor]) * page_width_frac * pagewidth_in  # in inches
 
     # Set default font size
