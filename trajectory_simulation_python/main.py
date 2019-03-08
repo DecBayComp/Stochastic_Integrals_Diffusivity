@@ -1,15 +1,21 @@
 
 
 # Dependencies
-import argparse			# for command-line arguments
-import csv 				# for csv files
-import numpy as np
-import os    			# for file operations
+import argparse  # for command-line arguments
+import csv  # for csv files
+import os  # for file operations
 import random
-import time 			# to measure elapsed time
+import time  # to measure elapsed time
 
+import numpy as np
+
+from constants import CSV_DELIMITER, D_grad_abs, L
+from constants import N as N_def
+from constants import (bl_orthogonal_force, dim, internal_steps_number,
+                       max_D_case, output_folder, progress_update_interval,
+                       str_mode, t_step, version, x_max, x_min,
+                       zeta_t_y_over_zeta_sp_abs)
 from D_func import D_func
-from constants import version, max_D_case, N as N_def, progress_update_interval, output_folder, str_mode, t_step, internal_steps_number, CSV_DELIMITER, L, x_max, x_min, dim, D_grad_abs, bl_orthogonal_force, zeta_t_y_over_zeta_sp_abs
 
 
 def main(arg_str):

@@ -1,7 +1,7 @@
 #! /bin/bash
 
-FILE_LIST=("prepare_arguments.py filelock.py LICENSE-filelock.rst start_me.py constants.py 
-	sbatch_tars.sh job_manager.py tesselate_and_infer.py")
+FILE_LIST=("prepare_arguments.py filelock.py LICENSE-filelock.rst start_me.py 
+	sbatch_tars.sh job_manager.py tesselate_and_infer.py calculate.py")
 
 for file in $FILE_LIST
 do

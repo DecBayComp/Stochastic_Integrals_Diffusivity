@@ -18,7 +18,7 @@ from tramway.helper import Analyses, infer
 from tramway.inference import *
 
 
-def tesselate_and_infer(csv_file, bl_dr=True, localization_error=1e-3, load=True):
+def tesselate_and_infer(csv_file, bl_dr=True, sigma2=1e-3, load=True, min_diffusivity=1e-8):
     rwa_file, _ = os.path.splitext(csv_file)
     rwa_file = '{}.rwa'.format(rwa_file)
 
@@ -34,24 +34,14 @@ def tesselate_and_infer(csv_file, bl_dr=True, localization_error=1e-3, load=True
         analysis_tree = Analyses(data)
         tessellate(analysis_tree, 'gwr', output_file=rwa_file, label='gwr',
                    verbose=True, force=True)  # , ref_distance = 0.05)
-        # cell_plot(rwa_file, output_file = traj+'_mesh.png')
     else:
         print("Warning: trajectories not reloaded! Meshes not recalculated.")
+        analysis_tree = load_rwa(rwa_file)
 
     print("\nMesh constructed. Starting inference\n")
-    # rwa_file = '.\\results\\{}.rwa'.format(traj)
-    # a = load_rwa(rwa_file)
-    if 'dx' in analysis_tree.data:
-        cell_types = Sashas
-    else:
-        cell_types = Translocations
-    # print(analysis_tree.data)
-    snr_label = 'snr'
-    infer(analysis_tree, 'snr', input_label='gwr', output_label=snr_label,
-          max_iter=50, sigma=0, new_cell=cell_types)
 
-    # d = distributed(analysis_tree['gwr'].data, new_cell=cell_types)
-    # # , diffusivity_prior = 0.001, min_diffusivity = 0.001)
-    # x = d.run(infer_snr, max_iter=50, localization_error=localization_error)
-    # a['gwr'].add(Maps(x, mode='snr'), label='snr')
+    snr_label = 'snr'
+    infer(analysis_tree, 'd.conj_prior', input_label='gwr', output_label=snr_label,
+          sigma2=sigma2)
+
     save_rwa(rwa_file, analysis_tree, verbose=True, force=True)

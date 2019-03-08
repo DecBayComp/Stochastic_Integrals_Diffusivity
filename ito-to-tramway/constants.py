@@ -22,7 +22,7 @@ k = 2.0  # um^{-1}, D'/D_0
 abs_tol = 1.0e-8
 bl_produce_maps = False
 # remember to change the value for the analyzed data. For theory use a value much smaller than the jump
-localization_error = abs_tol
+sigma = abs_tol
 
 
 # if sys ==
@@ -102,8 +102,8 @@ colors = np.transpose(np.stack([col_no, col_idk, col_yes], axis=1))
 MACHINE_PRECISION = 1e-16
 pagewidth_in = 6.85
 
-color_sequence = 	[[0.1008,    0.4407,    0.7238],
-    				[0.4353,    0.5804,         0],
-    				[0.9498,    0.4075,    0.1317],
-    				[0.4364,    0.2238,    0.5872],
-    				[0.5860,    0.4228,    0.2649]]
+color_sequence = [[0.1008,    0.4407,    0.7238],
+                  [0.4353,    0.5804,         0],
+                  [0.9498,    0.4075,    0.1317],
+                  [0.4364,    0.2238,    0.5872],
+                  [0.5860,    0.4228,    0.2649]]

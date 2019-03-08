@@ -3,11 +3,11 @@ List of commands launched by the job manager for tessellation, inference, calcul
 """
 
 
-import argparse			# for command-line arguments
-from tesselate_and_infer import tesselate_and_infer
-from calculate import calculate
+import argparse  # for command-line arguments
 
-from constants import version, folders, bl_produce_maps, dt, localization_error
+from calculate import calculate
+from constants import bl_produce_maps, dt, folders, sigma, version
+from tesselate_and_infer import tesselate_and_infer
 
 
 def main(arg_str):
@@ -31,9 +31,8 @@ def main(arg_str):
 
     print(file)
     # Tesselate and perform inference
-    tesselate_and_infer(file, localization_error=localization_error)
+    tesselate_and_infer(file, sigma2=sigma**2, load=True)
 
     # Calculate Bayes factors and output results
     _, output_folder = folders()
-    calculate(file, output_folder, bl_produce_maps=False, dt=dt,
-              snr_label='snr', localization_error=localization_error)
+    calculate(file, output_folder, bl_produce_maps=False, snr_label='snr', sigma=sigma)
