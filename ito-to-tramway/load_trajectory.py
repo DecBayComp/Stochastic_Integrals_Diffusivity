@@ -8,7 +8,8 @@ import os
 import numpy as np
 import pandas as pd
 
-from tramway.helper import Analyses, load_rwa, load_xyt, save_rwa
+from tramway.core.analyses.lazy import Analyses
+from tramway.helper import load_rwa, load_xyt, save_rwa
 
 
 def load_trajectory(file, reload=False, reset_origin=True):
