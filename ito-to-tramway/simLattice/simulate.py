@@ -6,6 +6,7 @@ Periodic boundary conditions.
 
 import matplotlib
 import numpy as np
+import pandas as pd
 from matplotlib import pyplot as plt
 from numpy.linalg import norm
 from tqdm import trange
@@ -13,7 +14,7 @@ from tqdm import trange
 # try:
 #     bl_has_run
 # except Exception:
-
+#
 #     %matplotlib
 #     %load_ext autoreload
 #     %autoreload 2
@@ -25,19 +26,21 @@ atol = 1e-8
 
 
 # %%
-def simulate():
+def simulate(N=500, save=True, output_file='./trajectory.csv'):
     """Main simulation routine"""
 
+    # output_file='./input/beads_lattice/trajectory.csv'
+
     # Input parameters
-    N = np.long(2e3)
+    N = np.long(N)
     internal_steps_number = 10
     dt = 0.04   # s
     dim = 2
     D = 0.01  # in um^2/s
     L = 1  # um
-    beads_dx = beads_dy = L / 10
-    Rmin = beads_dx / 5
-    Rmax = Rmin * 2
+    beads_dx = beads_dy = 0.1
+    Rmin = 0.02
+    Rmax = 0.04
 
     # Derived parameters
     dt_int = dt / internal_steps_number
@@ -77,7 +80,7 @@ def simulate():
 
     all_internal_trajectory = []
     for big_step in trange(N):
-        # dr_big = [0, 0]
+        dr_big = [0, 0]
 
         for small_step in range(internal_steps_number):
 
@@ -87,16 +90,27 @@ def simulate():
 
             dr = alpha * dt_int + b * dW
 
-            _, _, dr, internal_trajectory = get_reflections(r, dr, beads, R_func, Nx, Ny)
+            _, new_r, _, internal_trajectory, new_dr = get_reflections(
+                r, dr, beads, R_func, Nx, Ny)
+            # dr = internal_trajectory[:, 2:4].sum(axis=0)
             all_internal_trajectory += internal_trajectory
             # dr = adjust_periodic(r, dr)
 
-            r = r + dr
+            r = new_r
+            dr_big += new_dr
         rs[big_step + 1, :] = r
-        # dr[:, big_step] = dr
+        drs[big_step, :] = dr_big
 
+    # Save trajectory to file
+    output_table = pd.DataFrame(columns='x dx y dy n'.split(), index=ts)
+    output_table.rename_axis('t', axis='index', inplace=True)
+    output_table.loc[:, 'x y'.split()] = rs
+    output_table.loc[:, 'dx dy'.split()] = drs
+    output_table.loc[:, 'n'] = 0
+
+    output_table.to_csv(output_file, sep='\t')
     # print('Trajectory: ', rs)
-    return ts, rs, beads, all_internal_trajectory
+    return ts, rs, drs, beads, all_internal_trajectory
 
 
 def get_reflections(r, dr, beads, R_func, Nx, Ny, L=1):
@@ -107,15 +121,8 @@ def get_reflections(r, dr, beads, R_func, Nx, Ny, L=1):
     Returns:
     internal_trajectory - N x 4, array-like, the subdivisions of the initial displacement into sub-intervals of the form [[x, y, dx, dy],...]
 
-    new_dr = new_r - r, the new jump length from the original position
+    new_dr - the jump length including reflections, but not border crossing
     """
-
-    # # Temporary
-    # L = 1  # um
-    # beads_dx = beads_dy = L / 10
-    # Rmin = beads_dx / 5
-    # Rmax = Rmin * 2
-    # # R = beads_rmin
 
     # Initialize
     r = np.array(r)
@@ -155,7 +162,8 @@ def get_reflections(r, dr, beads, R_func, Nx, Ny, L=1):
         # print('acos', dr, radial_vec, (dr * radial_vec).sum() / norm(dr) / norm(radial_vec))
         # print('incidence_angle, grad', incidence_angle / np.pi * 180)
         phi = np.pi - 2 * incidence_angle  # rotation angle
-        reflection_angle = np.pi / 2 + np.arctan(radial_vec[1] / radial_vec[0])
+        with np.errstate(divide='ignore'):
+            reflection_angle = np.pi / 2 + np.arctan(radial_vec[1] / radial_vec[0])
         # print('reflection angle', reflection_angle)
         reflection_matrix = np.array(
             [[np.cos(2 * reflection_angle), np.sin(2 * reflection_angle)], [np.sin(2 * reflection_angle), -np.cos(2 * reflection_angle)]])
@@ -167,7 +175,7 @@ def get_reflections(r, dr, beads, R_func, Nx, Ny, L=1):
         internal_trajectory.append([*r, *dr_before_intersct])
 
         # Call function again to check for other reflections
-        _, _, new_dr_after, internal_trajectory2 = get_reflections(
+        _, _, new_dr_after, internal_trajectory2, _ = get_reflections(
             intersection, new_dr_after, beads, R_func, Nx, Ny)
         new_r = intersection + new_dr_after
         internal_trajectory += internal_trajectory2
@@ -175,26 +183,32 @@ def get_reflections(r, dr, beads, R_func, Nx, Ny, L=1):
     else:
         # Check if reaching the border
         # print('Calling boundary intersection with ', r, dr, L)
-        leaving, intersection, new_dr_after = get_boundary_intersection(r, dr, L)
+        leaving, old_intersection, intersection, new_dr_after = get_boundary_intersection(r, dr, L)
         # print('boundary', r, dr, L, ">>>", leaving, intersection, new_dr_after)
 
-        dr_temp = intersection - r
-        # print('leave', leaving)
+        dr_to_intersection = old_intersection - r
+
         if leaving:
-            internal_trajectory.append([*r, *dr_temp])
-            _, _, new_dr_after, internal_trajectory2 = get_reflections(
+            internal_trajectory.append([*r, *dr_to_intersection])
+            _, _, new_dr_after, internal_trajectory2, _ = get_reflections(
                 intersection, new_dr_after, beads, R_func, Nx, Ny)
             new_r = intersection + new_dr_after
             internal_trajectory += internal_trajectory2
+            reflected = True
             # new_dr = new_r - r
         else:
             reflected = False
+            intersection = np.nan
             new_r = r + dr
+            new_dr_after = dr
             internal_trajectory.append([*r, *dr])
         # new_dr = dr
-    new_dr = new_r - r
+    dr_after_intersection = new_dr_after
+    # print('int', internal_trajectory)
+    new_dr = np.asarray(internal_trajectory)[:, 2:4].sum(axis=0)
+    # new_dr =
 
-    return reflected, new_r, new_dr, internal_trajectory
+    return reflected, new_r, dr_after_intersection, internal_trajectory, new_dr
 
 
 def get_bead_intersection(r, dr, P, R):
@@ -215,7 +229,6 @@ def get_bead_intersection(r, dr, P, R):
 
     # Calculate the intersection point by taking into account the singularity of line description.
     # Use x or y substitutions when it gives a more numerically stable solution
-
     if np.abs(dr[0]) >= np.abs(dr[1]):
         method = 'y'
         # y = k*x + m
@@ -227,8 +240,10 @@ def get_bead_intersection(r, dr, P, R):
         b = (-2 * P[0] + 2 * k * (m - P[1])) / (1 + k**2)
         c = (P[0]**2 + (m - P[1])**2 - R**2) / (1 + k**2)
         discriminant = b**2 - 4 * a * c
-        intersection_xs = (np.array([-1, 1]) * np.sqrt(discriminant) - b) / 2 / a
-        intersections = np.array(list(zip(intersection_xs, intersection_xs * k + m)))
+        if discriminant >= 0:
+            # print(discriminant)
+            intersection_xs = (np.array([-1, 1]) * np.sqrt(discriminant) - b) / 2 / a
+            intersections = np.array(list(zip(intersection_xs, intersection_xs * k + m)))
     else:
         method = 'x'
         # x = k*y + m
@@ -240,8 +255,9 @@ def get_bead_intersection(r, dr, P, R):
         b = (-2 * P[1] + 2 * k * (m - P[0])) / (1 + k**2)
         c = (P[1]**2 + (m - P[0])**2 - R**2) / (1 + k**2)
         discriminant = b**2 - 4 * a * c
-        intersection_ys = (np.array([-1, 1]) * np.sqrt(discriminant) - b) / 2 / a
-        intersections = np.array(list(zip(intersection_ys * k + m, intersection_ys)))
+        if discriminant >= 0:
+            intersection_ys = (np.array([-1, 1]) * np.sqrt(discriminant) - b) / 2 / a
+            intersections = np.array(list(zip(intersection_ys * k + m, intersection_ys)))
 
     # print(dr, method)
     # print('disc', discriminant)
@@ -281,33 +297,66 @@ def get_boundary_intersection(r, dr, L):
     """Calculate whether the particle is going to leave the box.
     Take into account only the closest reflection.
     Return a new starting location and displacement that takes into account the reflection.
+
+    Return:
+    new_intersection - the starting location after reflection
+    old_intersection - the point when the wall is reached before the reflection
     """
 
     # Check if r to r+dr goes through a wall, kx+m
-    k = dr[1] / dr[0]
-    m = r[1] - k * r[0]
+    # k = dr[1] / dr[0]
+    # m = r[1] - k * r[0]
     r_end = r + dr
 
     # Coordinates of the corner of crossing
     corner = (np.sign(dr) + 1) / 2 * L
-    wall_intersections = np.array([[corner[0], corner[0] * k + m],
-                                   [(corner[1] - m) / k, corner[1]]])
-    distances_x = np.abs(r[0] - wall_intersections[:, 0])
-    closest = np.argmin(distances_x)
-    reachable = distances_x[closest] < np.abs(dr[0])
+
+    # Calculate the intersection point by taking into account the singularity of line description.
+    # Use x or y substitutions when it gives a more numerically stable solution
+    if np.abs(dr[0]) >= np.abs(dr[1]):
+        method = 'y'
+        # y = k*x + m
+        k = dr[1] / dr[0]
+        m = r[1] - k * r[0]
+
+        with np.errstate(divide='ignore'):
+            wall_intersections = np.array([[corner[0], corner[0] * k + m],
+                                           [(corner[1] - m) / k, corner[1]]])
+
+    else:
+        method = 'x'
+        # x = k*y + m
+        k = dr[0] / dr[1]
+        m = r[0] - k * r[1]
+
+        with np.errstate(divide='ignore', invalid='ignore'):
+            # print(k)
+            wall_intersections = np.array([[corner[0], (corner[0] - m) / k],
+                                           [corner[0] * k + m, corner[1]]])
+
+    #
+
+    distances = [np.linalg.norm(r - wall_intersections[i, :]) for i in range(2)]
+    # print('param', r, dr, L)
+    # print('dist', distances)
+    closest = np.argmin(distances)
+    d_intersection = wall_intersections[closest] - r
+    reachable = distances[closest] < np.linalg.norm(dr) and (d_intersection * dr).sum() >= 0
+    # print('reach', reachable)
 
     if reachable:
-        new_intersection = wall_intersections[closest, :]
+        old_intersection = wall_intersections[closest, :]
+        new_intersection = old_intersection.copy()
         new_intersection[closest] -= np.sign(dr[closest]) * L
         new_r_end = r_end
         new_r_end[closest] -= np.sign(dr[closest]) * L
-        new_dr = new_r_end - new_intersection
+        dr_after_intersection = new_r_end - new_intersection
         leaving = True
     else:
         leaving = False
-        new_intersection, new_dr = [np.nan] * 2
+        new_intersection, old_intersection, dr_after_intersection = [np.nan] * 3
 
-    return leaving, new_intersection, new_dr
+    return leaving, old_intersection, new_intersection, dr_after_intersection
 
 
 def plot_beads(beads):
@@ -340,22 +389,27 @@ if __name__ == '__main__':
     # get_reflections([0.1, 0.05], [-0.5, 0])
     # np.argmin([np.nan, np.nan])
     np.random.seed()
-    ts, rs, beads, all_internal_trajectory = simulate()
+    ts, rs, drs, beads, all_internal_trajectory = simulate(N=1e5)
     all_internal_trajectory = np.array(all_internal_trajectory)
 
     # % Plots
     # %matplotlib
     # max_N = np.min([32, rs.shape[0]])
     # max_N = rs.shape[0]
-    plt.figure(1, clear=True)
+    fig = plt.figure(1, clear=True)
     plt.scatter(rs[0, 0], rs[0, 1], color='g')
-    plt.plot(rs[:, 0], rs[:, 1], 'r')
+    for i in range(rs.shape[0] - 1):
+        plt.plot([rs[i, 0], rs[i, 0] + drs[i, 0]], [rs[i, 1], rs[i, 1] + drs[i, 1]], 'r')
+        # plt.plot([rs[i, 0], rs[i + 1, 0]], [rs[i, 1], rs[i + 1, 1]], 'r')
     # plt.plot(all_internal_trajectory[:, 0], all_internal_trajectory[:, 1], 'k')
+    # i=10
     plt.axis('square')
     plt.xlim([0, 1])
     plt.ylim([0, 1])
     plot_beads(beads)
     plt.show()
 
+    # fig.savefig('figure.pdf')
+
 # list(zip([0, 1], [2, 3]))
-print(rs.tolist())
+# print(rs.tolist())
