@@ -1,0 +1,1 @@
+This module provides a simulation of diffusion within a region obstructed by a lattice of immobile beads of varying radii. This is a microscopic simulation of diffusivity change, when seen on a larger scale.
