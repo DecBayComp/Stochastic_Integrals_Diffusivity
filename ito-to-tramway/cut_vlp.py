@@ -8,14 +8,20 @@ compatibility - recalculate individual trajectories number for compatibility wit
 import numpy as np
 import pandas as pd
 
-input_file = r"./input/vlp_full/VLP_WT_2_full.txt"
-output_file = r"./input/vlp_2_2/VLP_WT_2_2_new_cut.txt"
-x_lims = [6.240095, 6.240095 + 2]
-y_lims = [12.940018, 12.940018 + 2]
+# input_file = r"./input/neuro-receptors-pre-select/old/EXP01-01-BetaS403A-PRE-PP2-15ms_cluster_112.trxyt"
+# output_file = r"./input/neuro-receptors-pre-select/EXP01-01-BetaS403A-PRE-PP2-15ms_cluster_112_cut.txt"
+
+input_file = r"./input/neuro-receptors-post-select/old/EXP01-01-BetaS403A-POST-PP2-15ms_cluster_112.trxyt"
+output_file = r"./input/neuro-receptors-post-select/EXP01-01-BetaS403A-POST-PP2-15ms_cluster_112_cut.txt"
+
+# half_width = 1
+# interval = np.array([-1, 1]) * half_width
+x_lims = [9.55, 11.55]
+y_lims = [25.45, 26.8]
 compatibility = True
 
 original_data = pd.read_table(input_file, names=['n', 'x', 'y', 't'])
-print(original_data)
+# print(original_data)
 
 # calculate displacements
 same_particle = original_data['n'].shift(-1) == original_data['n']
@@ -42,9 +48,9 @@ if compatibility:
     cut_data = cut_data.reset_index(drop=True)
     n = (cut_data['n'] != cut_data['n'].shift(1)) * 1
     cut_data.n = np.cumsum(n)
-
+    print(cut_data.t)
     cut_data.t = (cut_data.t[1] - cut_data.t[0]) * cut_data.index
 
 
 # save
-cut_data.to_csv(output_file, sep='\t', index=False, header=False)
+cut_data.to_csv(output_file, sep='\t', index=False, header=True)
