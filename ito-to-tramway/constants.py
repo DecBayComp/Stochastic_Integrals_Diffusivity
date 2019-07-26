@@ -27,16 +27,22 @@ sigma = abs_tol
 
 # if sys ==
 
-data_folder_lin = '/mnt/d/calculated_data/sim_performance_2D_no_perp'
-data_folder_win = r'd:\calculated_data\sim_performance_2D_no_perp'
+# data_folder_lin = '/mnt/d/calculated_data/sim_performance_2D_no_perp'
+# data_folder_win = r'd:\calculated_data\sim_performance_2D_no_perp'
 # data_folder_lin = '/mnt/d/calculated_data/sim_performance_2D_with_perp'
 # data_folder_win = r'd:\calculated_data\sim_performance_2D_with_perp'
+
+# Neuro-receptors data
+data_folder_lin = '/mnt/d/Google Drive/git/Stochastic_Integrals_Diffusivity/ito - to - tramway/input/neuro - receptors'
+data_folder_win = r'd:\Google Drive\git\Stochastic_Integrals_Diffusivity\ito - to - tramway\input\neuro - receptors'
 
 args_file = "./arguments.dat"
 args_lock = "./arguments.lock"
 
 optical_traps_data_folder_win = r'D:\Experimental_Data\optical_tweezers'
 optical_traps_data_folder_lin = '/mnt/d/Experimental_Data/optical_tweezers'
+
+
 optical_data_sets = ['P1', 'P4', 'P5']
 optical_power_mW = [500, 251, 138]
 optical_traps_points_per_bin = 400

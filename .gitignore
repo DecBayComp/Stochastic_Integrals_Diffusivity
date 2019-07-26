@@ -66,3 +66,6 @@ temp.py
 ./temp
 input/
 bayes_factors.7z
+.idea/
+test.py
+/ito-to-tramway/test.py
