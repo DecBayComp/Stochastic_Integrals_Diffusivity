@@ -50,7 +50,7 @@ def my_save(rwa_file, analysis_tree, **kwargs):
 save_rwa = my_save
 
 
-def calculate(csv_file, results_folder, bl_produce_maps, snr_label, sigma, tessellation_parameters=False,  verbose=False, recalculate=False, ticks=False, page_width_frac=0.333, min_diffusivity=1e-8):
+def calculate(csv_file, results_folder, bl_produce_maps, snr_label, sigma, tessellation_parameters=False,  verbose=False, recalculate=False, ticks=False, page_width_frac=0.333, min_diffusivity=1e-8, txt_extension='.txt', **kwargs):
     # Define the discrete colormap for the Bayes factor
     # alpha = 1.0
     # localization_error is now called sigma
@@ -64,8 +64,8 @@ def calculate(csv_file, results_folder, bl_produce_maps, snr_label, sigma, tesse
     input_file_no_ext, _ = os.path.splitext(csv_file)
     rwa_file = '{}.rwa'.format(input_file_no_ext)
     filename = os.path.splitext(os.path.basename(csv_file))[0]
-    if not os.path.exists(rwa_file):
-        raise RuntimeError("rwa file (%s) not found. Aborting" % rwa_file)
+    # if not os.path.exists(rwa_file):
+    #     raise RuntimeError("rwa file (%s) not found. Aborting" % rwa_file)
 
     # Read ksi value from .csv file if it exists
     ksi = np.nan
@@ -103,18 +103,26 @@ def calculate(csv_file, results_folder, bl_produce_maps, snr_label, sigma, tesse
     # 	tessellate(example+'.txt', 'gwr', strict_min_location_count=10, label='gwr')
 
     # load the .rwa file
-    analysis_tree = load_trajectory(rwa_file)
+    # print('B', txt_extension)
+    analysis_tree = load_trajectory(
+        rwa_file, txt_extension=txt_extension, reload=recalculate, **kwargs)
 
     if not analysis_tree:
         # use for vlps
-        count = 20
-        label = 'kmeans_n_{count}'.format(count=count)
-        print(analysis_tree)
+        # if 'avg_location_count' not in kwargs.keys():
+        #     kwargs['avg_location_count'] = 0
+
+        if 'method' not in kwargs.keys():
+            kwargs['method'] = 'kmeans'
+
+        # print(kwargs)
+        # count = kwargs['avg_location_count']
+        label = f'{kwargs["method"]}'  # 'kmeans_n_{count}'.format(count=count)
+        # print(analysis_tree)
         logging.warn(
             'No tessellation found. Performing a standard {label} tessellation'.format(label=label))
-        tessellate(analysis_tree, 'kmeans', ref_distance=0, avg_location_count=count,
-                   prune=False, label=label)
-
+        tessellate(analysis_tree, label=label, **kwargs)
+        # ref_distance=0, prune=False
         save_rwa(rwa_file, analysis_tree, force=True)
 
     # loop over the available meshes
@@ -135,6 +143,7 @@ def calculate(csv_file, results_folder, bl_produce_maps, snr_label, sigma, tesse
         snr = analysis_tree[mesh][snr_label].data
         global index
         index = snr['n'].index
+        # print(index)
 
         zeta_ts = snr['zeta_total']
         zeta_sps = snr['zeta_spurious']
@@ -150,7 +159,8 @@ def calculate(csv_file, results_folder, bl_produce_maps, snr_label, sigma, tesse
         else:
             BF_results = analysis_tree[mesh][snr_label][bayes_factor_label].data
 
-        lg_Bs, forces, min_ns = [BF_results[label] for label in ['lg_B', 'force', 'min_n']]
+        lg_Bs, forces, min_ns, groups, group_lg_B, group_forces = [BF_results[label] for label in [
+            'lg_B', 'force', 'min_n', 'groups', 'group_lg_B', 'group_forces']]
 
         alpha_dt_inf = pd.DataFrame(index=index)
         alpha_dt_inf['x'] = zeta_ts['zeta_total x'] * np.sqrt(Vs.V)
@@ -168,6 +178,11 @@ def calculate(csv_file, results_folder, bl_produce_maps, snr_label, sigma, tesse
         alpha_dt_masked['x'] = alpha_dt_inf['x'] * (forces.force > 0)
         alpha_dt_masked['y'] = alpha_dt_inf['y'] * (forces.force > 0)
 
+        # print(group_forces)
+        alpha_dt_masked_groups = pd.DataFrame(index=index)
+        alpha_dt_masked_groups['x'] = alpha_dt_inf['x'] * (group_forces.group_forces > 0)
+        alpha_dt_masked_groups['y'] = alpha_dt_inf['y'] * (group_forces.group_forces > 0)
+
         # Make a simple estimate of lambda where there are no forces
         lambda_est = pd.DataFrame(index=index)
         lambda_est = (zeta_ts.values * zeta_sps.values).sum(axis=1) / (zeta_sps ** 2).sum(axis=1)
@@ -180,22 +195,26 @@ def calculate(csv_file, results_folder, bl_produce_maps, snr_label, sigma, tesse
         # Prepare to output into a file
         # Output: ksi - first line and next all log10(Bs)
         x_centers, y_centers = analysis_tree[mesh].data.tessellation.cell_centers.T
+        index_full = pd.RangeIndex(len(x_centers))
+        x_centers = pd.DataFrame(index=index_full, data=x_centers)
+        y_centers = pd.DataFrame(index=index_full, data=y_centers)
+        # print(x_centers, y_centers)
 
-        output_df = pd.DataFrame({"log10_B": lg_Bs['lg_B'],
-                                  "force_evidence": forces.force,
-                                  "min_n": min_ns['min_n'],
-                                  "n_mean": ns.n,
-                                  "ksi": ksi,
-                                  "zeta_t_x": zeta_ts['zeta_total x'],
-                                  "zeta_t_y": zeta_ts['zeta_total y'],
-                                  "zeta_sp_x": zeta_sps['zeta_spurious x'],
-                                  "zeta_sp_y": zeta_sps['zeta_spurious y'],
-                                  'D': D.diffusivity,
-                                  'D_CI_lower': snr['ci low']['ci low'],
-                                  'D_CI_upper': snr['ci high']['ci high'],
-                                  "x_center": x_centers,
-                                  "y_center": y_centers,
-                                  })
+        output_df = pd.DataFrame(index=index_full)
+        output_df['log_10_B'] = lg_Bs['lg_B']
+        output_df['force_evidence'] = forces.force
+        output_df["min_n"] = min_ns['min_n']
+        output_df["n_mean"] = ns.n
+        output_df["ksi"] = ksi
+        output_df["zeta_t_x"] = zeta_ts['zeta_total x']
+        output_df["zeta_t_y"] = zeta_ts['zeta_total y']
+        output_df["zeta_sp_x"] = zeta_sps['zeta_spurious x']
+        output_df["zeta_sp_y"] = zeta_sps['zeta_spurious y']
+        output_df['D'] = D.diffusivity
+        output_df['D_CI_lower'] = snr['ci low']['ci low']
+        output_df['D_CI_upper'] = snr['ci high']['ci high']
+        output_df["x_center"] = x_centers
+        output_df["y_center"] = y_centers
 
         # Add the data frame also to the .rwa file
         analysis_tree[mesh][snr_label].add(output_df, label='bayes_factors_df')
@@ -222,37 +241,67 @@ def calculate(csv_file, results_folder, bl_produce_maps, snr_label, sigma, tesse
                 def fig_name(name):
                     return os.path.join(results_folder, filename + "_" + mesh + "_" + name)
 
-                with tqdm(total=10, desc='Plotting: ') as pbar:
+                with tqdm(total=14, desc='Plotting: ') as pbar:
+
+                    # Alpha dt vector
+                    plot_me(alpha_dt_inf, [
+                        '$\\alpha \Delta t$ x', '$\\alpha \Delta t$ y'],                     fig_name=fig_name("alpha_dt_vec"), letter_label='f', colormap='inferno', vector=True, colorbar_legend='$\\mu \\mathrm{m}$', bl_plot_mesh=True, mesh_color=[1, 1, 1], ticks=ticks, **kwargs)
+                    pbar.update()
 
                     # Detected forces
                     plot_me(forces, ['Active force'], fig_name=fig_name(
-                        "forces"), letter_label='f', colormap=cmap_bayes_factor, bl_plot_mesh=True, colorbar=False, clim=[-1, 1], ticks=ticks, page_width_frac=page_width_frac)
+                        "forces"), letter_label='f', colormap=cmap_bayes_factor, bl_plot_mesh=True, colorbar=False, clim=[-1, 1], ticks=ticks, **kwargs)
+                    pbar.update()
+
+                    # Detected forces in groups
+                    plot_me(group_forces, ['Active force in regions'], fig_name=fig_name(
+                        "group_forces"), colormap=cmap_bayes_factor, bl_plot_mesh=True, colorbar=False, clim=[-1, 1], ticks=ticks, **kwargs)
+                    pbar.update()
+
+                    # Alpha dt masked
+                    plot_me(alpha_dt_masked, [
+                        '$\\alpha \Delta t$ x', '$\\alpha \Delta t$ y'],                     fig_name=fig_name("alpha_dt_masked"), colormap='inferno', vector=True, colorbar_legend='$\\mu \\mathrm{m}$', bl_plot_mesh=True, mesh_color=[1, 1, 1], ticks=ticks, **kwargs)
+                    pbar.update()
+
+                    # Alpha dt masked with groups
+                    plot_me(alpha_dt_masked_groups, [
+                        '$\\alpha \Delta t$ x', '$\\alpha \Delta t$ y'],                     fig_name=fig_name("alpha_dt_masked_groups"), colormap='inferno', vector=True, colorbar_legend='$\\mu \\mathrm{m}$', bl_plot_mesh=True, mesh_color=[1, 1, 1], ticks=ticks, **kwargs)
+                    pbar.update()
+
+                    # Detected groups
+                    plot_me(groups, ['Grouped regions'], fig_name=fig_name(
+                        "groups"), bl_plot_mesh=True, ticks=ticks, **kwargs)
                     pbar.update()
 
                     # Alpha dt absolute values
                     plot_me(alpha_dt_abs.to_frame(), ['$\\alpha \Delta t$'],
                             fig_name=fig_name("alpha_dt"), letter_label='c', colormap='inferno',
-                            colorbar_legend='$\\mu \\mathrm{m}$', ticks=ticks, page_width_frac=page_width_frac)
+                            colorbar_legend='$\\mu \\mathrm{m}$', ticks=ticks, **kwargs)
                     pbar.update()
 
                     # Log10(B)
                     plot_me(lg_Bs, ['$\log_{10} K$'], fig_name=fig_name(
-                        "lg_B"), letter_label='e', ticks=ticks)
+                        "lg_B"), letter_label='e', ticks=ticks, **kwargs)
+                    pbar.update()
+
+                    # Group log10(B)
+                    plot_me(group_lg_B, ['Group $\log_{10} K$'], fig_name=fig_name(
+                        "group_lg_B"), ticks=ticks, **kwargs)
                     pbar.update()
 
                     # g dt
                     plot_me(gdt_abs.to_frame(), ['$g \Delta t$'], fig_name=fig_name("g_dt"),
-                            letter_label=None, colorbar_legend='$\\mu \\mathrm{m}$', ticks=ticks, page_width_frac=page_width_frac)
+                            letter_label=None, colorbar_legend='$\\mu \\mathrm{m}$', ticks=ticks, **kwargs)
                     pbar.update()
 
                     # n
-                    plot_me(ns, ['$n$'], fig_name=fig_name("n"), letter_label='b',
-                            ticks=ticks, page_width_frac=page_width_frac)
+                    plot_me(ns, ['$n$'], fig_name=fig_name("n"),
+                            letter_label='b', ticks=ticks, **kwargs)
                     pbar.update()
 
                     # D
                     plot_me(D, ['$D$'], fig_name=fig_name("D"), letter_label='d',
-                            colorbar_legend='$\\mu \\mathrm{m^2/s}$', ticks=ticks, page_width_frac=page_width_frac)
+                            colorbar_legend='$\\mu \\mathrm{m^2/s}$', ticks=ticks, **kwargs)
                     pbar.update()
 
                     # # lambda estimate
@@ -260,24 +309,14 @@ def calculate(csv_file, results_folder, bl_produce_maps, snr_label, sigma, tesse
                     #         fig_name=fig_name("lambda_est"), ticks=ticks)
                     # pbar.update()
 
-                    # Alpha dt masked
-                    plot_me(alpha_dt_masked, [
-                        '$\\alpha \Delta t$ x', '$\\alpha \Delta t$ y'],                     fig_name=fig_name("alpha_dt_masked"), colormap='inferno', vector=True, colorbar_legend='$\\mu \\mathrm{m}$', bl_plot_mesh=True, mesh_color=[1, 1, 1], ticks=ticks, page_width_frac=page_width_frac)
-                    pbar.update()
-
-                    # Alpha dt vector
-                    plot_me(alpha_dt_inf, [
-                        '$\\alpha \Delta t$ x', '$\\alpha \Delta t$ y'],                     fig_name=fig_name("alpha_dt_vec"), letter_label='f', colormap='inferno', vector=True, colorbar_legend='$\\mu \\mathrm{m}$', bl_plot_mesh=True, mesh_color=[1, 1, 1], ticks=ticks, page_width_frac=page_width_frac)
-                    pbar.update()
-
                     # g dt vector
                     plot_me(gdt_inf, [
-                        '$g \Delta t$ x', '$g \Delta t$ y'],                     fig_name=fig_name("g_dt_vec"), colormap='inferno', vector=True, colorbar_legend='$\\mu \\mathrm{m}$', bl_plot_mesh=True, mesh_color=[1, 1, 1], ticks=ticks, page_width_frac=page_width_frac)
+                        '$g \Delta t$ x', '$g \Delta t$ y'],                     fig_name=fig_name("g_dt_vec"), colormap='inferno', vector=True, colorbar_legend='$\\mu \\mathrm{m}$', bl_plot_mesh=True, mesh_color=[1, 1, 1], ticks=ticks, **kwargs)
                     pbar.update()
 
                     # Raw trajectories
                     plot_me(analysis_tree, columns=None, fig_name=fig_name(
-                        "raw_trajectories"), letter_label='a', colormap='inferno', bl_plot_mesh=False, colorbar=True, ticks=ticks, max_traj=1000, xlims=[0, 2], ylims=[0, 2], page_width_frac=page_width_frac)
+                        "raw_trajectories"), letter_label='a', colormap='inferno', bl_plot_mesh=False, colorbar=True, max_traj=1000, ticks=ticks, **kwargs)
                     pbar.update()
 
         # save the intermediate snr-related maps
@@ -286,7 +325,7 @@ def calculate(csv_file, results_folder, bl_produce_maps, snr_label, sigma, tesse
             # print(analysis_tree)
 
 
-def plot_me(map, columns, fig_name, colormap='inferno', alpha=1.0, bl_plot_mesh=False, mesh_color=[0, 0, 0], colorbar='nice', clim=None, ticks=False, letter_label=False, colorbar_legend=False, vector=False, max_traj=None, xlims=None, ylims=None, page_width_frac=0.333):
+def plot_me(map, columns, fig_name, colormap='inferno', alpha=1.0, bl_plot_mesh=False, mesh_color=[0, 0, 0], colorbar='nice', clim=None, ticks=False, letter_label=False, colorbar_legend=False, vector=False, max_traj=None, xlims=None, ylims=None, page_width_frac=0.333, pdf=True,  **kwargs):
     """
     To plot raw trajectories instead of an inferred map, set input to an analysis tree
     """
@@ -345,6 +384,11 @@ def plot_me(map, columns, fig_name, colormap='inferno', alpha=1.0, bl_plot_mesh=
     fig.set_figwidth(figsize[0])
     fig.set_figheight(figsize[1])
 
+    if xlims:
+        plt.xlim(xlims)
+    if ylims:
+        plt.ylim(ylims)
+
     # # Enforce a certain axis height
     # ax = fig.axes[0]
     # axis_size = ax.get_position()
@@ -392,10 +436,11 @@ def plot_me(map, columns, fig_name, colormap='inferno', alpha=1.0, bl_plot_mesh=
     # ax = fig.gca()
     # ax.plot([0, 1], [0.5] * 2, 'w-', lw=0.5)
 
-    try:
-        fig.savefig(fig_name + '.pdf', bbox_inches='tight', pad_inches=0)
-    except:
-        logging.warn('Unable to save figure. The file might be open')
+    if pdf:
+        try:
+            fig.savefig(fig_name + '.pdf', bbox_inches='tight', pad_inches=0)
+        except:
+            logging.warn('Unable to save figure. The file might be open')
 
     # Save zoomed .png version
     factor = 5
@@ -416,7 +461,11 @@ def plot_me(map, columns, fig_name, colormap='inferno', alpha=1.0, bl_plot_mesh=
 
 def plot_raw_trajectories(analysis_tree, cmap, max_traj=None, xlims=None, ylims=None):
     data = analysis_tree.data
-    Ni = int(data.n.max())
+
+    # if 'dx' not in data.keys():
+    #     return -1
+
+    # Ni = int(data.n.max())
     # print(data)
     # max_traj = 1200
     line_width = 0.5
@@ -428,16 +477,23 @@ def plot_raw_trajectories(analysis_tree, cmap, max_traj=None, xlims=None, ylims=
     # Time and color mesh
     t_min = data.t.min()
     t_max = data.t.max()
-    dt = data.iloc[0]['dt']
+    # print(data) data.loc[1:, 't'].values
+    # dt = np.min(data.iloc[1:]['t'].values - data.iloc[:-1]['t'].values)
+    dt = data.dt.min()
     t = np.arange(t_min, t_max + dt, dt)
     t_segment_centers = (t[1:] + t[:-1]) / 2
-    Nt = len(t)
-    color = (t[1:] + t[:-1]) / 2 / t_max
+    Nt = len(t) + 1
+    # color = (t[1:] + t[:-1]) / 2 / t_max
+    color = np.linspace(0, 1, num=Nt - 1)
 
     # Subsample to unclutter
-    np.random.seed(0)
-    ns = list(range(0, Ni + 1))
+    # np.random.seed(0)
+    # ns = list(range(Ni + 1))
+    ns = data.n.unique().tolist()
+    Ni = len(ns)
     # print(ns)
+
+    # Get a smaller number of randomly chosen trajectories from the data set
     np.random.shuffle(ns)
     if max_traj is not None and Ni - 1 > max_traj:
         ns = ns[0:max_traj]
@@ -445,16 +501,37 @@ def plot_raw_trajectories(analysis_tree, cmap, max_traj=None, xlims=None, ylims=
 
     # print(Ni)
     # Create an array of all points of each trajectory including nan
-    points = np.zeros((Ni, Nt, 2)) * np.nan
+    # print('B', dt)
+    points = np.full((Ni, Nt, 2), np.nan)
     for i, n in enumerate(ns):
-        slice = copy.deepcopy(data[data.n == n].loc[:, ['t', 'x', 'y', 'dt', 'dx', 'dy']])
+        slice = copy.deepcopy(data[(data.n == n) & (~np.isnan(data.dt))
+                                   ].loc[:, ['t', 'x', 'y', 'dt', 'dx', 'dy']])
+        if len(slice) == 0:
+            continue
+
         # Add an endpoint
+        # print('D', i, n, slice, (data.n == n))
+        # print(slice.iloc[-1][['dt', 'dx', 'dy']].values)
+        # print(slice.iloc[-1][['t', 'x', 'y']])
         slice = slice.append(slice.iloc[-1][['t', 'x', 'y']] +
                              slice.iloc[-1][['dt', 'dx', 'dy']].values)
-        inds = np.rint(slice.t.values / dt).astype(np.int)
-        points[i, inds, 0] = slice.x
-        points[i, inds, 1] = slice.y
-    # print(points)
+        # slice = slice[~np.isnan(slice.t)]
+        # print(slice.iloc[-1][['t', 'x', 'y']])
+        # print(slice.iloc[-1][['dt', 'dx', 'dy']].values)
+        # print(slice.t.values)
+        inds = np.rint((slice.t.values - t_min) / dt).astype(np.int)
+        # inds = inds[~np.isnan(inds)]
+        # inds = inds.astype(np.int)
+        # print(inds)
+        try:
+            points[i, inds, 0] = slice.x
+            points[i, inds, 1] = slice.y
+        except Exception as e:
+            print('A', slice.x)
+            print('B', inds, slice.t)
+            print('C', t_min, t_max, dt * Nt)
+            raise(e)
+    # print('F', points)
 
     def make_segments(points):
         x = points[:, 0]
@@ -469,10 +546,16 @@ def plot_raw_trajectories(analysis_tree, cmap, max_traj=None, xlims=None, ylims=
     segments_all = [make_segments(item) for item in points]
     segments_all = np.vstack(segments_all)
     colors_all = np.tile(color, Ni)
+    # print(colors_all)
+
     # Drop Nan segments
     nan_inds = np.any(np.isnan(segments_all), (2, 1))
+    # print(nan_inds)
     segments = segments_all[~nan_inds, :, :]
+    # print(segments_all)
+    # print('col', colors_all)
     colors = colors_all[~nan_inds]
+    # print(colors)
 
     # Plot
     fig, ax = plt.subplots(num=1, clear=True)
