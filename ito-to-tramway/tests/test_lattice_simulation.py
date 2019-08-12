@@ -74,6 +74,7 @@ def test_bead_intersection():
 
 def test_bead_reflection():
     Nx, Ny = 1, 1
+    L = 1
     beads = np.array([[0, 0.3, 0.1]])
 
     def R_func(x): return 0.1
@@ -82,7 +83,7 @@ def test_bead_reflection():
     r = np.array([0.2, 0.3])
     dr = np.array([-0.15, 0])
     reflected, new_r, dr_after_intersection, internal_trajectory, new_dr = get_reflections(
-        r, dr, beads, R_func, Nx, Ny)
+        r, dr, beads, R_func, Nx, Ny, L)
     assert reflected
     assert np.allclose(new_r, np.array([0.15, 0.3]), atol=atol)
     assert np.allclose(internal_trajectory, [[0.2, 0.3, -0.1, 0], [0.1, 0.3, 0.05, 0]], atol=atol)
@@ -96,7 +97,7 @@ def test_bead_reflection():
     # assert reachable
 
     reflected, new_r, dr_after_intersection, internal_trajectory, new_dr = get_reflections(
-        r, dr, beads, R_func, Nx, Ny)
+        r, dr, beads, R_func, Nx, Ny, L)
     assert reflected
     assert np.allclose(new_r, np.array([0.5, 0.1]), atol=atol)
     assert np.allclose(new_dr, np.array([0, -0.2]), atol=atol)
@@ -107,7 +108,7 @@ def test_bead_reflection():
     r = np.array([0.3, 0.3])
     dr = np.array([1, 1]) * 0.5
     reflected, new_r, dr_after_intersection, internal_trajectory, new_dr = get_reflections(
-        r, dr, beads, R_func, Nx, Ny)
+        r, dr, beads, R_func, Nx, Ny, L)
 
     assert reflected
     assert np.allclose(internal_trajectory, [
@@ -118,7 +119,7 @@ def test_bead_reflection():
     r = np.array([0.4, 0.3])
     dr = np.array([0.3, 0.3])
     reflected, new_r, dr_after_intersection, internal_trajectory, new_dr = get_reflections(
-        r, dr, beads, R_func, Nx, Ny)
+        r, dr, beads, R_func, Nx, Ny, L)
 
     # print('int2', internal_trajectory)
 
@@ -130,6 +131,7 @@ def test_bead_reflection():
 def test_correct_full_dr_with_border_crossing():
     """Test that after all reflections, the actual displacement dr is correctly calculated"""
     Nx, Ny = 1, 1
+    L = 1
     beads = np.array([[0, 0.3, 0.1]])
 
     def R_func(x): return 0.1
@@ -138,7 +140,7 @@ def test_correct_full_dr_with_border_crossing():
     r = np.array([0.1, 0.1])
     dr = np.array([-0.2, 0])
     reflected, new_r, dr_after_intersection, internal_trajectory, new_dr = get_reflections(
-        r, dr, beads, R_func, Nx, Ny)
+        r, dr, beads, R_func, Nx, Ny, L)
     # print('int', internal_trajectory)
     assert np.allclose(new_dr, np.array([-0.2, 0]), atol=atol)
     assert reflected
