@@ -4,6 +4,10 @@ The radius of circles increases with x thus creating a diffusivity gradient on l
 Periodic boundary conditions.
 """
 
+import argparse
+import importlib
+import os
+
 import matplotlib
 import numpy as np
 import pandas as pd
@@ -11,36 +15,59 @@ from matplotlib import pyplot as plt
 from numpy.linalg import norm
 from tqdm import trange
 
+# import simLattice
+from .plot import plot_beads
+
 # try:
 #     bl_has_run
 # except Exception:
 #
-#     %matplotlib
-#     %load_ext autoreload
-#     %autoreload 2
-#     bl_has_run = True
+# %matplotlib
+# %load_ext autoreload
+# %autoreload 2
+# bl_has_run = True
 
 
 # matplotlib.use('Agg')
 atol = 1e-8
 
 
+def simulate_command_line(arg_str):
+    """Parse the argument string and launch the simulation routine"""
+
+    # Define arguments
+    arg_parser = argparse.ArgumentParser(
+        description='Lattice obstacle simulation of diffusion gradient')
+    arg_parser.add_argument('-f', '--output-file', required=False, action='store', type=str,
+                            help='Path to the output file')
+    arg_parser.add_argument('--id', required=False, action='store', type=int,
+                            help='Trajectory id')
+
+    # Analyze arguments
+    input_args = arg_parser.parse_args(arg_str.split())
+
+    output_file = input_args.output_file
+    print(output_file)
+
+    simulate(save=True, output_file=output_file, id=input_args.id)
+
+
 # %%
-def simulate(N=500, save=True, output_file='./trajectory.csv'):
+def simulate(N=1e3, save=True, output_file='./input/beads_lattice/trajectory.csv', id=0):
     """Main simulation routine"""
 
     # output_file='./input/beads_lattice/trajectory.csv'
 
     # Input parameters
     N = np.long(N)
-    internal_steps_number = 10
-    dt = 0.04   # s
+    internal_steps_number = 1
+    dt = 1e-4   # s
     dim = 2
-    D = 0.01  # in um^2/s
-    L = 1  # um
-    beads_dx = beads_dy = 0.1
-    Rmin = 0.02
-    Rmax = 0.04
+    D = 1  # in um^2/s
+    L = 10  # um
+    beads_dx = beads_dy = 0.04  # um
+    Rmin = 1e-3  # um
+    Rmax = 15e-3    # um
 
     # Derived parameters
     dt_int = dt / internal_steps_number
@@ -59,6 +86,20 @@ def simulate(N=500, save=True, output_file='./trajectory.csv'):
         x, y = ix * beads_dx, iy * beads_dy
         beads[ix * Ny + iy, :] = [x, y, R_func(x)]
 
+    def save_trajectory(ts, rs, drs, test=False):
+        output_table = pd.DataFrame(columns='x dx y dy n'.split(), index=ts)
+        output_table.rename_axis('t', axis='index', inplace=True)
+        output_table.loc[:, 'x y'.split()] = rs
+        output_table.loc[:, 'dx dy'.split()] = drs
+        output_table.loc[:, 'n'] = id
+        output_table.to_csv(output_file, sep='\t')
+
+        if test:
+            os.unlink(output_file)
+
+    # Check if save is possible
+    save_trajectory(ts, rs, drs, test=True)
+
     # Initialize
     # np.random.seed()
 
@@ -72,7 +113,7 @@ def simulate(N=500, save=True, output_file='./trajectory.csv'):
         r0 = np.random.rand(dim) * L
         count += 1
         if check_outside_beads(r0, beads):
-            print(f'Found starting point in {count} iterations')
+            print('Found starting point in {} iterations'. format(count))
             break
 
     rs[0, :] = r = r0
@@ -85,13 +126,13 @@ def simulate(N=500, save=True, output_file='./trajectory.csv'):
         for small_step in range(internal_steps_number):
 
             alpha = np.array([0, 0])  # Ito drift term
-            b = 2.0 * D     # diffusivity term
+            b = np.sqrt(2.0 * D)     # diffusivity term
             dW = noise[:, big_step, small_step]
 
             dr = alpha * dt_int + b * dW
 
             _, new_r, _, internal_trajectory, new_dr = get_reflections(
-                r, dr, beads, R_func, Nx, Ny)
+                r, dr, beads, R_func, Nx, Ny, L)
             # dr = internal_trajectory[:, 2:4].sum(axis=0)
             all_internal_trajectory += internal_trajectory
             # dr = adjust_periodic(r, dr)
@@ -101,19 +142,28 @@ def simulate(N=500, save=True, output_file='./trajectory.csv'):
         rs[big_step + 1, :] = r
         drs[big_step, :] = dr_big
 
-    # Save trajectory to file
-    output_table = pd.DataFrame(columns='x dx y dy n'.split(), index=ts)
-    output_table.rename_axis('t', axis='index', inplace=True)
-    output_table.loc[:, 'x y'.split()] = rs
-    output_table.loc[:, 'dx dy'.split()] = drs
-    output_table.loc[:, 'n'] = 0
+    # Add the end point to the internal trajectory
+    # l = len(all_internal_trajectory)
+    all_internal_trajectory.append([all_internal_trajectory[-1][0] + all_internal_trajectory[-1][2],
+                                    all_internal_trajectory[-1][1] +
+                                    all_internal_trajectory[-1][3],
+                                    np.nan,
+                                    np.nan])
 
-    output_table.to_csv(output_file, sep='\t')
+    # Save trajectory to file
+    # output_table = pd.DataFrame(columns='x dx y dy n'.split(), index=ts)
+    # output_table.rename_axis('t', axis='index', inplace=True)
+    # output_table.loc[:, 'x y'.split()] = rs
+    # output_table.loc[:, 'dx dy'.split()] = drs
+    # output_table.loc[:, 'n'] = 0
+    #
+    # output_table.to_csv(output_file, sep='\t')
+    save_trajectory(ts, rs, drs)
     # print('Trajectory: ', rs)
     return ts, rs, drs, beads, all_internal_trajectory
 
 
-def get_reflections(r, dr, beads, R_func, Nx, Ny, L=1):
+def get_reflections(r, dr, beads, R_func, Nx, Ny, L):
     """Calculate reflections from static beads.
     The first bead is located at (0,0), all others are periodic.
     The radius increases linearly with L
@@ -175,9 +225,9 @@ def get_reflections(r, dr, beads, R_func, Nx, Ny, L=1):
         internal_trajectory.append([*r, *dr_before_intersct])
 
         # Call function again to check for other reflections
-        _, _, new_dr_after, internal_trajectory2, _ = get_reflections(
-            intersection, new_dr_after, beads, R_func, Nx, Ny)
-        new_r = intersection + new_dr_after
+        _, new_r, new_dr_after, internal_trajectory2, _ = get_reflections(
+            r=intersection, dr=new_dr_after, beads=beads, R_func=R_func, Nx=Nx, Ny=Ny, L=L)
+        # new_r = intersection + new_dr_after
         internal_trajectory += internal_trajectory2
 
     else:
@@ -191,7 +241,7 @@ def get_reflections(r, dr, beads, R_func, Nx, Ny, L=1):
         if leaving:
             internal_trajectory.append([*r, *dr_to_intersection])
             _, _, new_dr_after, internal_trajectory2, _ = get_reflections(
-                intersection, new_dr_after, beads, R_func, Nx, Ny)
+                intersection, new_dr_after, beads, R_func, Nx, Ny, L)
             new_r = intersection + new_dr_after
             internal_trajectory += internal_trajectory2
             reflected = True
@@ -226,6 +276,11 @@ def get_bead_intersection(r, dr, P, R):
 
     reachable = False
     intersection, distance = [np.nan] * 2
+
+    # A simple test for far-away beads
+    distance_to_bead = norm(P - r) - R
+    if distance_to_bead > norm(dr):
+        return False, intersection, distance
 
     # Calculate the intersection point by taking into account the singularity of line description.
     # Use x or y substitutions when it gives a more numerically stable solution
@@ -359,16 +414,6 @@ def get_boundary_intersection(r, dr, L):
     return leaving, old_intersection, new_intersection, dr_after_intersection
 
 
-def plot_beads(beads):
-    patches = []
-    for i in range(beads.shape[0]):
-        bead = beads[i, :]
-        patches.append(plt.Circle(bead[:2], bead[2], facecolor=None, edgecolor='r'))
-
-    ax = plt.gca()
-    ax.add_collection(matplotlib.collections.PatchCollection(patches))
-
-
 def check_outside_beads(r, beads):
     """Return True if the point is outside all beads"""
     N = beads.shape[0]
@@ -384,30 +429,59 @@ def check_outside_beads(r, beads):
     return outside
 
 
-# %% Tests
+# %% Tests and examples of use
 if __name__ == '__main__':
     # get_reflections([0.1, 0.05], [-0.5, 0])
     # np.argmin([np.nan, np.nan])
-    np.random.seed()
-    ts, rs, drs, beads, all_internal_trajectory = simulate(N=1e5)
+    L = 10
+    pagewidth_in = 6.85
+    page_width_frac = 1 / 3
+    dpi = 100
+    font_size = 8
+
+    np.random.seed()  # 2
+    ts, rs, drs, beads, all_internal_trajectory = simulate()
     all_internal_trajectory = np.array(all_internal_trajectory)
 
     # % Plots
     # %matplotlib
+    matplotlib.use('Agg')
     # max_N = np.min([32, rs.shape[0]])
     # max_N = rs.shape[0]
-    fig = plt.figure(1, clear=True)
-    plt.scatter(rs[0, 0], rs[0, 1], color='g')
+    matplotlib.rcParams.update({'font.size': font_size})
+    fig, ax = plt.subplots(num=1, clear=True)
+    figsize = np.asarray([3.0, 1.0]) * page_width_frac * pagewidth_in  # in inches
+
+    plot_beads(beads, figure=fig)
+
+    plt.scatter(rs[0, 0], rs[0, 1], color='g', s=4)
+    # plt.plot(all_internal_trajectory[:, 0], all_internal_trajectory[:, 1], 'b')
     for i in range(rs.shape[0] - 1):
-        plt.plot([rs[i, 0], rs[i, 0] + drs[i, 0]], [rs[i, 1], rs[i, 1] + drs[i, 1]], 'r')
+        plt.plot([rs[i, 0], rs[i, 0] + drs[i, 0]], [rs[i, 1], rs[i, 1] + drs[i, 1]], '-r', lw=0.5)
         # plt.plot([rs[i, 0], rs[i + 1, 0]], [rs[i, 1], rs[i + 1, 1]], 'r')
-    # plt.plot(all_internal_trajectory[:, 0], all_internal_trajectory[:, 1], 'k')
     # i=10
-    plt.axis('square')
-    plt.xlim([0, 1])
-    plt.ylim([0, 1])
-    plot_beads(beads)
-    plt.show()
+
+    plt.xlabel('$x, \mu\mathrm{m}$')
+    plt.ylabel('$y, \mu\mathrm{m}$')
+
+    r0 = [0.4, 0.8]
+    dw = 1.0
+    plt.xlim([r0[0], r0[0] + dw])
+    plt.ylim([r0[1], r0[1] + dw])
+    ax.set_aspect('equal')
+
+    fig.set_dpi(dpi)
+    fig.set_figwidth(figsize[0])
+    fig.set_figheight(figsize[1])
+
+    # plt.show()
+    figname = 'simulation_setup'
+    fig.savefig(figname + '.pdf', bbox_inches='tight', pad_inches=0)
+
+    plt.xlim([0, L])
+    plt.ylim([0, L])
+    ax.set_aspect('equal')
+    fig.savefig(figname + '-full.pdf', bbox_inches='tight', pad_inches=0)
 
     # fig.savefig('figure.pdf')
 
