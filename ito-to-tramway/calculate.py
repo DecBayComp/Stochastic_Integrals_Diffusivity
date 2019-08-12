@@ -9,12 +9,14 @@ Special care is taken of empty cells that disappear from the output of the `infe
 # Special import
 if 1:
     import matplotlib
-    # matplotlib.use('Agg')  # enable for console runs with no displays
+    matplotlib.use('Agg')  # enable for console runs with no displays
 
 import copy
 import csv
 import logging
 import os.path
+import pickle as pl
+from multiprocessing import Pool, Process
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -27,6 +29,8 @@ from tqdm import tqdm
 from constants import CSV_DELIMITER, D_0, abs_tol, colors, k
 from load_trajectory import load_trajectory
 from Sashas import Sashas
+from simLattice.export_pickled_figure import \
+    export_all_pickled_figures_in_folder
 from tramway.core.analyses.lazy import Analyses
 # from tramway.core import RWAStore
 # from tramway.core import save_rwa
@@ -50,7 +54,7 @@ def my_save(rwa_file, analysis_tree, **kwargs):
 save_rwa = my_save
 
 
-def calculate(csv_file, results_folder, bl_produce_maps, snr_label, sigma, tessellation_parameters=False,  verbose=False, recalculate=False, ticks=False, page_width_frac=0.333, min_diffusivity=1e-8, txt_extension='.txt', **kwargs):
+def calculate(csv_file, results_folder, bl_produce_maps, snr_label, sigma, tessellation_parameters=False,  verbose=False, recalculate=False, ticks=False, page_width_frac=0.333, min_diffusivity=1e-8, extension='.txt', pdf=True, png=True, clip_D=False, clip_grad=False, clip_alpha=False, **kwargs):
     # Define the discrete colormap for the Bayes factor
     # alpha = 1.0
     # localization_error is now called sigma
@@ -103,9 +107,9 @@ def calculate(csv_file, results_folder, bl_produce_maps, snr_label, sigma, tesse
     # 	tessellate(example+'.txt', 'gwr', strict_min_location_count=10, label='gwr')
 
     # load the .rwa file
-    # print('B', txt_extension)
+    # print('B', extension)
     analysis_tree = load_trajectory(
-        rwa_file, txt_extension=txt_extension, reload=recalculate, **kwargs)
+        rwa_file, extension=extension, reload=recalculate, **kwargs)
 
     if not analysis_tree:
         # use for vlps
@@ -117,7 +121,7 @@ def calculate(csv_file, results_folder, bl_produce_maps, snr_label, sigma, tesse
 
         # print(kwargs)
         # count = kwargs['avg_location_count']
-        label = f'{kwargs["method"]}'  # 'kmeans_n_{count}'.format(count=count)
+        label = kwargs["method"]  # 'kmeans_n_{count}'.format(count=count)
         # print(analysis_tree)
         logging.warn(
             'No tessellation found. Performing a standard {label} tessellation'.format(label=label))
@@ -187,10 +191,10 @@ def calculate(csv_file, results_folder, bl_produce_maps, snr_label, sigma, tesse
         lambda_est = pd.DataFrame(index=index)
         lambda_est = (zeta_ts.values * zeta_sps.values).sum(axis=1) / (zeta_sps ** 2).sum(axis=1)
         lambda_est[forces.force > 0] = np.nan
-        print('Lambda estimates. min: {min:.2f}, median: {median:.2f}, max: {max:.2f}'.format(
-            min=np.nanmin(lambda_est),
-            median=np.nanmedian(lambda_est),
-            max=np.nanmax(lambda_est)))
+        # print('Lambda estimates. min: {min:.2f}, median: {median:.2f}, max: {max:.2f}'.format(
+        #     min=np.nanmin(lambda_est),
+        #     median=np.nanmedian(lambda_est),
+        #     max=np.nanmax(lambda_est)))
 
         # Prepare to output into a file
         # Output: ksi - first line and next all log10(Bs)
@@ -241,94 +245,152 @@ def calculate(csv_file, results_folder, bl_produce_maps, snr_label, sigma, tesse
                 def fig_name(name):
                     return os.path.join(results_folder, filename + "_" + mesh + "_" + name)
 
-                with tqdm(total=14, desc='Plotting: ') as pbar:
-
-                    # Alpha dt vector
-                    plot_me(alpha_dt_inf, [
-                        '$\\alpha \Delta t$ x', '$\\alpha \Delta t$ y'],                     fig_name=fig_name("alpha_dt_vec"), letter_label='f', colormap='inferno', vector=True, colorbar_legend='$\\mu \\mathrm{m}$', bl_plot_mesh=True, mesh_color=[1, 1, 1], ticks=ticks, **kwargs)
-                    pbar.update()
-
-                    # Detected forces
-                    plot_me(forces, ['Active force'], fig_name=fig_name(
-                        "forces"), letter_label='f', colormap=cmap_bayes_factor, bl_plot_mesh=True, colorbar=False, clim=[-1, 1], ticks=ticks, **kwargs)
-                    pbar.update()
-
-                    # Detected forces in groups
-                    plot_me(group_forces, ['Active force in regions'], fig_name=fig_name(
-                        "group_forces"), colormap=cmap_bayes_factor, bl_plot_mesh=True, colorbar=False, clim=[-1, 1], ticks=ticks, **kwargs)
-                    pbar.update()
-
-                    # Alpha dt masked
-                    plot_me(alpha_dt_masked, [
-                        '$\\alpha \Delta t$ x', '$\\alpha \Delta t$ y'],                     fig_name=fig_name("alpha_dt_masked"), colormap='inferno', vector=True, colorbar_legend='$\\mu \\mathrm{m}$', bl_plot_mesh=True, mesh_color=[1, 1, 1], ticks=ticks, **kwargs)
-                    pbar.update()
-
-                    # Alpha dt masked with groups
-                    plot_me(alpha_dt_masked_groups, [
-                        '$\\alpha \Delta t$ x', '$\\alpha \Delta t$ y'],                     fig_name=fig_name("alpha_dt_masked_groups"), colormap='inferno', vector=True, colorbar_legend='$\\mu \\mathrm{m}$', bl_plot_mesh=True, mesh_color=[1, 1, 1], ticks=ticks, **kwargs)
-                    pbar.update()
-
-                    # Detected groups
-                    plot_me(groups, ['Grouped regions'], fig_name=fig_name(
-                        "groups"), bl_plot_mesh=True, ticks=ticks, **kwargs)
-                    pbar.update()
+                # processes = []
+                with tqdm(total=10, desc='Pickling the figures: ') as pbar:
 
                     # Alpha dt absolute values
                     plot_me(alpha_dt_abs.to_frame(), ['$\\alpha \Delta t$'],
-                            fig_name=fig_name("alpha_dt"), letter_label='c', colormap='inferno',
-                            colorbar_legend='$\\mu \\mathrm{m}$', ticks=ticks, **kwargs)
-                    pbar.update()
-
-                    # Log10(B)
-                    plot_me(lg_Bs, ['$\log_{10} K$'], fig_name=fig_name(
-                        "lg_B"), letter_label='e', ticks=ticks, **kwargs)
-                    pbar.update()
-
-                    # Group log10(B)
-                    plot_me(group_lg_B, ['Group $\log_{10} K$'], fig_name=fig_name(
-                        "group_lg_B"), ticks=ticks, **kwargs)
+                            fig_name=fig_name("alpha_dt"),
+                            # letter_label='c',
+                            # colormap='inferno',
+                            title=False,
+                            colorbar_legend='$\\alpha \\Delta t,\\ \\mu \\mathrm{m}$', ticks=ticks, clip=clip_alpha, **kwargs)
                     pbar.update()
 
                     # g dt
-                    plot_me(gdt_abs.to_frame(), ['$g \Delta t$'], fig_name=fig_name("g_dt"),
-                            letter_label=None, colorbar_legend='$\\mu \\mathrm{m}$', ticks=ticks, **kwargs)
-                    pbar.update()
-
-                    # n
-                    plot_me(ns, ['$n$'], fig_name=fig_name("n"),
-                            letter_label='b', ticks=ticks, **kwargs)
+                    plot_me(gdt_abs.to_frame(), ['$g \Delta t$'],
+                            fig_name=fig_name("g_dt"),
+                            letter_label=None, colorbar_legend="$D'\\Delta t, \\ \\mu \\mathrm{m}$",
+                            title=False,
+                            clip=clip_grad,
+                            ticks=ticks, **kwargs)
                     pbar.update()
 
                     # D
-                    plot_me(D, ['$D$'], fig_name=fig_name("D"), letter_label='d',
-                            colorbar_legend='$\\mu \\mathrm{m^2/s}$', ticks=ticks, **kwargs)
+                    plot_me(D, ['$D$'],
+                            fig_name=fig_name("D"),
+                            # letter_label='d',
+                            title=False,
+                            clip=clip_D,
+                            colorbar_legend='$D,\\ \\mu \\mathrm{m^2/s}$', ticks=ticks, **kwargs)
                     pbar.update()
 
-                    # # lambda estimate
-                    # plot_me(lambda_est.to_frame(), ['$\hat \lambda$'],
-                    #         fig_name=fig_name("lambda_est"), ticks=ticks)
-                    # pbar.update()
+                    # Detected forces
+                    plot_me(forces, ['Active force'],
+                            fig_name=fig_name("forces"),
+                            # letter_label='f',
+                            colormap=cmap_bayes_factor, bl_plot_mesh=True, colorbar=False, clim=[-1, 1], ticks=ticks,
+                            title=False, **kwargs)
+                    pbar.update()
 
-                    # g dt vector
-                    plot_me(gdt_inf, [
-                        '$g \Delta t$ x', '$g \Delta t$ y'],                     fig_name=fig_name("g_dt_vec"), colormap='inferno', vector=True, colorbar_legend='$\\mu \\mathrm{m}$', bl_plot_mesh=True, mesh_color=[1, 1, 1], ticks=ticks, **kwargs)
+                    # Log10(B)
+                    plot_me(lg_Bs, ['$\log_{10} K$'],
+                            fig_name=fig_name("log10_K"),
+                            # letter_label='e',
+                            colorbar_legend="$\\log_{10} K$",
+                            title=False,
+                            ticks=ticks, **kwargs)
+                    pbar.update()
+                    # n
+                    plot_me(ns, ['$n$'],
+                            fig_name=fig_name("n"),
+                            # letter_label='b',
+                            colorbar_legend="$n$",
+                            ticks=ticks, title=False, **kwargs)
                     pbar.update()
 
                     # Raw trajectories
                     plot_me(analysis_tree, columns=None, fig_name=fig_name(
-                        "raw_trajectories"), letter_label='a', colormap='inferno', bl_plot_mesh=False, colorbar=True, max_traj=1000, ticks=ticks, **kwargs)
+                        "raw_trajectories"),
+                        # letter_label='a',
+                        # colormap='inferno',
+                        bl_plot_mesh=False, colorbar=True, max_traj=1000, ticks=ticks, **kwargs)
                     pbar.update()
 
-        # save the intermediate snr-related maps
-        if anything_new:
-            save_rwa(rwa_file, analysis_tree, force=True)
-            # print(analysis_tree)
+                    # Alpha dt vector
+                    # def f():
+                    plot_me(alpha_dt_inf, [
+                        '$\\alpha \Delta t$ x', '$\\alpha \Delta t$ y'],                     fig_name=fig_name("alpha_dt_vec"),
+                        title=False,
+                        # letter_label='f',
+                        # colormap='inferno',
+                        vector=True, colorbar_legend='$\\alpha \\Delta t,\\ \\mu \\mathrm{m}$', bl_plot_mesh=True, mesh_color=[1, 1, 1],
+                        clip=clip_alpha, ticks=ticks, **kwargs)
+                    pbar.update()
+
+                    # Alpha dt masked
+                    plot_me(alpha_dt_masked, [
+                        '$\\alpha \Delta t$ x', '$\\alpha \Delta t$ y'],                     fig_name=fig_name("alpha_dt_masked"),
+                        title=False,
+                        # colormap='inferno',
+                        vector=True, colorbar_legend='$\\alpha \\Delta t,\\ \\mu \\mathrm{m}$', bl_plot_mesh=True, mesh_color=[1, 1, 1], ticks=ticks, **kwargs)
+                    pbar.update()
+
+                    # g dt vector
+                    plot_me(gdt_inf, [
+                        '$g \Delta t$ x', '$g \Delta t$ y'],                     fig_name=fig_name("g_dt_vec"),
+                        title=False,
+                        # colormap='inferno',
+                        vector=True, colorbar_legend="$D'\\Delta t,\\ \\mu \\mathrm{m}$", bl_plot_mesh=True, mesh_color=[1, 1, 1],
+                        clip=clip_grad, ticks=ticks, **kwargs)
+                    pbar.update()
+
+                    # ===
+
+                    # # Detected forces in groups
+                    # plot_me(group_forces, ['Active force in regions'], fig_name=fig_name(
+                    #     "group_forces"), colormap=cmap_bayes_factor, bl_plot_mesh=True, colorbar=False, clim=[-1, 1], ticks=ticks, **kwargs)
+                    # pbar.update()
+                    #
+
+                    #
+                    # # Alpha dt masked with groups
+                    # plot_me(alpha_dt_masked_groups, [
+                    #     '$\\alpha \Delta t$ x', '$\\alpha \Delta t$ y'],                     fig_name=fig_name("alpha_dt_masked_groups"), colormap='inferno', vector=True, colorbar_legend='$\\mu \\mathrm{m}$', bl_plot_mesh=True, mesh_color=[1, 1, 1], ticks=ticks, **kwargs)
+                    # pbar.update()
+                    #
+                    # # Detected groups
+                    # plot_me(groups, ['Grouped regions'], fig_name=fig_name(
+                    #     "groups"), bl_plot_mesh=True, ticks=ticks, **kwargs)
+                    # pbar.update()
+                    #
+
+                    #
+
+                    #
+                    # # Group log10(B)
+                    # plot_me(group_lg_B, ['Group $\log_{10} K$'], fig_name=fig_name(
+                    #     "group_lg_B"), ticks=ticks, **kwargs)
+                    # pbar.update()
+                    #
+
+                    #
+
+                    # # # lambda estimate
+                    # # plot_me(lambda_est.to_frame(), ['$\hat \lambda$'],
+                    # #         fig_name=fig_name("lambda_est"), ticks=ticks)
+                    # # pbar.update()
+                    #
+
+                    #
+
+                print('Converting the figures')
+                export_all_pickled_figures_in_folder(results_folder, pdf=pdf, png=png)
+                print('Finished conversion')
+
+    # # save the intermediate snr-related maps
+    # if anything_new:
+    #     print('Saving the .rwa file')
+    #     save_rwa(rwa_file, analysis_tree, force=True)
+    #     print('Saved')
+    #     # print(analysis_tree)
 
 
-def plot_me(map, columns, fig_name, colormap='inferno', alpha=1.0, bl_plot_mesh=False, mesh_color=[0, 0, 0], colorbar='nice', clim=None, ticks=False, letter_label=False, colorbar_legend=False, vector=False, max_traj=None, xlims=None, ylims=None, page_width_frac=0.333, pdf=True,  **kwargs):
+def plot_me(map, columns, fig_name, colormap='inferno', alpha=1.0, bl_plot_mesh=False, mesh_color=[0, 0, 0], colorbar='nice', clim=None, ticks=False, letter_label=False, colorbar_legend=False, vector=False, max_traj=None, xlims=None, ylims=None, page_width_frac=0.333, pckl=True, clip=False, title=True,  **kwargs):
     """
     To plot raw trajectories instead of an inferred map, set input to an analysis tree
     """
+    pdf, png = False, False
     linewidth = 0.1
 
     pagewidth_in = 6.85
@@ -360,11 +422,11 @@ def plot_me(map, columns, fig_name, colormap='inferno', alpha=1.0, bl_plot_mesh=
                               max_traj=max_traj, xlims=xlims, ylims=ylims)
     elif not vector:
         map_plot(map, cells=cells,
-                 show=False, clip=False, colormap=colormap, alpha=alpha, linewidth=linewidth, figsize=figsize, dpi=dpi, aspect='equal', colorbar=colorbar, clim=clim)
+                 show=False, colormap=colormap, alpha=alpha, linewidth=linewidth, figsize=figsize, dpi=dpi, aspect='equal', colorbar=colorbar, clim=clim, clip=clip)
     else:
         # linewidth = 0
         map_plot(map, cells=cells,
-                 show=False, clip=False, colormap=colormap, alpha=alpha, markerlinewidth=linewidth, figsize=figsize, dpi=dpi, aspect='equal', colorbar=colorbar, clim=clim, transform=None)
+                 show=False, colormap=colormap, alpha=alpha, markerlinewidth=linewidth, figsize=figsize, dpi=dpi, aspect='equal', colorbar=colorbar, clim=clim, clip=clip, transform=None)
 
     if bl_plot_mesh:
         color = tuple(mesh_color + [alpha_mesh])
@@ -384,9 +446,9 @@ def plot_me(map, columns, fig_name, colormap='inferno', alpha=1.0, bl_plot_mesh=
     fig.set_figwidth(figsize[0])
     fig.set_figheight(figsize[1])
 
-    if xlims:
+    if xlims is not None:
         plt.xlim(xlims)
-    if ylims:
+    if ylims is not None:
         plt.ylim(ylims)
 
     # # Enforce a certain axis height
@@ -421,6 +483,9 @@ def plot_me(map, columns, fig_name, colormap='inferno', alpha=1.0, bl_plot_mesh=
         ax.text(label_location[0], label_location[1],
                 letter_label, transform=ax.transAxes, fontsize=font_size)
 
+    if not title:
+        plt.title(None)
+
     # Colorbar legend
     if colorbar and colorbar_legend:
         # print(fig.axes)
@@ -436,6 +501,11 @@ def plot_me(map, columns, fig_name, colormap='inferno', alpha=1.0, bl_plot_mesh=
     # ax = fig.gca()
     # ax.plot([0, 1], [0.5] * 2, 'w-', lw=0.5)
 
+    # Save a picke of the figure. To load use fig_handle = pl.load(open('sinus.pickle','rb')); fig_handle.show()
+    if pckl:
+        with open(fig_name + '.pickle', 'wb') as file:
+            pl.dump(fig, file)
+
     if pdf:
         try:
             fig.savefig(fig_name + '.pdf', bbox_inches='tight', pad_inches=0)
@@ -443,13 +513,14 @@ def plot_me(map, columns, fig_name, colormap='inferno', alpha=1.0, bl_plot_mesh=
             logging.warn('Unable to save figure. The file might be open')
 
     # Save zoomed .png version
-    factor = 5
-    fig.set_figwidth(figsize[0] * factor)
-    fig.set_figheight(figsize[1] * factor)
-    try:
-        fig.savefig(fig_name + '.png', pad_inches=0, bbox_inches='tight')  # )
-    except:
-        logging.warn('Unable to save figure. The file might be open')
+    if png:
+        factor = 5
+        fig.set_figwidth(figsize[0] * factor)
+        fig.set_figheight(figsize[1] * factor)
+        try:
+            fig.savefig(fig_name + '.png', pad_inches=0, bbox_inches='tight')  # )
+        except:
+            logging.warn('Unable to save figure. The file might be open')
     # plt.close(fig)
 
     # map_plot(map, cells=cells,
@@ -468,9 +539,9 @@ def plot_raw_trajectories(analysis_tree, cmap, max_traj=None, xlims=None, ylims=
     # Ni = int(data.n.max())
     # print(data)
     # max_traj = 1200
-    line_width = 0.5
+    line_width = 0.1
     alpha = 1
-    cmap = 'inferno'
+    # cmap = 'inferno'
     xlim = [0, 2]
     ylim = [0, 2]
 
@@ -489,7 +560,10 @@ def plot_raw_trajectories(analysis_tree, cmap, max_traj=None, xlims=None, ylims=
     # Subsample to unclutter
     # np.random.seed(0)
     # ns = list(range(Ni + 1))
-    ns = data.n.unique().tolist()
+    ns = data.n[~pd.isna(data.n)].unique().tolist()
+    # print('ns', len(ns), np.min(ns), np.max(ns))
+    # print(ns)
+    # print(data.n)
     Ni = len(ns)
     # print(ns)
 
