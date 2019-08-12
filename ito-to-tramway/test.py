@@ -13,6 +13,8 @@ else:
 import matplotlib.pyplot as plt
 import numpy as np
 
+from tramway.inference.bayes_factors.calculate_bayes_factors import (_calculate_one_bayes_factor,
+                                                                     calculate_minimal_n)
 from tramway.inference.bayes_factors.get_D_posterior import (get_D_confidence_interval,
                                                              get_D_posterior,
                                                              get_MAP_D)
@@ -70,8 +72,14 @@ ax.plot([MAP_D] * 2, ylims, 'k--')
 
 fig.show()
 
-# %%
-1
+# %% Test minimal n calculation
+calculate_minimal_n(zeta_t=np.array([np.nan, np.nan]), zeta_sp=np.array([np.nan, np.nan]), n0=1,
+                    V=np.nan, V_pi=1, loc_error=1e-8, dim=2, B_threshold=10)
+_calculate_one_bayes_factor(zeta_t=None, zeta_sp=np.array([np.nan, np.nan]), n=11,
+                            V=np.nan, V_pi=1, loc_error=1e-8, dim=2, B_threshold=10)
+
+
+np.nan is None
 
 
 # import numpy as np

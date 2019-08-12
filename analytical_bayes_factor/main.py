@@ -31,7 +31,7 @@ from plot_zeta_t_perp import plot_zeta_t_perp
 lambs = (0, 0.5, 1.0)
 zeta_sp_abs_lim = 1.00  # 0.02
 zeta_sp_steps = 100
-dim = 1
+dim = 2
 n_pi = 5 - dim  # minimum number of jumps is different for priors in 1D and 2D
 B = 1  # level of evidence
 log10_B = np.log10(B)
@@ -48,8 +48,8 @@ zeta_t_perp_1D = [0.0]
 zeta_t_perp_2D = [0.0]
 
 # number of jumps
-ns_1D = [100, 500]
-ns_2D = [100, 500]
+ns_1D = [5, 20, 100]
+ns_2D = [5, 20, 100]
 
 #
 if dim == 1:

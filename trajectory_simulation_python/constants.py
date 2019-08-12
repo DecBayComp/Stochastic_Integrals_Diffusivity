@@ -22,7 +22,7 @@ gamma_drag = 400.0  # viscous drag, in fN * s / um
 # >> saw - tooth case for main check <<
 D_case = 1
 D_ratio = 2.0  # Ratio between max and min of the diffusivity
-trials = 1000  # 1000
+trials = 100  # used 100 in the article
 N = int(1.0e4)  # 10^4 used in the article
 
 # # >> round-well case for gradient jump check <<
@@ -47,7 +47,7 @@ ksi_step = 0.5  # sampling step in the interval
 # Simulation parameters
 progress_update_interval = 100.0
 # Integer. How many intermediate smaller steps are made before the next point is saved
-internal_steps_number = 100
+internal_steps_number = 1000  # the article used 100
 k = 2.0 * q / L * (D_ratio - 1.0)  # D'/D
 D_grad_abs = k * D_0  # absolute value of the diffusivity gradient used for force calculations
 
@@ -60,7 +60,7 @@ args_file = "./arguments.dat"
 args_lock = "./arguments.lock"
 lock_timeout = 300
 
-jobs_count_tars = 134  # 132+12
+jobs_count_tars = 142  # 132+12
 jobs_count_t_bayes = 132
 jobs_count_onsager = 1
 manager_script = "job_manager.py"

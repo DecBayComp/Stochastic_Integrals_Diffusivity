@@ -1,3 +1,7 @@
 [submodule "ito-to-tramway/TRamWAy"]
 	path = ito-to-tramway/TRamWAy
 	url = https://github.com/DecBayComp/TRamWAy
+[submodule "ito-to-tramway/job-manager"]
+	path = ito-to-tramway/job-manager
+	url = https://github.com/Alexander-Serov/job-manager
+	branch = lattice-simmulation

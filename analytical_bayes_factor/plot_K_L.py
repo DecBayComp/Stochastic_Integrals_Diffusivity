@@ -119,6 +119,6 @@ def plot_K_L(zeta_sps, zeta_t_roots, ns, us, dim, zeta_t_perp, height_factor=1.0
     fig.show()
 
     fig_basename = "results_%iD" % dim + str_location
-    fig.savefig(fig_basename + ".pdf")
-    fig.savefig(fig_basename + ".png")
+    fig.savefig(fig_basename + ".pdf", bbox_inches='tight', pad_inches=0)
+    fig.savefig(fig_basename + ".png", bbox_inches='tight', pad_inches=0)
     # print(plt.rcParams)

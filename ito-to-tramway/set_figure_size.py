@@ -25,6 +25,9 @@ def set_figure_size(num, rows, page_width_frac, height_factor=1.0):
         r'\usepackage{siunitx}',    # micro symbols
         r'\sisetup{detect-all}',    # force siunitx to use the fonts
     ]
+    # Enforce TrueType fonts for easier editing later on
+    # matplotlib.rcParams['pdf.fonttype'] = 42
+    # matplotlib.rcParams['ps.fonttype'] = 42
 
     # Create and return figure handle
     fig = plt.figure(num)
