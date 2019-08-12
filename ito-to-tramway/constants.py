@@ -30,11 +30,15 @@ sigma = abs_tol
 # data_folder_lin = '/mnt/d/calculated_data/sim_performance_2D_no_perp'
 # data_folder_win = r'd:\calculated_data\sim_performance_2D_no_perp'
 # data_folder_lin = '/mnt/d/calculated_data/sim_performance_2D_with_perp'
+# data_folder_lin = '/mnt/d/calculated_data/sim_performance_2D_with_perp_test'
+# data_folder_win = r'd:\calculated_data\sim_performance_2D_with_perp_test'
 # data_folder_win = r'd:\calculated_data\sim_performance_2D_with_perp'
+data_folder_lin = '/mnt/d/calculated_data/sim_performance_2D_with_perp_1000_internal_steps'
+data_folder_win = r'd:\calculated_data\sim_performance_2D_with_perp_1000_internal_steps'
 
-# Neuro-receptors data
-data_folder_lin = '/mnt/d/Google Drive/git/Stochastic_Integrals_Diffusivity/ito - to - tramway/input/neuro - receptors'
-data_folder_win = r'd:\Google Drive\git\Stochastic_Integrals_Diffusivity\ito - to - tramway\input\neuro - receptors'
+# # Neuro-receptors data
+# data_folder_lin = '/mnt/d/Google Drive/git/Stochastic_Integrals_Diffusivity/ito - to - tramway/input/neuro - receptors'
+# data_folder_win = r'd:\Google Drive\git\Stochastic_Integrals_Diffusivity\ito - to - tramway\input\neuro - receptors'
 
 args_file = "./arguments.dat"
 args_lock = "./arguments.lock"

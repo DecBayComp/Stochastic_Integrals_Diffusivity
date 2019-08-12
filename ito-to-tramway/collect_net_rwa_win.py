@@ -3,21 +3,22 @@ This script collects .rwa files in subfolders on the network and creates an argu
 The goal is to analyze J-B's simulated trajectories
 """
 
-try:
-    bl_has_run
-
-except Exception:
-    import matplotlib
-    matplotlib.use('Agg')  # enable for console runs with no displays
-    # %matplotlib
-    %load_ext autoreload
-    %autoreload 2
-    bl_has_run = True
+# try:
+#     bl_has_run
+#
+# except Exception:
+#     import matplotlib
+#     matplotlib.use('Agg')  # enable for console runs with no displays
+#     # %matplotlib
+#     %load_ext autoreload
+#     %autoreload 2
+#     bl_has_run = True
 
 import copy
 import glob
 import logging
 import os
+import traceback
 
 # %%
 import numpy as np
@@ -65,32 +66,80 @@ kwargs = {}
 # localization_error = 0.03**2
 
 
-# VLP region
+# VLP region: True analysis
 # root_path = r"\\atlas.pasteur.fr\@Dbc\LAB_shared_stuff\Francois_Laurent\tests_tramway\misc_experiments\vlp_2_2"
+root_path = r"./input/vlp_2_2"
+snr_label = 'snr'
+sigma = 0.03    # um
+extension = '.txt'
+kwargs = {
+    # 'avg_location_count': 20, 'ref_distance': 0, 'prune': False,
+    'method': 'hexagon',
+    'avg_distance': 0.05,
+    'min_location_count': 0,
+    #     'reset_origin': False,
+    'xlims': np.array([0, 2]),
+    'ylims': np.array([0, 2]),
+    'clip_grad': 0.9,
+    'clip_alpha': 0.95,
+}
+
+# # VLP region: hexagonal mesh with different mesh scale
 # root_path = r"./input/vlp_2_2"
 # snr_label = 'snr'
 # sigma = 0.03    # um
-
-
-# Neuro-receptors
-root_path = r".\input\neuro-receptors"
-# root_path = r".\input\neuro-receptors-post"
-# root_path = r".\input\neuro-receptors-pre-select"
-# root_path = r".\input\neuro-receptors-post-select"
-snr_label = 'snr'
-sigma = 0.03    # um
 # extension = '.txt'
-extension = '.trxyt'
-# xcenter, ycenter = 1.0, 1.0
-# width = 0.5
-kwargs = {
-    'method': 'hexagon', 'avg_distance': 0.1, 'min_location_count': 0,
-    # 'method': 'kohonen', 'min_probability': 20,  # 'avg_probability': 20,
-    # 'avg_distance': 0.1,
-    'reset_origin': False,
-    # 'xlims': np.array([-1, 1]) / 2 * width + xcenter,
-    # 'ylims': np.array([-1, 1]) / 2 * width + ycenter
-}
+# kwargs = {
+#     'method': 'hexagon', 'avg_distance': 0.05, 'min_location_count': 0,
+#     # 'method': 'kohonen', 'min_probability': 20,  # 'avg_probability': 20,
+#     # 'avg_distance': 0.1,
+#     # 'avg_location_count': 20, 'ref_distance': 0, 'prune': False,
+#     #     'reset_origin': False,
+#     'xlims': np.array([0, 2]),
+#     'ylims': np.array([0, 2]),
+#     'clip_grad': 0.9,
+#     'clip_alpha': 0.95,
+# }
+
+# # VLP region: hexagonal mesh with different mesh scale
+# root_path = r"./input/vlp_2_2"
+# snr_label = 'snr'
+# sigma = 0.03    # um
+# extension = '.txt'
+# kwargs = {
+#     'method': 'hexagon',
+#     'avg_distance': 0.5,  # [0.5, 0.25, 0.05, 0.01]
+#     'min_location_count': 0,
+#     # 'method': 'kohonen', 'min_probability': 20,  # 'avg_probability': 20,
+#     # 'avg_distance': 0.1,
+#     # 'avg_location_count': 20, 'ref_distance': 0, 'prune': False,
+#     #     'reset_origin': False,
+#     'xlims': np.array([0, 2]),
+#     'ylims': np.array([0, 2]),
+#     # 'clip_grad': 0.9,
+#     # 'clip_alpha': 0.95,
+# }
+
+
+# # Neuro-receptors
+# root_path = r".\input\neuro-receptors"
+# # root_path = r".\input\neuro-receptors-post"
+# # root_path = r".\input\neuro-receptors-pre-select"
+# # root_path = r".\input\neuro-receptors-post-select"
+# snr_label = 'snr'
+# sigma = 0.03    # um
+# # extension = '.txt'
+# extension = '.trxyt'
+# # xcenter, ycenter = 1.0, 1.0
+# # width = 0.5
+# kwargs = {
+#     'method': 'hexagon', 'avg_distance': 0.1, 'min_location_count': 0,
+#     # 'method': 'kohonen', 'min_probability': 20,  # 'avg_probability': 20,
+#     # 'avg_distance': 0.1,
+#     'reset_origin': False,
+#     # 'xlims': np.array([-1, 1]) / 2 * width + xcenter,
+#     # 'ylims': np.array([-1, 1]) / 2 * width + ycenter
+# }
 
 
 # # optical tweezers local
@@ -102,26 +151,26 @@ kwargs = {
 # kwargs = {'method': 'hexagon', 'avg_distance': 2, 'min_location_count': 0}
 
 
-# Varied beads lattice
-root_path = r".\input\beads_lattice"
-snr_label = 'snr'
-sigma = 0.0    # um
-extension = '.csv'
-# xcenter, ycenter = 1.0, 1.0
-# width = 0.5
-kwargs = {
-    'method': 'hexagon', 'avg_distance': 0.1, 'min_location_count': 0,
-    # 'method': 'kohonen', 'min_probability': 20,  # 'avg_probability': 20,
-    # 'avg_distance': 0.1,
-    'reset_origin': False,
-    # 'xlims': np.array([-1, 1]) / 2 * width + xcenter,
-    # 'ylims': np.array([-1, 1]) / 2 * width + ycenter
-}
+# # Varied beads lattice
+# root_path = r".\input\beads_lattice"
+# snr_label = 'snr'
+# sigma = 0.0    # um
+# extension = '.csv'
+# # xcenter, ycenter = 1.0, 1.0
+# # width = 0.5
+# kwargs = {
+#     'method': 'hexagon', 'avg_distance': 0.1, 'min_location_count': 0,
+#     # 'method': 'kohonen', 'min_probability': 20,  # 'avg_probability': 20,
+#     # 'avg_distance': 0.1,
+#     'reset_origin': False,
+#     # 'xlims': np.array([-1, 1]) / 2 * width + xcenter,
+#     # 'ylims': np.array([-1, 1]) / 2 * width + ycenter
+# }
 
 # , 'rel_avg_distance': 0.01
 # %%
 bl_recursive = False
-recalculate = True
+recalculate = False
 if not extension:
     extension = '.txt'
 
@@ -137,6 +186,10 @@ else:
 folder, _ = os.path.split(file_list[0])
 results_path = os.path.join(folder, results_folder)
 reinit_folder(results_path)
+# print('AAAAAAAAAA')
+# print(traceback.print_stack())
+# print('>>> End of stack <<<')
+# print(file_list)
 
 # %%
 np.random.seed()
@@ -155,3 +208,4 @@ else:
 # N = 100
 # m = 50
 # (gammaln(N) - gammaln(m) - gammaln(N - m)) / np.log(10)
+# 10.38 - 14.76 - 30 - 5.45 - 0.07

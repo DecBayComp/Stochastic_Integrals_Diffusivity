@@ -18,7 +18,7 @@ from tramway.helper import Analyses, infer
 from tramway.inference import *
 
 
-def tesselate_and_infer(csv_file, bl_dr=True, sigma2=1e-3, load=True, min_diffusivity=1e-8):
+def tesselate_and_infer(csv_file, bl_dr=True, sigma2=1e-3, load=True, min_diffusivity=1e-8, **kwargs):
     rwa_file, _ = os.path.splitext(csv_file)
     rwa_file = '{}.rwa'.format(rwa_file)
 
@@ -33,7 +33,7 @@ def tesselate_and_infer(csv_file, bl_dr=True, sigma2=1e-3, load=True, min_diffus
 
         analysis_tree = Analyses(data)
         tessellate(analysis_tree, 'gwr', output_file=rwa_file, label='gwr',
-                   verbose=True, force=True)  # , ref_distance = 0.05)
+                   verbose=True, force=True, **kwargs)  # , ref_distance = 0.05)
     else:
         print("Warning: trajectories not reloaded! Meshes not recalculated.")
         analysis_tree = load_rwa(rwa_file)
@@ -42,6 +42,6 @@ def tesselate_and_infer(csv_file, bl_dr=True, sigma2=1e-3, load=True, min_diffus
 
     snr_label = 'snr'
     infer(analysis_tree, 'd.conj_prior', input_label='gwr', output_label=snr_label,
-          sigma2=sigma2)
+          sigma2=sigma2, **kwargs)
 
     save_rwa(rwa_file, analysis_tree, verbose=True, force=True)

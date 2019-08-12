@@ -11,14 +11,16 @@ import numpy as np
 from constants import *
 from set_figure_size import set_figure_size
 
+matplotlib.use('Agg')
+
 
 def plot_for_article(ksis_unique, avg_data, data_lgB, expext_mean_n, trials_number):
 
     # Constants
     label_location = [0.025, 0.9]
     font_size = 8
-    rows = 2
-    cols = 1
+    rows = 1
+    cols = 2
     dot_color = 'k'  # [0.1008,    0.4407,    0.7238]
     line_color = color_sequence[2]  # np.asarray([141,  24, 26]) / 255.0
     avg_color = color_sequence[1]
@@ -34,8 +36,8 @@ def plot_for_article(ksis_unique, avg_data, data_lgB, expext_mean_n, trials_numb
     lgB_window = 0.5
     quantile = 0.025
 
-    fig, _ = set_figure_size(num=1, rows=rows, page_width_frac=0.5, height_factor=2.1)
-    _, ax_arr = plt.subplots(rows, cols, num=1, sharex=False, sharey=True)
+    fig, _ = set_figure_size(num=1, rows=rows, page_width_frac=1, height_factor=0.3)
+    _, ax_arr = plt.subplots(rows, cols, num=1, sharex=False, sharey=False)
     np.random.seed(0)
 
     for i, ax in enumerate(ax_arr):
@@ -98,15 +100,17 @@ def plot_for_article(ksis_unique, avg_data, data_lgB, expext_mean_n, trials_numb
                         color=avg_color, label='avg')[0]
         ax.fill_between(xs, CIs[1, :], CIs[0, :], alpha=avg_alpha, color=avg_color)
 
-        # Add a label to each plot
-        str_label = chr(ord('a') + i)
-        ax.text(label_location[0], label_location[1],
-                str_label, transform=ax.transAxes, fontsize=font_size)
+        # # Add a label to each plot
+        # str_label = chr(ord('a') + i)
+        # ax.text(label_location[0], label_location[1],
+        #         str_label, transform=ax.transAxes, fontsize=font_size)
 
         ax.set_xlabel("$\log_{10}K^M$")
         ax.set_ylabel("$\log_{10}\hat K^M$")
-        ax.set_title('2D, $\zeta_{{t\perp}} = {ztper:.2f}$, trials = {tr:d}, $\\bar n = {n:d}, \Delta = {lgB_window:.2f}$'.format(
-            ztper=avg_zt_y, M=max_points, lgB_window=lgB_window, tr=int(trials_number[i]), n=int(expext_mean_n[i])))
+        # ax.set_title('2D, $\zeta_{{t\perp}} = {ztper:.2f}$, trials = {tr:d}, $\\bar n = {n:d}, \Delta = {lgB_window:.2f}$'.format(
+        #     ztper=avg_zt_y, M=max_points, lgB_window=lgB_window, tr=int(trials_number[i]), n=int(expext_mean_n[i])))
+        ax.set_title('$\zeta_{{t\perp}} = {ztper:.2f}$'.format(
+            ztper=avg_zt_y))
 
         ax.set_xlim(xlims)
         ax.set_ylim(xlims)
@@ -119,5 +123,5 @@ def plot_for_article(ksis_unique, avg_data, data_lgB, expext_mean_n, trials_numb
 
     plt_basename = "sim_performance"
     fig.savefig(plt_basename + ".png")
-    fig.savefig(plt_basename + ".pdf")
-    fig.savefig(plt_basename + ".eps")
+    fig.savefig(plt_basename + ".pdf", transparent=False)
+    fig.savefig(plt_basename + ".eps", transparent=False)

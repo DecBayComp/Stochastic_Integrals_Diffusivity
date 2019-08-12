@@ -26,6 +26,7 @@ def combine_results(bl_force_reload=False):
     lgB_filename = "combined_lgB.dat"
     folder_no_perp = r'd:\calculated_data\sim_performance_2D_no_perp'
     folder_with_perp = r'd:\calculated_data\sim_performance_2D_with_perp'
+    # folder_with_perp = r'd:\calculated_data\sim_performance_2D_with_perp_1000_internal_steps'
     folders = [folder_no_perp, folder_with_perp]
 
     # initialize
@@ -68,6 +69,7 @@ def combine_results(bl_force_reload=False):
             max_bin * files_count), dtype=np.float)
 
         # Load data
+        print('Found %i files' % files_count)
         if bl_force_reload or not os.path.exists(stats_file) or not os.path.exists(lgB_file):
             j = 0
             for i in trange(files_count):
@@ -76,55 +78,59 @@ def combine_results(bl_force_reload=False):
                 df = pd.read_csv(file)
                 bins = len(df)
 
-                try:
-                    # calculate separately for the left and right half
-                    x_centers = df["x_center"]
-                    left_ksis[i] = df["ksi"].loc[0]
-                    true_ksis[i, :] = np.asarray([1, -1]) * left_ksis[i]
-                    # halves indicator has True in column 0 if the bin is in the left half
-                    halves_indicators = np.transpose(np.stack((np.asarray(
-                        x_centers) <= 0.5, np.asarray(x_centers) > 0.5)))
-                    for half in range(2):
-                        half_cells = df.loc[halves_indicators[:, half]]
+                # try:
+                # calculate separately for the left and right half
+                x_centers = df["x_center"]
+                left_ksis[i] = df["ksi"].loc[0]
+                true_ksis[i, :] = np.asarray([1, -1]) * left_ksis[i]
+                # halves indicator has True in column 0 if the bin is in the left half
+                halves_indicators = np.transpose(np.stack((np.asarray(
+                    x_centers) <= 0.5, np.asarray(x_centers) > 0.5)))
+                for half in range(2):
+                    half_cells = df.loc[halves_indicators[:, half]]
 
-                        # Calculate
-                        # ksis in the left half of the box. In the right half they have an opposite sign
-                        mean_ns[i, half] = np.nanmean(half_cells["n_mean"])
-                        zt_y_mean[i, half] = np.nanmean(half_cells["zeta_t_y"])
-                        zsp_x_mean[i, half] = np.nanmean(half_cells["zeta_sp_x"])
+                    # Calculate
+                    # ksis in the left half of the box. In the right half they have an opposite sign
+                    mean_ns[i, half] = np.nanmean(half_cells["n_mean"])
+                    zt_y_mean[i, half] = np.nanmean(half_cells["zeta_t_y"])
+                    zsp_x_mean[i, half] = np.nanmean(half_cells["zeta_sp_x"])
 
-                        # Get the fraction of active force detection
-                        cur_lg_Bs = np.asarray(half_cells["log10_B"])
-                        cells_count = np.sum(~np.isnan(half_cells["log10_B"]))
-                        # print(cells_count)
+                    # Get the fraction of active force detection
+                    if 'log_10_B' in half_cells.columns:
+                        lgB_name = 'log_10_B'
+                    else:
+                        lgB_name = 'log10_B'
+                    cur_lg_Bs = np.asarray(half_cells[lgB_name])
+                    cells_count = np.sum(~np.isnan(half_cells[lgB_name]))
+                    # print(cells_count)
 
-                        # calculate half fractions
-                        tr_Bs[i, half, 2] = np.sum(
-                            (cur_lg_Bs >= lg_B_abs_treshold) * 1.0) / cells_count
-                        tr_Bs[i, half, 0] = np.sum(
-                            (cur_lg_Bs <= -lg_B_abs_treshold) * 1.0) / cells_count
-                        tr_Bs[i, half, 1] = 1 - tr_Bs[i, half, 0] - tr_Bs[i, half, 2]
+                    # calculate half fractions
+                    tr_Bs[i, half, 2] = np.sum(
+                        (cur_lg_Bs >= lg_B_abs_treshold) * 1.0) / cells_count
+                    tr_Bs[i, half, 0] = np.sum(
+                        (cur_lg_Bs <= -lg_B_abs_treshold) * 1.0) / cells_count
+                    tr_Bs[i, half, 1] = 1 - tr_Bs[i, half, 0] - tr_Bs[i, half, 2]
 
-                    # Save Bayes factors
-                    index = np.arange(j, j + bins)
-                    # Bs.loc[index]
-                    lg_Bs.loc[index, 'lg_B'] = df.log10_B.values
-                    lg_Bs.loc[index, 'D_sim'] = D_sim(x_centers.values)
-                    lg_Bs.loc[index, 'ksi'] = true_ksis[i, 1]
-                    lg_Bs.loc[index[halves_indicators[:, 0]], 'ksi'] = true_ksis[i, 0]
-                    lg_Bs.loc[index, 'n'] = df.n_mean.values
-                    lg_Bs.loc[index, 'bl_zt_perp'] = folder_ind
+                # Save Bayes factors
+                index = np.arange(j, j + bins)
+                # Bs.loc[index]
+                lg_Bs.loc[index, 'lg_B'] = df[lgB_name].values
+                lg_Bs.loc[index, 'D_sim'] = D_sim(x_centers.values)
+                lg_Bs.loc[index, 'ksi'] = true_ksis[i, 1]
+                lg_Bs.loc[index[halves_indicators[:, 0]], 'ksi'] = true_ksis[i, 0]
+                lg_Bs.loc[index, 'n'] = df.n_mean.values
+                lg_Bs.loc[index, 'bl_zt_perp'] = folder_ind
 
-                    # lg_Bs.loc[index, 'lg_B_expected'] = get_expected_B(
-                    #     lg_Bs.loc[index, 'ksi'].values,
-                    #     lg_Bs.loc[index, 'D_sim'].values, df.n_mean.values, folder_ind)
-                    # print(lg_Bs.loc[index, 'lg_B_expected'])
-                    # return
-                    j += bins
+                # lg_Bs.loc[index, 'lg_B_expected'] = get_expected_B(
+                #     lg_Bs.loc[index, 'ksi'].values,
+                #     lg_Bs.loc[index, 'D_sim'].values, df.n_mean.values, folder_ind)
+                # print(lg_Bs.loc[index, 'lg_B_expected'])
+                # return
+                j += bins
 
-                except Exception as e:
-                    print("Warning: encountered error while processing file %s. Skipping.\n\n" % (file))
-                    print(e)
+                # except Exception as e:
+                #     print("Warning: encountered error while processing file %s. Skipping.\n\n" % (file))
+                #     print(e)
 
             # Convert to an appropriate data frame
             # ksi_rounded is a rounded value of ksi in these simulations
